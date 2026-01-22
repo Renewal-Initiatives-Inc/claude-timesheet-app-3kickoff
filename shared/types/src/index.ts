@@ -3,4 +3,5 @@
  * Shared TypeScript types for the Renewal Initiatives Timesheet Application
  */
 
-export * from './api';
+export * from './api.js';
+export * from './db.js';
