@@ -1,0 +1,7 @@
+node_modules/
+dist/
+build/
+coverage/
+playwright-report/
+*.tsbuildinfo
+package-lock.json

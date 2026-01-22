@@ -1,0 +1,44 @@
+{
+  "name": "renewal-timesheet",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Renewal Initiatives Timesheet Application - Compliance-first timesheet system for youth workers",
+  "workspaces": [
+    "packages/*",
+    "shared/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w @renewal/backend\" \"npm run dev -w @renewal/frontend\"",
+    "dev:backend": "npm run dev -w @renewal/backend",
+    "dev:frontend": "npm run dev -w @renewal/frontend",
+    "build": "npm run build -w @renewal/backend && npm run build -w @renewal/frontend",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "lint": "eslint packages/ shared/",
+    "lint:fix": "eslint packages/ shared/ --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc -b"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@playwright/test": "^1.49.1",
+    "@vercel/node": "^3.2.28",
+    "@vitest/coverage-v8": "^2.1.8",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.37.3",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.19.0",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
