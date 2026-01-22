@@ -1,0 +1,212 @@
+.employee-list-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.page-header h1 {
+  color: #2c5530;
+}
+
+.add-button {
+  padding: 0.75rem 1.5rem;
+  background: #2c5530;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.add-button:hover {
+  background: #1e3c21;
+}
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.filter-group label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #666;
+  text-transform: uppercase;
+}
+
+.filter-group select,
+.filter-group input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.search-group {
+  flex: 1;
+}
+
+.search-group input {
+  width: 100%;
+}
+
+.loading,
+.error-message,
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.error-message {
+  color: #c53030;
+}
+
+.error-message button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: #2c5530;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.empty-state {
+  color: #666;
+}
+
+.employees-table {
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-collapse: collapse;
+  overflow: hidden;
+}
+
+.employees-table th,
+.employees-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.employees-table th {
+  background: #f8f9fa;
+  font-weight: 500;
+  color: #666;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+}
+
+.employees-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.archived-row {
+  opacity: 0.6;
+}
+
+.employee-name {
+  color: #2c5530;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.employee-name:hover {
+  text-decoration: underline;
+}
+
+.supervisor-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.125rem 0.5rem;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.email-cell {
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.age-band {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.age-band-12-13 {
+  background: #fce4ec;
+  color: #880e4f;
+}
+
+.age-band-14-15 {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.age-band-16-17 {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.age-band-18plus {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-active {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-archived {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+.view-link {
+  color: #2c5530;
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.view-link:hover {
+  text-decoration: underline;
+}

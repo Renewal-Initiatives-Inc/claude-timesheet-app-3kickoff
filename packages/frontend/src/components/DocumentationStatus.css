@@ -1,0 +1,83 @@
+.doc-status {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.doc-status-header {
+  margin-bottom: 1rem;
+}
+
+.doc-status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.doc-status-complete {
+  background: #d4edda;
+  color: #155724;
+}
+
+.doc-status-incomplete {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.doc-status-warning {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.doc-status-section {
+  margin-bottom: 1rem;
+}
+
+.doc-status-section h4 {
+  font-size: 0.875rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.doc-status-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.doc-status-item {
+  padding: 0.25rem 0;
+  font-size: 0.875rem;
+}
+
+.doc-status-missing {
+  color: #c53030;
+}
+
+.doc-status-expiring {
+  color: #c05621;
+}
+
+.doc-status-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.doc-status-check {
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.doc-status-check-valid {
+  color: #155724;
+}
+
+.doc-status-check-invalid {
+  color: #c53030;
+}

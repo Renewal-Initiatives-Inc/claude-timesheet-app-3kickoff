@@ -1,43 +1,112 @@
-import { useEffect, useState } from 'react';
-import type { HealthResponse } from '@renewal/types';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { AuthProvider, useAuth } from './hooks/useAuth.js';
+import { Login } from './pages/Login.js';
+import { Dashboard } from './pages/Dashboard.js';
+import { EmployeeList } from './pages/EmployeeList.js';
+import { EmployeeDetail } from './pages/EmployeeDetail.js';
+import { AddEmployee } from './pages/AddEmployee.js';
+import './App.css';
 
-function App() {
-  const [health, setHealth] = useState<HealthResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch('/api/health')
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP error: ${res.status}`);
-        }
-        return res.json() as Promise<HealthResponse>;
-      })
-      .then(setHealth)
-      .catch((err: Error) => setError(err.message));
-  }, []);
+/**
+ * Layout wrapper that includes navigation
+ */
+function AppLayout() {
+  const { user, logout, isSupervisor } = useAuth();
 
   return (
-    <div className="app">
-      <h1>Renewal Initiatives Timesheet</h1>
-      <p>Compliance-first timesheet application for youth workers.</p>
-
-      <section className="status">
-        <h2>System Status</h2>
-        {error && <p className="error">Error: {error}</p>}
-        {health && (
-          <div className="health">
-            <p>
-              Status: <strong>{health.status}</strong>
-            </p>
-            <p>
-              Last checked: <code>{health.timestamp}</code>
-            </p>
-          </div>
-        )}
-        {!health && !error && <p>Loading...</p>}
-      </section>
+    <div className="app-layout">
+      <nav className="app-nav">
+        <div className="nav-brand">
+          <a href="/dashboard">Renewal Initiatives</a>
+        </div>
+        <div className="nav-links">
+          {isSupervisor && (
+            <>
+              <a href="/dashboard">Dashboard</a>
+              <a href="/employees">Employees</a>
+            </>
+          )}
+        </div>
+        <div className="nav-user">
+          <span className="user-name">{user?.name}</span>
+          <button onClick={logout} className="logout-button">
+            Sign Out
+          </button>
+        </div>
+      </nav>
+      <main className="app-main">
+        <Outlet />
+      </main>
     </div>
+  );
+}
+
+/**
+ * Protected route wrapper
+ */
+function ProtectedRoute({ requireSupervisor = false }: { requireSupervisor?: boolean }) {
+  const { isAuthenticated, isSupervisor, loading } = useAuth();
+
+  if (loading) {
+    return <div className="loading-screen">Loading...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (requireSupervisor && !isSupervisor) {
+    return (
+      <div className="forbidden-screen">
+        <h1>Access Denied</h1>
+        <p>You need supervisor privileges to access this page.</p>
+        <a href="/dashboard">Go to Dashboard</a>
+      </div>
+    );
+  }
+
+  return <Outlet />;
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/login" element={<Login />} />
+
+          {/* Protected routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<AppLayout />}>
+              {/* Redirect root to dashboard */}
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+              {/* Dashboard - accessible to all authenticated users */}
+              <Route path="/dashboard" element={<Dashboard />} />
+
+              {/* Supervisor-only routes */}
+              <Route element={<ProtectedRoute requireSupervisor />}>
+                <Route path="/employees" element={<EmployeeList />} />
+                <Route path="/employees/add" element={<AddEmployee />} />
+                <Route path="/employees/:id" element={<EmployeeDetail />} />
+              </Route>
+            </Route>
+          </Route>
+
+          {/* 404 */}
+          <Route
+            path="*"
+            element={
+              <div className="not-found">
+                <h1>Page Not Found</h1>
+                <a href="/dashboard">Go to Dashboard</a>
+              </div>
+            }
+          />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

@@ -1,0 +1,242 @@
+.add-employee-page {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.back-link {
+  display: inline-block;
+  color: #666;
+  text-decoration: none;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.back-link:hover {
+  color: #2c5530;
+}
+
+.page-header h1 {
+  color: #2c5530;
+}
+
+.employee-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background: #fff5f5;
+  border: 1px solid #fc8181;
+  border-radius: 4px;
+  color: #c53030;
+  margin-bottom: 1.5rem;
+}
+
+.error-close {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: #c53030;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.form-section {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #eee;
+}
+
+.form-section:last-of-type {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.form-section h2 {
+  font-size: 1.125rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.section-hint {
+  font-size: 0.875rem;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.form-field {
+  margin-bottom: 1rem;
+}
+
+.form-field label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.form-field input[type='text'],
+.form-field input[type='email'],
+.form-field input[type='date'] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.form-field input:focus {
+  outline: none;
+  border-color: #2c5530;
+  box-shadow: 0 0 0 2px rgba(44, 85, 48, 0.1);
+}
+
+.field-error {
+  color: #c53030;
+  font-size: 0.8125rem;
+  margin-top: 0.5rem;
+}
+
+.field-hint {
+  color: #666;
+  font-size: 0.8125rem;
+  margin-top: 0.5rem;
+}
+
+.checkbox-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.checkbox-field label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  margin-bottom: 0;
+}
+
+.checkbox-field input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+}
+
+.checkbox-field span {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.password-input {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.password-input input {
+  flex: 1;
+}
+
+.generate-button {
+  padding: 0.75rem 1rem;
+  background: #eee;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.generate-button:hover:not(:disabled) {
+  background: #ddd;
+}
+
+.requirements-preview {
+  background: #f8f9fa;
+  margin: 0 -2rem;
+  padding: 1.5rem 2rem;
+  border-bottom: none;
+}
+
+.requirements-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.requirements-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  font-size: 0.9375rem;
+}
+
+.req-icon {
+  font-size: 1.25rem;
+}
+
+.coppa-note {
+  font-size: 0.8125rem;
+  color: #856404;
+  margin-left: 0.25rem;
+}
+
+.no-requirements {
+  color: #155724;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.cancel-button {
+  flex: 1;
+  padding: 0.75rem;
+  background: #eee;
+  color: #333;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.cancel-button:hover {
+  background: #ddd;
+}
+
+.submit-button {
+  flex: 2;
+  padding: 0.75rem;
+  background: #2c5530;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.submit-button:hover:not(:disabled) {
+  background: #1e3c21;
+}
+
+.submit-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}

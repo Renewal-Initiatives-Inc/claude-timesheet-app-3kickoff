@@ -27,6 +27,7 @@ const router = Router();
 /**
  * POST /api/auth/register
  * Create a new employee account (supervisor only).
+ * Returns the employee and their required documents based on age.
  */
 router.post(
   '/register',
@@ -35,7 +36,7 @@ router.post(
   validate(registerSchema),
   async (req: Request, res: Response) => {
     try {
-      const employee = await register(req.body);
+      const { employee, requiredDocuments } = await register(req.body);
 
       // Send welcome email with temporary credentials
       await sendWelcomeEmail(employee.email, employee.name, req.body.tempPassword);
@@ -43,10 +44,14 @@ router.post(
       res.status(201).json({
         message: 'Employee registered successfully',
         employee,
+        requiredDocuments,
       });
     } catch (error) {
       if (error instanceof AuthError) {
-        const statusCode = error.code === 'EMAIL_EXISTS' ? 409 : 400;
+        const statusCode =
+          error.code === 'EMAIL_EXISTS' ? 409 :
+          error.code === 'AGE_TOO_YOUNG' ? 400 :
+          400;
         res.status(statusCode).json({
           error: error.code,
           message: error.message,

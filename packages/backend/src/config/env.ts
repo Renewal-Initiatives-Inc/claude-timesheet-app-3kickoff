@@ -28,6 +28,9 @@ const envSchema = z.object({
 
   // App URL for password reset links
   APP_URL: z.string().url().default('http://localhost:5173'),
+
+  // Vercel Blob storage
+  BLOB_READ_WRITE_TOKEN: z.string().optional(),
 });
 
 function loadEnv() {

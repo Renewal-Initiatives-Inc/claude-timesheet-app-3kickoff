@@ -175,8 +175,9 @@ describe('Auth Service', () => {
     it('should create new employee', async () => {
       const result = await register(registerData);
 
-      expect(result.email).toBe('new@example.com');
-      expect(result.name).toBe('New User');
+      expect(result.employee.email).toBe('new@example.com');
+      expect(result.employee.name).toBe('New User');
+      expect(result.requiredDocuments).toBeDefined();
       expect(db.insert).toHaveBeenCalled();
     });
 

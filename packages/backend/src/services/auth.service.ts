@@ -3,6 +3,7 @@ import { db, schema } from '../db/index.js';
 import { hashPassword, verifyPassword, validatePasswordStrength } from '../utils/password.js';
 import { createSession, revokeSession, revokeAllSessions } from './session.service.js';
 import { env } from '../config/env.js';
+import { validateEmployeeAge, getRequiredDocuments } from './employee.service.js';
 
 const { employees } = schema;
 
@@ -39,7 +40,7 @@ export interface AccountLockStatus {
 export class AuthError extends Error {
   constructor(
     message: string,
-    public code: 'INVALID_CREDENTIALS' | 'ACCOUNT_LOCKED' | 'PASSWORD_TOO_WEAK' | 'EMAIL_EXISTS' | 'EMPLOYEE_NOT_FOUND'
+    public code: 'INVALID_CREDENTIALS' | 'ACCOUNT_LOCKED' | 'PASSWORD_TOO_WEAK' | 'EMAIL_EXISTS' | 'EMPLOYEE_NOT_FOUND' | 'AGE_TOO_YOUNG'
   ) {
     super(message);
     this.name = 'AuthError';
@@ -65,7 +66,17 @@ function toPublic(employee: Employee): EmployeePublic {
  * Register a new employee account.
  * Called by supervisors to create accounts for new employees.
  */
-export async function register(data: RegisterData): Promise<EmployeePublic> {
+export async function register(data: RegisterData): Promise<{ employee: EmployeePublic; requiredDocuments: ReturnType<typeof getRequiredDocuments> }> {
+  // Validate age requirement
+  try {
+    validateEmployeeAge(data.dateOfBirth);
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('at least')) {
+      throw new AuthError(error.message, 'AGE_TOO_YOUNG');
+    }
+    throw error;
+  }
+
   // Validate password strength
   const passwordValidation = validatePasswordStrength(data.tempPassword);
   if (!passwordValidation.valid) {
@@ -97,7 +108,14 @@ export async function register(data: RegisterData): Promise<EmployeePublic> {
     })
     .returning();
 
-  return toPublic(employee!);
+  // Calculate required documents based on age
+  const { age } = validateEmployeeAge(data.dateOfBirth);
+  const requiredDocuments = getRequiredDocuments(age);
+
+  return {
+    employee: toPublic(employee!),
+    requiredDocuments,
+  };
 }
 
 /**

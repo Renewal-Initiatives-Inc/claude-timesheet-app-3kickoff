@@ -4,6 +4,9 @@ import helmet from 'helmet';
 import { env } from './config/env.js';
 import healthRouter from './routes/health.js';
 import authRouter from './routes/auth.js';
+import employeesRouter from './routes/employees.js';
+import documentsRouter from './routes/documents.js';
+import dashboardRouter from './routes/dashboard.js';
 
 const app = express();
 
@@ -22,5 +25,10 @@ app.use(express.json());
 // Routes
 app.use('/api', healthRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/employees', employeesRouter);
+app.use('/api/documents', documentsRouter);
+app.use('/api/dashboard', dashboardRouter);
+// Document upload endpoint is nested under employees
+app.use('/api', documentsRouter);
 
 export default app;

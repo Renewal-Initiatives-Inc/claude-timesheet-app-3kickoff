@@ -1,0 +1,121 @@
+.doc-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.doc-upload-dropzone {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.doc-upload-dropzone:hover {
+  border-color: #2c5530;
+  background: #f8f9fa;
+}
+
+.doc-upload-dragging {
+  border-color: #2c5530;
+  background: #e8f5e9;
+}
+
+.doc-upload-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.doc-upload-disabled:hover {
+  border-color: #ccc;
+  background: transparent;
+}
+
+.doc-upload-input {
+  display: none;
+}
+
+.doc-upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: #666;
+}
+
+.doc-upload-icon {
+  font-size: 2rem;
+}
+
+.doc-upload-hint {
+  font-size: 0.75rem;
+  color: #999;
+}
+
+.doc-upload-selected {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.doc-upload-filename {
+  font-weight: 500;
+  color: #2c5530;
+}
+
+.doc-upload-size {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.doc-upload-expiration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.doc-upload-expiration label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.doc-upload-expiration input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.doc-upload-error {
+  color: #c53030;
+  font-size: 0.875rem;
+  background: #fff5f5;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #fc8181;
+}
+
+.doc-upload-button {
+  padding: 0.75rem 1.5rem;
+  background: #2c5530;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.doc-upload-button:hover:not(:disabled) {
+  background: #1e3c21;
+}
+
+.doc-upload-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
