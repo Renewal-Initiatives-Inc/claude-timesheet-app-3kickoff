@@ -5,12 +5,21 @@
  * with initial rates for compliance rule testing.
  *
  * Run with: npm run db:seed
+ *
+ * Test credentials after seeding:
+ *   - Supervisor: sarah.supervisor@renewal.org / TestPass123!
+ *   - All other employees: [email] / TestPass123!
  */
 
 import { db, schema } from './index.js';
 import { eq } from 'drizzle-orm';
+import bcrypt from 'bcrypt';
 
 const { employees, employeeDocuments, taskCodes, taskCodeRates } = schema;
+
+// Test password for all seeded employees
+const TEST_PASSWORD = 'TestPass123!';
+const BCRYPT_SALT_ROUNDS = 12;
 
 // Calculate date of birth for a target age
 function dobForAge(age: number): string {
@@ -49,60 +58,82 @@ async function seed() {
   // Create employees across all age bands
   console.log('Creating test employees...');
 
+  // Hash the test password
+  console.log('Hashing test password...');
+  const passwordHash = await bcrypt.hash(TEST_PASSWORD, BCRYPT_SALT_ROUNDS);
+
   const testEmployees = [
     {
       name: 'Sarah Supervisor',
       email: 'sarah.supervisor@renewal.org',
       dateOfBirth: dobForAge(35),
       isSupervisor: true,
+      passwordHash,
+      failedLoginAttempts: 0,
     },
     {
       name: 'Alex Age12',
       email: 'alex.age12@renewal.org',
       dateOfBirth: dobForAge(12),
       isSupervisor: false,
+      passwordHash,
+      failedLoginAttempts: 0,
     },
     {
       name: 'Blake Age13',
       email: 'blake.age13@renewal.org',
       dateOfBirth: dobForAge(13),
       isSupervisor: false,
+      passwordHash,
+      failedLoginAttempts: 0,
     },
     {
       name: 'Casey Age14',
       email: 'casey.age14@renewal.org',
       dateOfBirth: dobForAge(14),
       isSupervisor: false,
+      passwordHash,
+      failedLoginAttempts: 0,
     },
     {
       name: 'Dana Age15',
       email: 'dana.age15@renewal.org',
       dateOfBirth: dobForAge(15),
       isSupervisor: false,
+      passwordHash,
+      failedLoginAttempts: 0,
     },
     {
       name: 'Ellis Age16',
       email: 'ellis.age16@renewal.org',
       dateOfBirth: dobForAge(16),
       isSupervisor: false,
+      passwordHash,
+      failedLoginAttempts: 0,
     },
     {
       name: 'Finley Age17',
       email: 'finley.age17@renewal.org',
       dateOfBirth: dobForAge(17),
       isSupervisor: false,
+      passwordHash,
+      failedLoginAttempts: 0,
     },
     {
       name: 'Gray Adult',
       email: 'gray.adult@renewal.org',
       dateOfBirth: dobForAge(22),
       isSupervisor: false,
+      passwordHash,
+      failedLoginAttempts: 0,
     },
     {
       name: 'Harper BirthdaySoon',
       email: 'harper.birthdaysoon@renewal.org',
       dateOfBirth: dobForUpcomingBirthday(),
       isSupervisor: false,
+      passwordHash,
+      failedLoginAttempts: 0,
     },
   ];
 
@@ -330,6 +361,9 @@ async function seed() {
   console.log(`- ${insertedDocs.length} documents (parental consent for minors)`);
   console.log(`- ${insertedTaskCodes.length} task codes`);
   console.log(`- ${insertedRates.length} task code rates`);
+  console.log('\nTest credentials:');
+  console.log(`- Email: sarah.supervisor@renewal.org (or any employee email)`);
+  console.log(`- Password: ${TEST_PASSWORD}`);
 
   process.exit(0);
 }

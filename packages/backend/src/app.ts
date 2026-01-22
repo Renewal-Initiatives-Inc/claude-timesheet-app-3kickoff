@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { env } from './config/env.js';
 import healthRouter from './routes/health.js';
+import authRouter from './routes/auth.js';
 
 const app = express();
 
@@ -20,5 +21,6 @@ app.use(express.json());
 
 // Routes
 app.use('/api', healthRouter);
+app.use('/api/auth', authRouter);
 
 export default app;

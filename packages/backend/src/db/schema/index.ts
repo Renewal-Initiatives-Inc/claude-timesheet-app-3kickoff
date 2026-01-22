@@ -7,3 +7,4 @@ export * from './task-code';
 export * from './timesheet';
 export * from './compliance';
 export * from './payroll';
+export * from './session';

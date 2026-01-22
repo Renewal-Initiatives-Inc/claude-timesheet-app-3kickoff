@@ -8,6 +8,13 @@
       "when": 1769053830627,
       "tag": "0000_worried_payback",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1769055269728,
+      "tag": "0001_overconfident_true_believers",
+      "breakpoints": true
     }
   ]
 }

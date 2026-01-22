@@ -1,5 +1,42 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import request from 'supertest';
+
+// Mock env before importing app
+vi.mock('../config/env.js', () => ({
+  env: {
+    NODE_ENV: 'test',
+    PORT: 3001,
+    FRONTEND_URL: 'http://localhost:5173',
+    JWT_SECRET: 'test-secret-key-that-is-at-least-32-characters-long',
+    JWT_EXPIRES_IN: '7d',
+    POSTMARK_API_KEY: undefined,
+    EMAIL_FROM: 'test@test.com',
+    PASSWORD_RESET_EXPIRES_HOURS: 24,
+    MAX_LOGIN_ATTEMPTS: 5,
+    LOCKOUT_DURATION_MINUTES: 30,
+    APP_URL: 'http://localhost:5173',
+  },
+}));
+
+// Mock database to avoid needing DATABASE_URL
+vi.mock('../db/index.js', () => ({
+  db: {
+    query: {
+      employees: { findFirst: vi.fn() },
+      sessions: { findFirst: vi.fn() },
+      passwordResetTokens: { findFirst: vi.fn() },
+    },
+    insert: vi.fn(() => ({ values: vi.fn(() => ({ returning: vi.fn() })) })),
+    update: vi.fn(() => ({ set: vi.fn(() => ({ where: vi.fn() })) })),
+    delete: vi.fn(() => ({ where: vi.fn(() => ({ returning: vi.fn() })) })),
+  },
+  schema: {
+    employees: {},
+    sessions: {},
+    passwordResetTokens: {},
+  },
+}));
+
 import app from '../app.js';
 
 describe('GET /api/health', () => {
