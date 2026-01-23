@@ -2,62 +2,43 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import App from '../App';
 
+// Mock the API client
+vi.mock('../api/client.js', () => ({
+  isAuthenticated: vi.fn(() => false),
+  getCurrentUser: vi.fn(),
+  logout: vi.fn(),
+  setAuthToken: vi.fn(),
+  clearAuthToken: vi.fn(),
+}));
+
 describe('App', () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders without crashing', async () => {
-    vi.spyOn(global, 'fetch').mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ status: 'ok', timestamp: new Date().toISOString() }),
-    } as Response);
-
     render(<App />);
-    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
 
-    // Wait for async operations to complete
+    // App should render - when not authenticated, should show login
     await waitFor(() => {
-      expect(screen.getByText('ok')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Sign In' })).toBeInTheDocument();
     });
   });
 
-  it('displays the main heading', async () => {
-    vi.spyOn(global, 'fetch').mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ status: 'ok', timestamp: new Date().toISOString() }),
-    } as Response);
-
+  it('redirects to login when not authenticated', async () => {
     render(<App />);
-    expect(screen.getByText('Renewal Initiatives Timesheet')).toBeInTheDocument();
 
-    // Wait for async operations to complete
     await waitFor(() => {
-      expect(screen.getByText('ok')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Sign In' })).toBeInTheDocument();
     });
   });
 
-  it('shows health status when API call succeeds', async () => {
-    const mockTimestamp = '2024-01-15T10:30:00.000Z';
-    vi.spyOn(global, 'fetch').mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ status: 'ok', timestamp: mockTimestamp }),
-    } as Response);
-
+  it('shows login page with email and password fields', async () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText('ok')).toBeInTheDocument();
-    });
-  });
-
-  it('shows error when API call fails', async () => {
-    vi.spyOn(global, 'fetch').mockRejectedValue(new Error('Network error'));
-
-    render(<App />);
-
-    await waitFor(() => {
-      expect(screen.getByText(/Error:/)).toBeInTheDocument();
+      expect(screen.getByLabelText('Email')).toBeInTheDocument();
+      expect(screen.getByLabelText('Password')).toBeInTheDocument();
     });
   });
 });

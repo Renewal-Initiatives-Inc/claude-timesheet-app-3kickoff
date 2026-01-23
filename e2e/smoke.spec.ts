@@ -1,29 +1,31 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Smoke Tests', () => {
-  test('homepage loads and displays heading', async ({ page }) => {
-    await page.goto('/');
+  test('login page loads and displays heading', async ({ page }) => {
+    await page.goto('/login');
 
     await expect(page.getByRole('heading', { level: 1 })).toContainText(
-      'Renewal Initiatives Timesheet'
+      'Renewal Initiatives'
     );
+    await expect(page.getByText('Timesheet Management System')).toBeVisible();
   });
 
-  test('homepage shows health status from backend', async ({ page }) => {
-    await page.goto('/');
+  test('login page displays login form', async ({ page }) => {
+    await page.goto('/login');
 
-    // Wait for the health status to load
-    await expect(page.getByText('Status:')).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText('ok')).toBeVisible();
+    // Check login form elements are present
+    await expect(page.locator('input[type="email"]')).toBeVisible();
+    await expect(page.locator('input[type="password"]')).toBeVisible();
+    await expect(page.getByRole('button', { name: /sign in/i })).toBeVisible();
   });
 
-  test('homepage displays timestamp from backend', async ({ page }) => {
-    await page.goto('/');
+  test('backend health endpoint responds', async ({ request }) => {
+    const response = await request.get('http://localhost:3001/api/health');
+    expect(response.ok()).toBeTruthy();
 
-    // Wait for timestamp to appear
-    await expect(page.getByText('Last checked:')).toBeVisible({ timeout: 10000 });
-    // Timestamp should be visible in the code element
-    await expect(page.locator('code')).toBeVisible();
+    const body = await response.json();
+    expect(body.status).toBe('ok');
+    expect(body.timestamp).toBeDefined();
   });
 
   test('no console errors on page load', async ({ page }) => {
@@ -34,7 +36,7 @@ test.describe('Smoke Tests', () => {
       }
     });
 
-    await page.goto('/');
+    await page.goto('/login');
     await page.waitForTimeout(2000); // Wait for any async operations
 
     // Filter out known acceptable errors (like favicon 404)

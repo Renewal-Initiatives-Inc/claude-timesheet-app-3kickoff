@@ -12,6 +12,14 @@ import type {
   DashboardAlertsResponse,
   EmployeeDocument,
   ApiError,
+  TaskCodeWithCurrentRate,
+  TaskCodeListResponse,
+  TaskCodeDetailResponse,
+  CreateTaskCodeRequest,
+  UpdateTaskCodeRequest,
+  AddRateRequest,
+  TaskCodeListParams,
+  TaskCodeRate,
 } from '@renewal/types';
 
 const API_BASE = '/api';
@@ -265,4 +273,73 @@ export async function getDashboardStats(): Promise<{
   };
 }> {
   return apiRequest('/dashboard/stats');
+}
+
+// ============================================================================
+// Task Code API
+// ============================================================================
+
+export async function getTaskCodes(
+  params?: TaskCodeListParams
+): Promise<TaskCodeListResponse> {
+  const searchParams = new URLSearchParams();
+  if (params?.isAgricultural) searchParams.set('isAgricultural', params.isAgricultural);
+  if (params?.isHazardous) searchParams.set('isHazardous', params.isHazardous);
+  if (params?.forAge !== undefined) searchParams.set('forAge', params.forAge.toString());
+  if (params?.includeInactive) searchParams.set('includeInactive', params.includeInactive);
+  if (params?.search) searchParams.set('search', params.search);
+
+  const query = searchParams.toString();
+  return apiRequest(`/task-codes${query ? `?${query}` : ''}`);
+}
+
+export async function getTaskCode(id: string): Promise<TaskCodeDetailResponse> {
+  return apiRequest(`/task-codes/${id}`);
+}
+
+export async function getTaskCodeByCode(
+  code: string
+): Promise<{ taskCode: TaskCodeWithCurrentRate }> {
+  return apiRequest(`/task-codes/by-code/${code}`);
+}
+
+export async function createTaskCode(
+  data: CreateTaskCodeRequest
+): Promise<{ taskCode: TaskCodeWithCurrentRate }> {
+  return apiRequest('/task-codes', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateTaskCode(
+  id: string,
+  data: UpdateTaskCodeRequest
+): Promise<{ taskCode: TaskCodeWithCurrentRate }> {
+  return apiRequest(`/task-codes/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function addTaskCodeRate(
+  id: string,
+  data: AddRateRequest
+): Promise<{ rate: TaskCodeRate }> {
+  return apiRequest(`/task-codes/${id}/rates`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function getTaskCodeRates(
+  id: string
+): Promise<{ rates: TaskCodeRate[] }> {
+  return apiRequest(`/task-codes/${id}/rates`);
+}
+
+export async function getTaskCodesForEmployee(
+  employeeId: string
+): Promise<TaskCodeListResponse> {
+  return apiRequest(`/task-codes/for-employee/${employeeId}`);
 }

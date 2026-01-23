@@ -1,10 +1,12 @@
 import jwt from 'jsonwebtoken';
+import { randomUUID } from 'crypto';
 import { env } from '../config/env.js';
 
 export interface TokenPayload {
   employeeId: string;
   email: string;
   isSupervisor: boolean;
+  jti?: string;  // JWT ID for uniqueness
   iat?: number;
   exp?: number;
 }
@@ -38,12 +40,15 @@ function parseExpiresIn(expiresIn: string): number {
 /**
  * Sign a JWT with employee information.
  * Token expires after the configured duration (default: 7 days).
+ * Each token includes a unique jti (JWT ID) to prevent duplicates.
  */
-export function signToken(payload: Omit<TokenPayload, 'iat' | 'exp'>): string {
+export function signToken(payload: Omit<TokenPayload, 'jti' | 'iat' | 'exp'>): string {
   const expiresInSeconds = parseExpiresIn(env.JWT_EXPIRES_IN);
-  return jwt.sign(payload, env.JWT_SECRET, {
-    expiresIn: expiresInSeconds,
-  });
+  return jwt.sign(
+    { ...payload, jti: randomUUID() },
+    env.JWT_SECRET,
+    { expiresIn: expiresInSeconds }
+  );
 }
 
 /**

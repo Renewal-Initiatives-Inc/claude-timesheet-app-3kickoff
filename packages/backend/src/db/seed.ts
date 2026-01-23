@@ -13,13 +13,14 @@
 
 import { db, schema } from './index.js';
 import { eq } from 'drizzle-orm';
-import bcrypt from 'bcrypt';
 
 const { employees, employeeDocuments, taskCodes, taskCodeRates } = schema;
 
 // Test password for all seeded employees
 const TEST_PASSWORD = 'TestPass123!';
-const BCRYPT_SALT_ROUNDS = 12;
+// Pre-computed bcrypt hash (12 rounds) for TestPass123! - using fixed hash ensures
+// consistency across multiple seed runs for E2E testing
+const TEST_PASSWORD_HASH = '$2b$12$eXD7Gz0FwU1UynGfWCwN6..RwH.jHzEK/tPCKf6LoyPOE3LlR0uPa';
 
 // Calculate date of birth for a target age
 function dobForAge(age: number): string {
@@ -58,9 +59,8 @@ async function seed() {
   // Create employees across all age bands
   console.log('Creating test employees...');
 
-  // Hash the test password
-  console.log('Hashing test password...');
-  const passwordHash = await bcrypt.hash(TEST_PASSWORD, BCRYPT_SALT_ROUNDS);
+  // Use pre-computed password hash for consistency across seed runs
+  const passwordHash = TEST_PASSWORD_HASH;
 
   const testEmployees = [
     {
@@ -174,6 +174,7 @@ async function seed() {
       drivingRequired: false,
       powerMachinery: false,
       minAgeAllowed: 12,
+      isActive: true,
     },
     {
       code: 'F2',
@@ -186,6 +187,7 @@ async function seed() {
       drivingRequired: false,
       powerMachinery: false,
       minAgeAllowed: 12,
+      isActive: true,
     },
     {
       code: 'F3',
@@ -198,6 +200,7 @@ async function seed() {
       drivingRequired: false,
       powerMachinery: false,
       minAgeAllowed: 14,
+      isActive: true,
     },
     {
       code: 'F4',
@@ -210,6 +213,7 @@ async function seed() {
       drivingRequired: false,
       powerMachinery: true,
       minAgeAllowed: 16,
+      isActive: true,
     },
     {
       code: 'F5',
@@ -222,6 +226,7 @@ async function seed() {
       drivingRequired: true,
       powerMachinery: true,
       minAgeAllowed: 18,
+      isActive: true,
     },
     {
       code: 'F6',
@@ -234,6 +239,7 @@ async function seed() {
       drivingRequired: false,
       powerMachinery: false,
       minAgeAllowed: 18,
+      isActive: true,
     },
     // Retail (non-agricultural)
     {
@@ -247,6 +253,7 @@ async function seed() {
       drivingRequired: false,
       powerMachinery: false,
       minAgeAllowed: 12,
+      isActive: true,
     },
     {
       code: 'R2',
@@ -259,6 +266,7 @@ async function seed() {
       drivingRequired: false,
       powerMachinery: false,
       minAgeAllowed: 16,
+      isActive: true,
     },
     {
       code: 'R3',
@@ -271,6 +279,7 @@ async function seed() {
       drivingRequired: false,
       powerMachinery: false,
       minAgeAllowed: 12,
+      isActive: true,
     },
     // Administrative
     {
@@ -284,6 +293,7 @@ async function seed() {
       drivingRequired: false,
       powerMachinery: false,
       minAgeAllowed: 14,
+      isActive: true,
     },
     {
       code: 'A2',
@@ -296,6 +306,7 @@ async function seed() {
       drivingRequired: false,
       powerMachinery: false,
       minAgeAllowed: 14,
+      isActive: true,
     },
     // Maintenance
     {
@@ -309,6 +320,7 @@ async function seed() {
       drivingRequired: false,
       powerMachinery: false,
       minAgeAllowed: 12,
+      isActive: true,
     },
     {
       code: 'M2',
@@ -321,6 +333,7 @@ async function seed() {
       drivingRequired: false,
       powerMachinery: true,
       minAgeAllowed: 16,
+      isActive: true,
     },
     // Delivery
     {
@@ -334,6 +347,7 @@ async function seed() {
       drivingRequired: true,
       powerMachinery: false,
       minAgeAllowed: 18,
+      isActive: true,
     },
   ];
 

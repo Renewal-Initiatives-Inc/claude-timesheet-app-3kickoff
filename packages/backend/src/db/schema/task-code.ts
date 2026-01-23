@@ -24,6 +24,7 @@ export const taskCodes = pgTable('task_codes', {
   drivingRequired: boolean('driving_required').notNull().default(false),
   powerMachinery: boolean('power_machinery').notNull().default(false),
   minAgeAllowed: integer('min_age_allowed').notNull().default(12),
+  isActive: boolean('is_active').notNull().default(true), // For soft archive
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });

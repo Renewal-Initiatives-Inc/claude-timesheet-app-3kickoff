@@ -47,6 +47,7 @@ export interface TaskCode {
   drivingRequired: boolean;
   powerMachinery: boolean;
   minAgeAllowed: number;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }

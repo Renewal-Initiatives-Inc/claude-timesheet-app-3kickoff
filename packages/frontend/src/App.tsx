@@ -5,6 +5,9 @@ import { Dashboard } from './pages/Dashboard.js';
 import { EmployeeList } from './pages/EmployeeList.js';
 import { EmployeeDetail } from './pages/EmployeeDetail.js';
 import { AddEmployee } from './pages/AddEmployee.js';
+import { TaskCodeList } from './pages/TaskCodeList.js';
+import { TaskCodeDetail } from './pages/TaskCodeDetail.js';
+import { TaskCodeForm } from './components/TaskCodeForm.js';
 import './App.css';
 
 /**
@@ -24,6 +27,7 @@ function AppLayout() {
             <>
               <a href="/dashboard">Dashboard</a>
               <a href="/employees">Employees</a>
+              <a href="/task-codes">Task Codes</a>
             </>
           )}
         </div>
@@ -90,6 +94,10 @@ function App() {
                 <Route path="/employees" element={<EmployeeList />} />
                 <Route path="/employees/add" element={<AddEmployee />} />
                 <Route path="/employees/:id" element={<EmployeeDetail />} />
+                <Route path="/task-codes" element={<TaskCodeList />} />
+                <Route path="/task-codes/new" element={<TaskCodeForm mode="create" />} />
+                <Route path="/task-codes/:id" element={<TaskCodeDetail />} />
+                <Route path="/task-codes/:id/edit" element={<TaskCodeForm mode="edit" />} />
               </Route>
             </Route>
           </Route>

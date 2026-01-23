@@ -3,7 +3,7 @@
  * Shared between frontend and backend for type-safe API communication
  */
 
-import type { AgeBand, DocumentType, EmployeeDocument } from './db.js';
+import type { AgeBand, DocumentType, EmployeeDocument, SupervisorRequired, TaskCode, TaskCodeRate } from './db.js';
 
 export interface HealthResponse {
   status: 'ok' | 'error';
@@ -268,3 +268,99 @@ export interface DashboardEmployeesResponse {
 export interface DashboardAlertsResponse {
   alerts: DashboardAlert[];
 }
+
+// ============================================================================
+// Task Code Management Types
+// ============================================================================
+
+/**
+ * Task code with its current effective rate.
+ */
+export interface TaskCodeWithCurrentRate extends TaskCode {
+  currentRate: number;
+}
+
+/**
+ * Task code detail with rate history.
+ */
+export interface TaskCodeDetailResponse {
+  taskCode: TaskCodeWithCurrentRate & {
+    rateHistory: TaskCodeRate[];
+  };
+}
+
+/**
+ * Task code list response.
+ */
+export interface TaskCodeListResponse {
+  taskCodes: TaskCodeWithCurrentRate[];
+  total: number;
+}
+
+/**
+ * Create task code request.
+ */
+export interface CreateTaskCodeRequest {
+  code: string;
+  name: string;
+  description?: string;
+  isAgricultural: boolean;
+  isHazardous: boolean;
+  supervisorRequired: SupervisorRequired;
+  minAgeAllowed: number;
+  soloCashHandling: boolean;
+  drivingRequired: boolean;
+  powerMachinery: boolean;
+  initialRate: number;
+  rateEffectiveDate: string;
+  rateJustificationNotes?: string;
+}
+
+/**
+ * Update task code request.
+ * Note: code field cannot be changed after creation.
+ */
+export interface UpdateTaskCodeRequest {
+  name?: string;
+  description?: string;
+  isAgricultural?: boolean;
+  isHazardous?: boolean;
+  supervisorRequired?: SupervisorRequired;
+  minAgeAllowed?: number;
+  soloCashHandling?: boolean;
+  drivingRequired?: boolean;
+  powerMachinery?: boolean;
+  isActive?: boolean; // For soft archive
+}
+
+/**
+ * Add rate request.
+ */
+export interface AddRateRequest {
+  hourlyRate: number;
+  effectiveDate: string;
+  justificationNotes?: string;
+}
+
+/**
+ * Task code list query parameters.
+ */
+export interface TaskCodeListParams {
+  isAgricultural?: 'true' | 'false';
+  isHazardous?: 'true' | 'false';
+  forAge?: number;
+  includeInactive?: 'true' | 'false';
+  search?: string;
+}
+
+/**
+ * Task code error codes.
+ */
+export type TaskCodeErrorCode =
+  | 'TASK_CODE_NOT_FOUND'
+  | 'CODE_ALREADY_EXISTS'
+  | 'INVALID_MIN_AGE'
+  | 'RATE_NOT_FOUND'
+  | 'INVALID_EFFECTIVE_DATE'
+  | 'CODE_IMMUTABLE'
+  | 'EMPLOYEE_NOT_FOUND';
