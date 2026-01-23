@@ -1,0 +1,249 @@
+import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth.js';
+import { useTimesheet } from '../hooks/useTimesheet.js';
+import { WeekSelector } from '../components/WeekSelector.js';
+import { TimesheetGrid } from '../components/TimesheetGrid.js';
+import { EntryFormModal } from '../components/EntryFormModal.js';
+import { HourLimitsDisplay } from '../components/HourLimitsDisplay.js';
+import type { CreateEntryRequest, UpdateEntryRequest, AgeBand, TimesheetEntryWithTaskCode } from '@renewal/types';
+import './Timesheet.css';
+
+/**
+ * Calculate age from date of birth
+ */
+function calculateAge(dateOfBirth: string, asOfDate: string): number {
+  const dob = new Date(dateOfBirth + 'T00:00:00');
+  const asOf = new Date(asOfDate + 'T00:00:00');
+
+  let age = asOf.getFullYear() - dob.getFullYear();
+  const monthDiff = asOf.getMonth() - dob.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && asOf.getDate() < dob.getDate())) {
+    age--;
+  }
+
+  return age;
+}
+
+/**
+ * Get age band from age
+ */
+function getAgeBand(age: number): AgeBand {
+  if (age >= 18) return '18+';
+  if (age >= 16) return '16-17';
+  if (age >= 14) return '14-15';
+  return '12-13';
+}
+
+/**
+ * Check if a date is a default school day
+ */
+function isDefaultSchoolDay(dateStr: string): boolean {
+  const date = new Date(dateStr + 'T00:00:00');
+  const dayOfWeek = date.getDay();
+
+  if (dayOfWeek === 0 || dayOfWeek === 6) {
+    return false;
+  }
+
+  const month = date.getMonth();
+  const day = date.getDate();
+
+  if (month > 7 || (month === 7 && day >= 28)) {
+    return true;
+  }
+  if (month < 5 || (month === 5 && day <= 20)) {
+    return true;
+  }
+
+  return false;
+}
+
+export function Timesheet() {
+  const { weekStartDate } = useParams<{ weekStartDate?: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const {
+    timesheet,
+    totals,
+    loading,
+    error,
+    saving,
+    addEntry,
+    updateEntry,
+    deleteEntry,
+    refresh,
+  } = useTimesheet({ weekStartDate });
+
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [editingEntry, setEditingEntry] = useState<TimesheetEntryWithTaskCode | null>(null);
+
+  const handleWeekChange = (newWeekStartDate: string) => {
+    if (newWeekStartDate === timesheet?.weekStartDate) return;
+    navigate(`/timesheet/${newWeekStartDate}`);
+  };
+
+  const handleAddEntry = async (entry: CreateEntryRequest | UpdateEntryRequest) => {
+    // Type guard: CreateEntryRequest has 'workDate' property
+    if ('workDate' in entry) {
+      await addEntry(entry as CreateEntryRequest);
+    }
+    setSelectedDate(null);
+  };
+
+  const handleUpdateEntry = async (updates: CreateEntryRequest | UpdateEntryRequest) => {
+    if (!editingEntry) return;
+    await updateEntry(editingEntry.id, updates as UpdateEntryRequest);
+    setEditingEntry(null);
+  };
+
+  const handleDeleteEntry = async (entryId: string) => {
+    await deleteEntry(entryId);
+  };
+
+  const handleEditEntry = (entryId: string) => {
+    if (!timesheet) return;
+    const entry = timesheet.entries.find((e) => e.id === entryId);
+    if (entry) {
+      setEditingEntry(entry);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="timesheet-page">
+        <div className="loading">Loading timesheet...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="timesheet-page">
+        <div className="error-message">
+          <p>Error: {error}</p>
+          <button onClick={refresh} className="retry-button" data-testid="timesheet-retry-button">
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!timesheet || !totals) {
+    return (
+      <div className="timesheet-page">
+        <div className="error-message">
+          <p>Timesheet not found</p>
+        </div>
+      </div>
+    );
+  }
+
+  const employeeAge = user
+    ? calculateAge(user.dateOfBirth, timesheet.weekStartDate)
+    : 18;
+  const ageBand = getAgeBand(employeeAge);
+  const isEditable = timesheet.status === 'open';
+
+  return (
+    <div className="timesheet-page">
+      <header className="page-header">
+        <h1>My Timesheet</h1>
+        <WeekSelector
+          selectedWeek={timesheet.weekStartDate}
+          onWeekChange={handleWeekChange}
+        />
+        {saving && <span className="saving-indicator">Saving...</span>}
+      </header>
+
+      {timesheet.birthdayInWeek && (
+        <div className="birthday-alert">
+          <span className="birthday-icon">&#127874;</span>
+          <div className="birthday-message">
+            <strong>Birthday this week!</strong>
+            <p>
+              You turn {timesheet.birthdayInWeek.newAge} on{' '}
+              {new Date(timesheet.birthdayInWeek.date + 'T00:00:00').toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric',
+              })}
+              . Different hour limits may apply before and after your birthday.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {!isEditable && (
+        <div className="status-alert">
+          <span className="status-icon">&#9888;</span>
+          <div className="status-message">
+            This timesheet has been{' '}
+            <strong>
+              {timesheet.status === 'submitted'
+                ? 'submitted for review'
+                : timesheet.status === 'approved'
+                ? 'approved'
+                : 'rejected'}
+            </strong>
+            . It cannot be edited.
+            {timesheet.supervisorNotes && (
+              <p className="supervisor-notes">
+                Supervisor notes: {timesheet.supervisorNotes}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="timesheet-content">
+        <div className="timesheet-main">
+          <TimesheetGrid
+            timesheet={timesheet}
+            totals={totals}
+            employeeAge={employeeAge}
+            onAddEntry={(date) => setSelectedDate(date)}
+            onEditEntry={handleEditEntry}
+            onDeleteEntry={handleDeleteEntry}
+            disabled={!isEditable}
+          />
+        </div>
+
+        <aside className="timesheet-sidebar">
+          <HourLimitsDisplay
+            totals={{ weekly: totals.weekly, daily: totals.daily }}
+            limits={totals.limits}
+            ageBand={ageBand}
+          />
+        </aside>
+      </div>
+
+      {selectedDate && user && (
+        <EntryFormModal
+          isOpen={true}
+          onClose={() => setSelectedDate(null)}
+          onSubmit={handleAddEntry}
+          date={selectedDate}
+          employeeId={user.id}
+          employeeAge={calculateAge(user.dateOfBirth, selectedDate)}
+          isSchoolDay={isDefaultSchoolDay(selectedDate)}
+        />
+      )}
+
+      {editingEntry && user && (
+        <EntryFormModal
+          isOpen={true}
+          onClose={() => setEditingEntry(null)}
+          onSubmit={handleUpdateEntry}
+          entry={editingEntry}
+          date={editingEntry.workDate}
+          employeeId={user.id}
+          employeeAge={calculateAge(user.dateOfBirth, editingEntry.workDate)}
+          isSchoolDay={editingEntry.isSchoolDay}
+        />
+      )}
+    </div>
+  );
+}

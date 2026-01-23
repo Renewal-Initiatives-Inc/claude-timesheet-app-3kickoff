@@ -1,0 +1,93 @@
+.timesheet-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.grid-body {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 1024px) {
+  .grid-body {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .grid-body {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.grid-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background-color: #f9fafb;
+}
+
+.weekly-total {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.weekly-total-label {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.weekly-total-hours {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.weekly-total-hours.approaching-limit {
+  color: #d97706;
+}
+
+.weekly-total-hours.at-limit {
+  color: #dc2626;
+}
+
+.weekly-total-separator {
+  font-size: 1rem;
+  color: #9ca3af;
+}
+
+.weekly-total-limit {
+  font-size: 1rem;
+  color: #6b7280;
+}
+
+.weekly-total-unit {
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+.warnings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.warning-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: #92400e;
+  background-color: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 0.375rem;
+}

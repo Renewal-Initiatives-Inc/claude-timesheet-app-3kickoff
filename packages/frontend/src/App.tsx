@@ -8,6 +8,7 @@ import { AddEmployee } from './pages/AddEmployee.js';
 import { TaskCodeList } from './pages/TaskCodeList.js';
 import { TaskCodeDetail } from './pages/TaskCodeDetail.js';
 import { TaskCodeForm } from './components/TaskCodeForm.js';
+import { Timesheet } from './pages/Timesheet.js';
 import './App.css';
 
 /**
@@ -23,6 +24,7 @@ function AppLayout() {
           <a href="/dashboard">Renewal Initiatives</a>
         </div>
         <div className="nav-links">
+          <a href="/timesheet">My Timesheet</a>
           {isSupervisor && (
             <>
               <a href="/dashboard">Dashboard</a>
@@ -33,7 +35,7 @@ function AppLayout() {
         </div>
         <div className="nav-user">
           <span className="user-name">{user?.name}</span>
-          <button onClick={logout} className="logout-button">
+          <button onClick={logout} className="logout-button" data-testid="auth-logout-button">
             Sign Out
           </button>
         </div>
@@ -88,6 +90,10 @@ function App() {
 
               {/* Dashboard - accessible to all authenticated users */}
               <Route path="/dashboard" element={<Dashboard />} />
+
+              {/* Timesheet - accessible to all authenticated users */}
+              <Route path="/timesheet" element={<Timesheet />} />
+              <Route path="/timesheet/:weekStartDate" element={<Timesheet />} />
 
               {/* Supervisor-only routes */}
               <Route element={<ProtectedRoute requireSupervisor />}>

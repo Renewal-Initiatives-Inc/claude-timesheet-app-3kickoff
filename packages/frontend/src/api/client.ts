@@ -20,6 +20,15 @@ import type {
   AddRateRequest,
   TaskCodeListParams,
   TaskCodeRate,
+  Timesheet,
+  TimesheetWithEntries,
+  TimesheetListResponse,
+  TimesheetListParams,
+  TimesheetEntry,
+  CreateEntryRequest,
+  UpdateEntryRequest,
+  TimesheetTotals,
+  WeekInfo,
 } from '@renewal/types';
 
 const API_BASE = '/api';
@@ -342,4 +351,101 @@ export async function getTaskCodesForEmployee(
   employeeId: string
 ): Promise<TaskCodeListResponse> {
   return apiRequest(`/task-codes/for-employee/${employeeId}`);
+}
+
+// ============================================================================
+// Timesheet API
+// ============================================================================
+
+/**
+ * Get list of employee's timesheets.
+ */
+export async function getTimesheets(
+  params?: TimesheetListParams
+): Promise<TimesheetListResponse> {
+  const searchParams = new URLSearchParams();
+  if (params?.status) searchParams.set('status', params.status);
+  if (params?.limit !== undefined) searchParams.set('limit', params.limit.toString());
+  if (params?.offset !== undefined) searchParams.set('offset', params.offset.toString());
+
+  const query = searchParams.toString();
+  return apiRequest(`/timesheets${query ? `?${query}` : ''}`);
+}
+
+/**
+ * Get or create timesheet for the current week.
+ */
+export async function getCurrentTimesheet(): Promise<TimesheetWithEntries> {
+  return apiRequest('/timesheets/current');
+}
+
+/**
+ * Get or create timesheet for a specific week.
+ */
+export async function getTimesheetByWeek(weekStartDate: string): Promise<TimesheetWithEntries> {
+  return apiRequest(`/timesheets/week/${weekStartDate}`);
+}
+
+/**
+ * Get timesheet by ID with entries.
+ */
+export async function getTimesheetById(id: string): Promise<TimesheetWithEntries> {
+  return apiRequest(`/timesheets/${id}`);
+}
+
+/**
+ * Create a new entry on a timesheet.
+ */
+export async function createTimesheetEntry(
+  timesheetId: string,
+  entry: CreateEntryRequest
+): Promise<{ entry: TimesheetEntry }> {
+  return apiRequest(`/timesheets/${timesheetId}/entries`, {
+    method: 'POST',
+    body: JSON.stringify(entry),
+  });
+}
+
+/**
+ * Update an entry on a timesheet.
+ */
+export async function updateTimesheetEntry(
+  timesheetId: string,
+  entryId: string,
+  updates: UpdateEntryRequest
+): Promise<{ entry: TimesheetEntry }> {
+  return apiRequest(`/timesheets/${timesheetId}/entries/${entryId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+  });
+}
+
+/**
+ * Delete an entry from a timesheet.
+ */
+export async function deleteTimesheetEntry(
+  timesheetId: string,
+  entryId: string
+): Promise<void> {
+  return apiRequest(`/timesheets/${timesheetId}/entries/${entryId}`, {
+    method: 'DELETE',
+  });
+}
+
+/**
+ * Get totals for a timesheet.
+ */
+export async function getTimesheetTotals(
+  timesheetId: string
+): Promise<TimesheetTotals> {
+  return apiRequest(`/timesheets/${timesheetId}/totals`);
+}
+
+/**
+ * Get week information for a timesheet.
+ */
+export async function getTimesheetWeekInfo(
+  timesheetId: string
+): Promise<WeekInfo> {
+  return apiRequest(`/timesheets/${timesheetId}/week-info`);
 }

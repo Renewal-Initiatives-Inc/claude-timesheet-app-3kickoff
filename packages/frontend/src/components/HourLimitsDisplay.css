@@ -1,0 +1,112 @@
+.hour-limits-display {
+  padding: 1rem;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+}
+
+.limits-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.limits-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.age-band-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4f46e5;
+  background-color: #eef2ff;
+  border-radius: 0.25rem;
+}
+
+.limit-item {
+  margin-bottom: 1rem;
+}
+
+.limit-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.375rem;
+}
+
+.label-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.limit-values {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.progress-bar {
+  height: 0.5rem;
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.progress-fill.ok {
+  background-color: #10b981;
+}
+
+.progress-fill.approaching-limit {
+  background-color: #f59e0b;
+}
+
+.progress-fill.at-limit {
+  background-color: #ef4444;
+}
+
+.limits-rules {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border-radius: 0.375rem;
+  margin-bottom: 0.75rem;
+}
+
+.rule-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.rule-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.rule-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.limits-note {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-style: italic;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e5e7eb;
+}

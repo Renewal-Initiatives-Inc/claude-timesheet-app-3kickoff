@@ -364,3 +364,133 @@ export type TaskCodeErrorCode =
   | 'INVALID_EFFECTIVE_DATE'
   | 'CODE_IMMUTABLE'
   | 'EMPLOYEE_NOT_FOUND';
+
+// ============================================================================
+// Timesheet Types
+// ============================================================================
+
+import type { Timesheet, TimesheetEntry, TimesheetStatus } from './db.js';
+
+/**
+ * Timesheet entry with associated task code information.
+ */
+export interface TimesheetEntryWithTaskCode extends TimesheetEntry {
+  taskCode: TaskCodeWithCurrentRate;
+}
+
+/**
+ * Hour limits based on age band.
+ */
+export interface HourLimits {
+  dailyLimit: number;
+  dailyLimitSchoolDay?: number; // Different limit for school days (14-15)
+  weeklyLimit: number;
+  weeklyLimitSchoolWeek?: number; // Different limit for school weeks (14-15)
+  daysWorkedLimit?: number; // Max days per week (16-17)
+}
+
+/**
+ * Timesheet totals with limits and warnings.
+ */
+export interface TimesheetTotals {
+  daily: Record<string, number>; // { '2024-01-15': 4.5, ... }
+  weekly: number;
+  limits: HourLimits;
+  warnings: string[];
+}
+
+/**
+ * Birthday information for a week.
+ */
+export interface BirthdayInfo {
+  date: string;
+  newAge: number;
+}
+
+/**
+ * Timesheet with entries and calculated totals.
+ */
+export interface TimesheetWithEntries extends Timesheet {
+  entries: TimesheetEntryWithTaskCode[];
+  totals: TimesheetTotals;
+  birthdayInWeek?: BirthdayInfo;
+}
+
+/**
+ * Create timesheet entry request.
+ */
+export interface CreateEntryRequest {
+  workDate: string; // YYYY-MM-DD
+  taskCodeId: string;
+  startTime: string; // HH:MM
+  endTime: string; // HH:MM
+  isSchoolDay: boolean;
+  schoolDayOverrideNote?: string | null;
+  supervisorPresentName?: string | null;
+  mealBreakConfirmed?: boolean | null;
+}
+
+/**
+ * Update timesheet entry request.
+ */
+export interface UpdateEntryRequest {
+  startTime?: string;
+  endTime?: string;
+  taskCodeId?: string;
+  isSchoolDay?: boolean;
+  schoolDayOverrideNote?: string | null;
+  supervisorPresentName?: string | null;
+  mealBreakConfirmed?: boolean | null;
+}
+
+/**
+ * Timesheet list response.
+ */
+export interface TimesheetListResponse {
+  timesheets: Timesheet[];
+  total: number;
+}
+
+/**
+ * Timesheet list query parameters.
+ */
+export interface TimesheetListParams {
+  status?: 'open' | 'submitted' | 'approved' | 'rejected' | 'all';
+  limit?: number;
+  offset?: number;
+}
+
+/**
+ * Week day information.
+ */
+export interface WeekDayInfo {
+  date: string;
+  dayOfWeek: string;
+  isSchoolDay: boolean;
+  employeeAge: number;
+}
+
+/**
+ * Week information for a timesheet.
+ */
+export interface WeekInfo {
+  weekStartDate: string;
+  weekEndDate: string;
+  dates: WeekDayInfo[];
+  birthdayInWeek?: BirthdayInfo;
+}
+
+/**
+ * Timesheet error codes.
+ */
+export type TimesheetErrorCode =
+  | 'TIMESHEET_NOT_FOUND'
+  | 'TIMESHEET_NOT_EDITABLE'
+  | 'TIMESHEET_ACCESS_DENIED'
+  | 'EMPLOYEE_NOT_FOUND'
+  | 'INVALID_WEEK_START_DATE'
+  | 'ENTRY_NOT_FOUND'
+  | 'INVALID_TIME_RANGE'
+  | 'DATE_OUTSIDE_WEEK'
+  | 'TASK_CODE_NOT_FOUND'
+  | 'TASK_CODE_AGE_RESTRICTED';

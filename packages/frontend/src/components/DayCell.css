@@ -1,0 +1,224 @@
+.day-cell {
+  display: flex;
+  flex-direction: column;
+  min-height: 180px;
+  padding: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background-color: white;
+  transition: all 0.2s ease;
+}
+
+.day-cell.approaching-limit {
+  border-color: #fbbf24;
+  background-color: #fffbeb;
+}
+
+.day-cell.at-limit {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.day-cell.disabled {
+  opacity: 0.7;
+  background-color: #f9fafb;
+}
+
+.day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 0.5rem;
+}
+
+.day-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.day-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+}
+
+.day-date {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.school-day-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  border-radius: 50%;
+  background-color: #e5e7eb;
+  color: #9ca3af;
+}
+
+.school-day-indicator.is-school-day {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.entries-list {
+  flex: 1;
+  min-height: 60px;
+  overflow-y: auto;
+}
+
+.no-entries {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-style: italic;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.entry-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.375rem 0;
+  border-bottom: 1px dashed #f3f4f6;
+}
+
+.entry-item:last-child {
+  border-bottom: none;
+}
+
+.entry-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.entry-task {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.entry-times {
+  font-size: 0.625rem;
+  color: #6b7280;
+}
+
+.entry-hours {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #059669;
+}
+
+.entry-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.entry-action-button {
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  border: none;
+  border-radius: 0.25rem;
+  background-color: transparent;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.entry-action-button.edit {
+  color: #6b7280;
+}
+
+.entry-action-button.edit:hover {
+  color: #4f46e5;
+  background-color: #eef2ff;
+}
+
+.entry-action-button.delete {
+  color: #6b7280;
+}
+
+.entry-action-button.delete:hover {
+  color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.entry-action-button.delete.confirm {
+  color: white;
+  background-color: #ef4444;
+}
+
+.add-entry-button {
+  margin-top: auto;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #4f46e5;
+  background-color: #eef2ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.add-entry-button:hover:not(:disabled) {
+  background-color: #4f46e5;
+  color: white;
+}
+
+.add-entry-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.daily-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.125rem;
+  padding-top: 0.5rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.total-hours {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.day-cell.approaching-limit .total-hours {
+  color: #d97706;
+}
+
+.day-cell.at-limit .total-hours {
+  color: #dc2626;
+}
+
+.total-separator {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.total-limit {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.total-unit {
+  font-size: 0.625rem;
+  color: #9ca3af;
+}
