@@ -331,3 +331,49 @@
   font-size: 0.875rem;
   color: #6b7280;
 }
+
+/* Mobile-specific styles */
+@media (max-width: 640px) {
+  .timesheet-page {
+    padding: 1rem;
+  }
+
+  .timesheet-page .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .timesheet-page .page-header h1 {
+    font-size: 1.375rem;
+  }
+
+  .birthday-alert,
+  .status-alert,
+  .success-alert {
+    flex-direction: column;
+    padding: 0.75rem;
+  }
+
+  .birthday-icon,
+  .status-icon,
+  .success-icon {
+    font-size: 1.125rem;
+  }
+
+  .birthday-message,
+  .status-message,
+  .success-message {
+    font-size: 0.8125rem;
+  }
+
+  .supervisor-notes {
+    font-size: 0.8125rem;
+  }
+
+  .submit-button {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.125rem;
+  }
+}

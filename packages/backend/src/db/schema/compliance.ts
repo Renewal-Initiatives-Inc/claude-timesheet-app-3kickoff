@@ -5,6 +5,7 @@ import {
   integer,
   timestamp,
   jsonb,
+  index,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { complianceResultEnum } from './enums';
@@ -29,7 +30,15 @@ export const complianceCheckLogs = pgTable('compliance_check_logs', {
   details: jsonb('details').$type<ComplianceDetails>().notNull(),
   checkedAt: timestamp('checked_at', { withTimezone: true }).notNull().defaultNow(),
   employeeAgeOnDate: integer('employee_age_on_date').notNull(),
-});
+}, (table) => ({
+  // Index for fetching compliance logs by timesheet with time ordering
+  timesheetCheckedAtIdx: index('idx_compliance_logs_timesheet_checked').on(
+    table.timesheetId,
+    table.checkedAt
+  ),
+  // Index for filtering by result (e.g., finding all failures)
+  resultIdx: index('idx_compliance_logs_result').on(table.result),
+}));
 
 // Relations
 export const complianceCheckLogsRelations = relations(complianceCheckLogs, ({ one }) => ({

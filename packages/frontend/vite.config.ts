@@ -17,6 +17,21 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    // Optimize chunk splitting for better caching
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor chunk for React core (rarely changes)
+          'vendor-react': ['react', 'react-dom'],
+          // Router in separate chunk
+          'vendor-router': ['react-router-dom'],
+        },
+      },
+    },
+    // Target modern browsers for smaller bundles
+    target: 'es2020',
+    // Minimum chunk size (to avoid too many small chunks)
+    chunkSizeWarningLimit: 500,
   },
   test: {
     globals: true,

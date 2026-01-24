@@ -14,6 +14,11 @@ import {
 import { sendWelcomeEmail } from '../services/email.service.js';
 import { requireAuth, requireSupervisor } from '../middleware/auth.middleware.js';
 import {
+  loginRateLimiter,
+  passwordResetRateLimiter,
+  registerRateLimiter,
+} from '../middleware/rate-limit.middleware.js';
+import {
   validate,
   registerSchema,
   loginSchema,
@@ -31,6 +36,7 @@ const router = Router();
  */
 router.post(
   '/register',
+  registerRateLimiter,
   requireAuth,
   requireSupervisor,
   validate(registerSchema),
@@ -67,7 +73,7 @@ router.post(
  * POST /api/auth/login
  * Authenticate with email and password.
  */
-router.post('/login', validate(loginSchema), async (req: Request, res: Response) => {
+router.post('/login', loginRateLimiter, validate(loginSchema), async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     const result = await login(email, password);
@@ -105,6 +111,7 @@ router.post('/logout', requireAuth, async (req: Request, res: Response) => {
  */
 router.post(
   '/password-reset/request',
+  passwordResetRateLimiter,
   validate(passwordResetRequestSchema),
   async (req: Request, res: Response) => {
     const { email } = req.body;

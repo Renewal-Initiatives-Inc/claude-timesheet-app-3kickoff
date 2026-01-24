@@ -3,6 +3,7 @@ import {
   uuid,
   text,
   timestamp,
+  index,
 } from 'drizzle-orm/pg-core';
 import { alertTypeEnum } from './enums';
 import { employees } from './employee';
@@ -17,4 +18,16 @@ export const alertNotificationLogs = pgTable('alert_notification_logs', {
   sentTo: text('sent_to').notNull(), // supervisor email
   sentAt: timestamp('sent_at', { withTimezone: true }).notNull().defaultNow(),
   alertKey: text('alert_key').notNull(), // unique key to prevent duplicates (e.g., "expiring_document:emp123:2024-03-15")
-});
+}, (table) => ({
+  // Index for deduplication check (recent alerts for same key and recipient)
+  alertKeyRecipientIdx: index('idx_alerts_key_recipient').on(
+    table.alertKey,
+    table.sentTo,
+    table.sentAt
+  ),
+  // Index for employee alert history
+  employeeSentAtIdx: index('idx_alerts_employee_sent').on(
+    table.employeeId,
+    table.sentAt
+  ),
+}));

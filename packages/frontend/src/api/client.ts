@@ -76,6 +76,29 @@ export function isAuthenticated(): boolean {
 }
 
 /**
+ * Get CSRF token from cookie
+ */
+function getCsrfToken(): string | null {
+  const match = document.cookie.match(/(?:^|;\s*)_csrf=([^;]*)/);
+  return match && match[1] ? decodeURIComponent(match[1]) : null;
+}
+
+/**
+ * Fetch CSRF token from server (initializes cookie).
+ * Call this once on app startup.
+ */
+export async function initializeCsrfToken(): Promise<void> {
+  try {
+    await fetch(`${API_BASE}/csrf-token`, {
+      credentials: 'include',
+    });
+  } catch {
+    // Silently fail - CSRF protection is optional in development
+    console.warn('Failed to initialize CSRF token');
+  }
+}
+
+/**
  * Make an authenticated API request
  */
 async function apiRequest<T>(
@@ -100,9 +123,19 @@ async function apiRequest<T>(
     headers['Content-Type'] = 'application/json';
   }
 
+  // Add CSRF token for state-changing requests
+  const method = options.method?.toUpperCase() || 'GET';
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+    const csrfToken = getCsrfToken();
+    if (csrfToken) {
+      headers['X-CSRF-Token'] = csrfToken;
+    }
+  }
+
   const response = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
     headers,
+    credentials: 'include', // Include cookies for CSRF
   });
 
   if (!response.ok) {
@@ -685,9 +718,16 @@ export async function exportPayrollCSV(params: {
   }
   headers['Content-Type'] = 'application/json';
 
+  // Add CSRF token for POST request
+  const csrfToken = getCsrfToken();
+  if (csrfToken) {
+    headers['X-CSRF-Token'] = csrfToken;
+  }
+
   const response = await fetch(`${API_BASE}/payroll/export`, {
     method: 'POST',
     headers,
+    credentials: 'include',
     body: JSON.stringify(params),
   });
 

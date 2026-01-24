@@ -159,51 +159,67 @@ export async function getTimesheetWithEntries(
     return null;
   }
 
-  // Get current rates for each task code
-  const today = getTodayET();
-  const entriesWithRates = await Promise.all(
-    timesheet.entries.map(async (entry) => {
-      const rate = await db.query.taskCodeRates.findFirst({
-        where: and(
-          eq(taskCodeRates.taskCodeId, entry.taskCodeId),
-          lte(taskCodeRates.effectiveDate, entry.workDate)
-        ),
-        orderBy: [desc(taskCodeRates.effectiveDate)],
-      });
+  // Batch fetch all rates for task codes in this timesheet (optimized from N+1 to single query)
+  const uniqueTaskCodeIds = [...new Set(timesheet.entries.map((e) => e.taskCodeId))];
 
-      return {
-        id: entry.id,
-        timesheetId: entry.timesheetId,
-        workDate: entry.workDate,
-        taskCodeId: entry.taskCodeId,
-        startTime: entry.startTime,
-        endTime: entry.endTime,
-        hours: entry.hours,
-        isSchoolDay: entry.isSchoolDay,
-        schoolDayOverrideNote: entry.schoolDayOverrideNote,
-        supervisorPresentName: entry.supervisorPresentName,
-        mealBreakConfirmed: entry.mealBreakConfirmed,
-        createdAt: entry.createdAt.toISOString(),
-        taskCode: {
-          id: entry.taskCode.id,
-          code: entry.taskCode.code,
-          name: entry.taskCode.name,
-          description: entry.taskCode.description,
-          isAgricultural: entry.taskCode.isAgricultural,
-          isHazardous: entry.taskCode.isHazardous,
-          supervisorRequired: entry.taskCode.supervisorRequired,
-          soloCashHandling: entry.taskCode.soloCashHandling,
-          drivingRequired: entry.taskCode.drivingRequired,
-          powerMachinery: entry.taskCode.powerMachinery,
-          minAgeAllowed: entry.taskCode.minAgeAllowed,
-          isActive: entry.taskCode.isActive,
-          createdAt: entry.taskCode.createdAt.toISOString(),
-          updatedAt: entry.taskCode.updatedAt.toISOString(),
-          currentRate: rate ? parseFloat(rate.hourlyRate) : 0,
-        },
-      };
-    })
-  );
+  // Fetch all rates for these task codes
+  const allRates = uniqueTaskCodeIds.length > 0
+    ? await db.query.taskCodeRates.findMany({
+        where: inArray(taskCodeRates.taskCodeId, uniqueTaskCodeIds),
+        orderBy: [desc(taskCodeRates.effectiveDate)],
+      })
+    : [];
+
+  // Build lookup: taskCodeId -> array of rates (sorted by effectiveDate desc)
+  const ratesByTaskCode = new Map<string, typeof allRates>();
+  for (const rate of allRates) {
+    const existing = ratesByTaskCode.get(rate.taskCodeId) ?? [];
+    existing.push(rate);
+    ratesByTaskCode.set(rate.taskCodeId, existing);
+  }
+
+  // Helper to find the effective rate for a task code on a given date
+  function findEffectiveRate(taskCodeId: string, workDate: string): number {
+    const rates = ratesByTaskCode.get(taskCodeId) ?? [];
+    for (const rate of rates) {
+      if (rate.effectiveDate <= workDate) {
+        return parseFloat(rate.hourlyRate);
+      }
+    }
+    return 0;
+  }
+
+  const entriesWithRates = timesheet.entries.map((entry) => ({
+    id: entry.id,
+    timesheetId: entry.timesheetId,
+    workDate: entry.workDate,
+    taskCodeId: entry.taskCodeId,
+    startTime: entry.startTime,
+    endTime: entry.endTime,
+    hours: entry.hours,
+    isSchoolDay: entry.isSchoolDay,
+    schoolDayOverrideNote: entry.schoolDayOverrideNote,
+    supervisorPresentName: entry.supervisorPresentName,
+    mealBreakConfirmed: entry.mealBreakConfirmed,
+    createdAt: entry.createdAt.toISOString(),
+    taskCode: {
+      id: entry.taskCode.id,
+      code: entry.taskCode.code,
+      name: entry.taskCode.name,
+      description: entry.taskCode.description,
+      isAgricultural: entry.taskCode.isAgricultural,
+      isHazardous: entry.taskCode.isHazardous,
+      supervisorRequired: entry.taskCode.supervisorRequired,
+      soloCashHandling: entry.taskCode.soloCashHandling,
+      drivingRequired: entry.taskCode.drivingRequired,
+      powerMachinery: entry.taskCode.powerMachinery,
+      minAgeAllowed: entry.taskCode.minAgeAllowed,
+      isActive: entry.taskCode.isActive,
+      createdAt: entry.taskCode.createdAt.toISOString(),
+      updatedAt: entry.taskCode.updatedAt.toISOString(),
+      currentRate: findEffectiveRate(entry.taskCodeId, entry.workDate),
+    },
+  }));
 
   // Calculate daily and weekly totals
   const dailyTotals: Record<string, number> = {};
