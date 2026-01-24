@@ -12,6 +12,7 @@ import { TaskCodeForm } from './components/TaskCodeForm.js';
 import { Timesheet } from './pages/Timesheet.js';
 import { ReviewQueue } from './pages/ReviewQueue.js';
 import { ReviewDetail } from './pages/ReviewDetail.js';
+import { PayrollReportPage } from './pages/PayrollReportPage.js';
 import './App.css';
 
 /**
@@ -42,6 +43,7 @@ function AppLayout() {
               </a>
               <a href="/employees">Employees</a>
               <a href="/task-codes">Task Codes</a>
+              <a href="/payroll">Payroll</a>
             </>
           )}
         </div>
@@ -118,6 +120,7 @@ function App() {
                 <Route path="/task-codes/:id/edit" element={<TaskCodeForm mode="edit" />} />
                 <Route path="/review" element={<ReviewQueue />} />
                 <Route path="/review/:timesheetId" element={<ReviewDetail />} />
+                <Route path="/payroll" element={<PayrollReportPage />} />
               </Route>
             </Route>
           </Route>

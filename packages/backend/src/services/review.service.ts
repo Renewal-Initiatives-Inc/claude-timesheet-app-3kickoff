@@ -7,8 +7,10 @@ import type {
   TimesheetReviewData,
   ComplianceCheckLog,
   EmployeePublic,
+  PayrollRecord,
 } from '@renewal/types';
 import { getTimesheetWithEntries, TimesheetWithEntries } from './timesheet.service.js';
+import { calculatePayrollForTimesheet } from './payroll.service.js';
 
 const { timesheets, timesheetEntries, employees, complianceCheckLogs } = schema;
 
@@ -187,13 +189,23 @@ export async function getComplianceLogs(
 }
 
 /**
+ * Result of approving a timesheet, including payroll information.
+ */
+export interface ApproveTimesheetResult {
+  timesheet: Timesheet;
+  payroll?: PayrollRecord;
+  payrollError?: string;
+}
+
+/**
  * Approve a submitted timesheet.
+ * Triggers payroll calculation after approval.
  */
 export async function approveTimesheet(
   timesheetId: string,
   supervisorId: string,
   notes?: string
-): Promise<Timesheet> {
+): Promise<ApproveTimesheetResult> {
   // Get timesheet
   const timesheet = await db.query.timesheets.findFirst({
     where: eq(timesheets.id, timesheetId),
@@ -224,7 +236,20 @@ export async function approveTimesheet(
     .where(eq(timesheets.id, timesheetId))
     .returning();
 
-  return toPublicTimesheet(updated!);
+  const approvedTimesheet = toPublicTimesheet(updated!);
+
+  // Calculate payroll
+  try {
+    const payroll = await calculatePayrollForTimesheet(timesheetId);
+    return { timesheet: approvedTimesheet, payroll };
+  } catch (error) {
+    // Log error but don't block approval
+    console.error('Payroll calculation failed for timesheet', timesheetId, error);
+    return {
+      timesheet: approvedTimesheet,
+      payrollError: 'Payroll calculation pending - manual recalculation required',
+    };
+  }
 }
 
 /**

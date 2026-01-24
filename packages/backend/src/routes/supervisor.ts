@@ -111,7 +111,7 @@ router.get('/review/:id/compliance', async (req: Request, res: Response) => {
 
 /**
  * POST /api/supervisor/review/:id/approve
- * Approve a submitted timesheet.
+ * Approve a submitted timesheet and calculate payroll.
  */
 router.post(
   '/review/:id/approve',
@@ -121,12 +121,16 @@ router.post(
       const id = req.params['id'] as string;
       const { notes } = req.body;
 
-      const timesheet = await approveTimesheet(id, req.employee!.id, notes);
+      const result = await approveTimesheet(id, req.employee!.id, notes);
 
       res.json({
         success: true,
-        timesheet,
-        message: 'Timesheet approved successfully',
+        timesheet: result.timesheet,
+        payroll: result.payroll,
+        payrollError: result.payrollError,
+        message: result.payrollError
+          ? 'Timesheet approved but payroll calculation failed'
+          : 'Timesheet approved and payroll calculated successfully',
       });
     } catch (error) {
       if (error instanceof ReviewError) {

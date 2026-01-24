@@ -620,3 +620,105 @@ export async function unlockWeek(
     body: JSON.stringify({ employeeId, weekStartDate }),
   });
 }
+
+// ============================================================================
+// Payroll API
+// ============================================================================
+
+import type {
+  PayrollRecord,
+  PayrollRecordWithDetails,
+  PayrollReportResponse,
+  PayrollRecordResponse,
+  PayrollRecalculateResponse,
+  ApproveTimesheetWithPayrollResponse,
+} from '@renewal/types';
+
+/**
+ * Get payroll record for a specific timesheet.
+ */
+export async function getPayrollRecord(
+  timesheetId: string
+): Promise<PayrollRecordResponse> {
+  return apiRequest(`/payroll/timesheet/${timesheetId}`);
+}
+
+/**
+ * Get payroll report with filters.
+ */
+export async function getPayrollReport(params: {
+  startDate: string;
+  endDate: string;
+  employeeId?: string;
+}): Promise<PayrollReportResponse> {
+  const searchParams = new URLSearchParams();
+  searchParams.set('startDate', params.startDate);
+  searchParams.set('endDate', params.endDate);
+  if (params.employeeId) searchParams.set('employeeId', params.employeeId);
+
+  return apiRequest(`/payroll/report?${searchParams.toString()}`);
+}
+
+/**
+ * Export payroll records as CSV.
+ * Returns the CSV content as a Blob for download.
+ */
+export async function exportPayrollCSV(params: {
+  startDate: string;
+  endDate: string;
+  employeeId?: string;
+}): Promise<Blob> {
+  const token = getAuthToken();
+  const headers: Record<string, string> = {};
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  headers['Content-Type'] = 'application/json';
+
+  const response = await fetch(`${API_BASE}/payroll/export`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(params),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({
+      error: 'Unknown error',
+      message: response.statusText,
+    })) as ApiError;
+
+    throw new ApiRequestError(
+      error.message || 'Export failed',
+      response.status,
+      error.error
+    );
+  }
+
+  return response.blob();
+}
+
+/**
+ * Recalculate payroll for an approved timesheet.
+ */
+export async function recalculatePayroll(
+  timesheetId: string
+): Promise<PayrollRecalculateResponse> {
+  return apiRequest(`/payroll/recalculate/${timesheetId}`, {
+    method: 'POST',
+  });
+}
+
+/**
+ * Approve timesheet and get payroll result.
+ * This is an enhanced version of approveTimesheet that includes payroll info.
+ */
+export async function approveTimesheetWithPayroll(
+  timesheetId: string,
+  notes?: string
+): Promise<ApproveTimesheetWithPayrollResponse> {
+  return apiRequest(`/supervisor/review/${timesheetId}/approve`, {
+    method: 'POST',
+    body: JSON.stringify({ notes }),
+  });
+}

@@ -637,3 +637,92 @@ export type ReviewErrorCode =
   | 'NOT_SUPERVISOR'
   | 'EMPLOYEE_NOT_FOUND'
   | 'INVALID_WEEK_START_DATE';
+
+// ============================================================================
+// Payroll Types
+// ============================================================================
+
+import type { PayrollRecord } from './db.js';
+
+/**
+ * Payroll record with employee and timesheet details.
+ */
+export interface PayrollRecordWithDetails extends PayrollRecord {
+  employee: {
+    id: string;
+    name: string;
+  };
+  timesheet: {
+    id: string;
+    weekStartDate: string;
+  };
+}
+
+/**
+ * Payroll report query parameters.
+ */
+export interface PayrollReportParams {
+  startDate: string;
+  endDate: string;
+  employeeId?: string;
+}
+
+/**
+ * Payroll report summary statistics.
+ */
+export interface PayrollReportSummary {
+  totalRecords: number;
+  totalAgriculturalHours: string;
+  totalAgriculturalEarnings: string;
+  totalNonAgriculturalHours: string;
+  totalNonAgriculturalEarnings: string;
+  totalOvertimeHours: string;
+  totalOvertimeEarnings: string;
+  totalEarnings: string;
+}
+
+/**
+ * Payroll report response.
+ */
+export interface PayrollReportResponse {
+  records: PayrollRecordWithDetails[];
+  summary: PayrollReportSummary;
+}
+
+/**
+ * Payroll record response (single record).
+ */
+export interface PayrollRecordResponse {
+  payroll: PayrollRecord;
+}
+
+/**
+ * Payroll recalculation response.
+ */
+export interface PayrollRecalculateResponse {
+  success: boolean;
+  payroll: PayrollRecord;
+  message: string;
+}
+
+/**
+ * Approve timesheet response with payroll (updated).
+ */
+export interface ApproveTimesheetWithPayrollResponse {
+  success: boolean;
+  timesheet: Timesheet;
+  payroll?: PayrollRecord;
+  payrollError?: string;
+  message: string;
+}
+
+/**
+ * Payroll error codes.
+ */
+export type PayrollErrorCode =
+  | 'TIMESHEET_NOT_FOUND'
+  | 'TIMESHEET_NOT_APPROVED'
+  | 'NO_RATE_FOUND'
+  | 'PAYROLL_ALREADY_EXISTS'
+  | 'PAYROLL_NOT_FOUND'
+  | 'INVALID_DATE_RANGE';
