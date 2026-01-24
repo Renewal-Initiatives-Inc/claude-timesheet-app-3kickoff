@@ -1,0 +1,405 @@
+.timesheet-history-report {
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.timesheet-history-report-header {
+  margin-bottom: 1.5rem;
+}
+
+.timesheet-history-report-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.timesheet-history-report-subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+/* Filter Form */
+.timesheet-history-report-filters {
+  background: var(--color-surface);
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.filter-field label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+}
+
+.filter-field input,
+.filter-field select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  min-width: 140px;
+  background: var(--color-background);
+  color: var(--color-text);
+}
+
+.filter-field input:focus,
+.filter-field select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.1);
+}
+
+.filter-actions {
+  margin-left: auto;
+}
+
+.apply-filters-button {
+  padding: 0.5rem 1.25rem;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.apply-filters-button:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+}
+
+.apply-filters-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Summary Cards */
+.timesheet-history-report-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.timesheet-history-report-summary .summary-card {
+  background: var(--color-surface);
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 100px;
+}
+
+.timesheet-history-report-summary .summary-card.approved {
+  background: var(--color-success);
+  color: white;
+}
+
+.timesheet-history-report-summary .summary-card.rejected {
+  background: var(--color-danger);
+  color: white;
+}
+
+.timesheet-history-report-summary .summary-card.submitted {
+  background: var(--color-warning, #f59e0b);
+  color: white;
+}
+
+.timesheet-history-report-summary .summary-card.total {
+  background: var(--color-primary);
+  color: white;
+}
+
+.summary-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+}
+
+.summary-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Loading and Error States */
+.timesheet-history-report-loading,
+.timesheet-history-report-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: var(--color-text-secondary);
+}
+
+.timesheet-history-report-error p {
+  color: var(--color-danger);
+}
+
+/* Empty State */
+.timesheet-history-report-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  background: var(--color-surface);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.timesheet-history-report-empty .empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.6;
+}
+
+.timesheet-history-report-empty h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.timesheet-history-report-empty p {
+  margin: 0.5rem 0 0;
+  color: var(--color-text-secondary);
+}
+
+/* Table */
+.timesheet-history-report-content {
+  background: var(--color-surface);
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.timesheet-history-report-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+.timesheet-history-report-table th,
+.timesheet-history-report-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.timesheet-history-report-table th {
+  background: var(--color-background);
+  font-weight: 500;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.timesheet-history-report-table th.numeric,
+.timesheet-history-report-table td.numeric {
+  text-align: right;
+}
+
+.timesheet-history-report-table tbody tr:hover {
+  background: var(--color-background);
+}
+
+.timesheet-history-report-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.timesheet-history-report-table .week {
+  white-space: nowrap;
+  font-size: 0.875rem;
+}
+
+.timesheet-history-report-table .employee-name {
+  font-weight: 500;
+}
+
+.timesheet-history-report-table td.numeric {
+  font-variant-numeric: tabular-nums;
+}
+
+.timesheet-history-report-table .reviewed {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-badge.status-approved {
+  background: rgba(var(--color-success-rgb, 34, 197, 94), 0.1);
+  color: var(--color-success);
+}
+
+.status-badge.status-rejected {
+  background: rgba(var(--color-danger-rgb, 239, 68, 68), 0.1);
+  color: var(--color-danger);
+}
+
+.status-badge.status-submitted {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--color-warning, #f59e0b);
+}
+
+.status-badge.status-open {
+  background: rgba(128, 128, 128, 0.1);
+  color: var(--color-text-secondary);
+}
+
+/* Compliance Indicators */
+.compliance-issues {
+  color: var(--color-danger);
+  font-size: 0.875rem;
+}
+
+.compliance-ok {
+  color: var(--color-success);
+  font-size: 0.875rem;
+}
+
+/* Expand Button */
+.expand-button {
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-background);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.expand-button:hover {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+/* Details Row */
+.details-row {
+  background: var(--color-background);
+}
+
+.details-row td {
+  padding: 0;
+}
+
+.details-content {
+  padding: 1rem;
+  font-size: 0.875rem;
+}
+
+.detail-item {
+  margin-bottom: 0.5rem;
+}
+
+.detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.detail-item strong {
+  color: var(--color-text-secondary);
+}
+
+.detail-item.notes {
+  background: rgba(var(--color-danger-rgb, 239, 68, 68), 0.05);
+  padding: 0.5rem;
+  border-radius: 4px;
+  border-left: 3px solid var(--color-danger);
+}
+
+.detail-item.compliance {
+  padding: 0.5rem;
+  border-radius: 4px;
+  background: rgba(var(--color-warning-rgb, 245, 158, 11), 0.05);
+  border-left: 3px solid var(--color-warning, #f59e0b);
+}
+
+/* View Link */
+.view-link {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.view-link:hover {
+  text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .filter-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-actions {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+
+  .apply-filters-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .timesheet-history-report {
+    padding: 1rem;
+  }
+
+  .timesheet-history-report-summary {
+    flex-direction: column;
+  }
+
+  .timesheet-history-report-summary .summary-card {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .timesheet-history-report-table th,
+  .timesheet-history-report-table td {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+  }
+}

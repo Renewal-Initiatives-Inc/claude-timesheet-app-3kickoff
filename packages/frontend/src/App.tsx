@@ -14,6 +14,9 @@ import { ReviewQueue } from './pages/ReviewQueue.js';
 import { ReviewDetail } from './pages/ReviewDetail.js';
 import { PayrollReportPage } from './pages/PayrollReportPage.js';
 import { Alerts } from './pages/Alerts.js';
+import { ReportsDashboard } from './pages/ReportsDashboard.js';
+import { ComplianceAuditReport } from './pages/ComplianceAuditReport.js';
+import { TimesheetHistoryReport } from './pages/TimesheetHistoryReport.js';
 import './App.css';
 
 /**
@@ -44,7 +47,7 @@ function AppLayout() {
               </a>
               <a href="/employees">Employees</a>
               <a href="/task-codes">Task Codes</a>
-              <a href="/payroll">Payroll</a>
+              <a href="/reports">Reports</a>
             </>
           )}
         </div>
@@ -121,6 +124,10 @@ function App() {
                 <Route path="/task-codes/:id/edit" element={<TaskCodeForm mode="edit" />} />
                 <Route path="/review" element={<ReviewQueue />} />
                 <Route path="/review/:timesheetId" element={<ReviewDetail />} />
+                <Route path="/reports" element={<ReportsDashboard />} />
+                <Route path="/reports/payroll" element={<PayrollReportPage />} />
+                <Route path="/reports/compliance-audit" element={<ComplianceAuditReport />} />
+                <Route path="/reports/timesheet-history" element={<TimesheetHistoryReport />} />
                 <Route path="/payroll" element={<PayrollReportPage />} />
                 <Route path="/alerts" element={<Alerts />} />
               </Route>

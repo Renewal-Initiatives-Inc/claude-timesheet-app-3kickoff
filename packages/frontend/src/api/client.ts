@@ -645,17 +645,24 @@ export async function getPayrollRecord(
 }
 
 /**
+ * Age band type for filtering.
+ */
+export type AgeBand = '12-13' | '14-15' | '16-17' | '18+';
+
+/**
  * Get payroll report with filters.
  */
 export async function getPayrollReport(params: {
   startDate: string;
   endDate: string;
   employeeId?: string;
+  ageBand?: AgeBand;
 }): Promise<PayrollReportResponse> {
   const searchParams = new URLSearchParams();
   searchParams.set('startDate', params.startDate);
   searchParams.set('endDate', params.endDate);
   if (params.employeeId) searchParams.set('employeeId', params.employeeId);
+  if (params.ageBand) searchParams.set('ageBand', params.ageBand);
 
   return apiRequest(`/payroll/report?${searchParams.toString()}`);
 }
@@ -668,6 +675,7 @@ export async function exportPayrollCSV(params: {
   startDate: string;
   endDate: string;
   employeeId?: string;
+  ageBand?: AgeBand;
 }): Promise<Blob> {
   const token = getAuthToken();
   const headers: Record<string, string> = {};

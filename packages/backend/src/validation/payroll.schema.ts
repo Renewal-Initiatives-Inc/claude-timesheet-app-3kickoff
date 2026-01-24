@@ -1,6 +1,11 @@
 import { z } from 'zod';
 
 /**
+ * Age band values for filtering reports.
+ */
+export const ageBandEnum = z.enum(['12-13', '14-15', '16-17', '18+']);
+
+/**
  * Schema for payroll report query parameters.
  */
 export const payrollReportQuerySchema = z.object({
@@ -11,6 +16,7 @@ export const payrollReportQuerySchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
   employeeId: z.string().uuid('Invalid employee ID').optional(),
+  ageBand: ageBandEnum.optional(),
 });
 
 /**
@@ -24,6 +30,7 @@ export const payrollExportSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
   employeeId: z.string().uuid('Invalid employee ID').optional(),
+  ageBand: ageBandEnum.optional(),
 });
 
 /**

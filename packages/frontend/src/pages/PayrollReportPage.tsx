@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import type { PayrollRecordWithDetails, PayrollReportSummary } from '@renewal/types';
-import { getPayrollReport, exportPayrollCSV, getEmployees, ApiRequestError } from '../api/client.js';
+import { getPayrollReport, exportPayrollCSV, getEmployees, ApiRequestError, type AgeBand } from '../api/client.js';
 import './PayrollReportPage.css';
 
 /**
@@ -55,6 +55,7 @@ export function PayrollReportPage() {
   const [startDate, setStartDate] = useState(defaultRange.startDate);
   const [endDate, setEndDate] = useState(defaultRange.endDate);
   const [employeeId, setEmployeeId] = useState<string>('');
+  const [ageBand, setAgeBand] = useState<string>('');
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [employeesLoaded, setEmployeesLoaded] = useState(false);
 
@@ -91,6 +92,7 @@ export function PayrollReportPage() {
         startDate,
         endDate,
         employeeId: employeeId || undefined,
+        ageBand: (ageBand as AgeBand) || undefined,
       });
       setRecords(response.records);
       setSummary(response.summary);
@@ -103,7 +105,7 @@ export function PayrollReportPage() {
     } finally {
       setLoading(false);
     }
-  }, [startDate, endDate, employeeId]);
+  }, [startDate, endDate, employeeId, ageBand]);
 
   // Handle export
   const handleExport = async () => {
@@ -114,6 +116,7 @@ export function PayrollReportPage() {
         startDate,
         endDate,
         employeeId: employeeId || undefined,
+        ageBand: (ageBand as AgeBand) || undefined,
       });
 
       // Create download link
@@ -189,6 +192,21 @@ export function PayrollReportPage() {
                   {emp.name}
                 </option>
               ))}
+            </select>
+          </div>
+          <div className="filter-field">
+            <label htmlFor="ageBand">Age Band</label>
+            <select
+              id="ageBand"
+              value={ageBand}
+              onChange={(e) => setAgeBand(e.target.value)}
+              data-testid="payroll-report-age-band-filter"
+            >
+              <option value="">All Ages</option>
+              <option value="12-13">12-13</option>
+              <option value="14-15">14-15</option>
+              <option value="16-17">16-17</option>
+              <option value="18+">18+</option>
             </select>
           </div>
           <div className="filter-actions">

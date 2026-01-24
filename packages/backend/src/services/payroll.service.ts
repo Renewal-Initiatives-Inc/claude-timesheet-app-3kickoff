@@ -2,6 +2,7 @@ import { eq, and, lte, desc, gte, sql } from 'drizzle-orm';
 import { db, schema } from '../db/index.js';
 import type { PayrollRecord } from '@renewal/types';
 import Decimal from 'decimal.js';
+import { getAgeBand, type AgeBand } from '../utils/age.js';
 
 // Type alias for Decimal instances
 type DecimalValue = InstanceType<typeof Decimal>;
@@ -53,6 +54,7 @@ export interface PayrollFilters {
   startDate: string;
   endDate: string;
   employeeId?: string;
+  ageBand?: AgeBand;
 }
 
 /**
@@ -294,6 +296,29 @@ export async function getPayrollRecordById(
 }
 
 /**
+ * Calculate age as of a specific date.
+ */
+function calculateAgeOnDate(dateOfBirth: string, asOfDate: string): number {
+  const dob = new Date(dateOfBirth + 'T00:00:00');
+  const asOf = new Date(asOfDate + 'T00:00:00');
+
+  let age = asOf.getFullYear() - dob.getFullYear();
+  const monthDiff = asOf.getMonth() - dob.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && asOf.getDate() < dob.getDate())) {
+    age--;
+  }
+  return age;
+}
+
+/**
+ * Get age band safely (returns '18+' for any age >= 18).
+ */
+function getAgeBandSafe(age: number): AgeBand {
+  if (age < 12) return '12-13'; // Treat below 12 as youngest band
+  return getAgeBand(age);
+}
+
+/**
  * List payroll records with filters.
  * Filters by period dates (overlapping with date range) and optionally by employee.
  */
@@ -329,7 +354,8 @@ export async function listPayrollRecords(
     orderBy: [desc(payrollRecords.periodStart)],
   });
 
-  return records.map((record) => ({
+  // Map records to output format
+  let result = records.map((record) => ({
     id: record.id,
     timesheetId: record.timesheetId,
     employeeId: record.employeeId,
@@ -347,10 +373,29 @@ export async function listPayrollRecords(
     employee: {
       id: record.employee.id,
       name: record.employee.name,
+      dateOfBirth: record.employee.dateOfBirth,
     },
     timesheet: {
       id: record.timesheet.id,
       weekStartDate: record.timesheet.weekStartDate,
+    },
+  }));
+
+  // Filter by age band if specified
+  if (filters.ageBand) {
+    result = result.filter((record) => {
+      const age = calculateAgeOnDate(record.employee.dateOfBirth, record.periodStart);
+      const band = getAgeBandSafe(age);
+      return band === filters.ageBand;
+    });
+  }
+
+  // Remove dateOfBirth from output (was only needed for filtering)
+  return result.map(({ employee, ...rest }) => ({
+    ...rest,
+    employee: {
+      id: employee.id,
+      name: employee.name,
     },
   }));
 }

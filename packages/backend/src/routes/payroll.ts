@@ -69,8 +69,8 @@ router.get('/report', async (req: Request, res: Response) => {
       return;
     }
 
-    const { startDate, endDate, employeeId } = queryResult.data;
-    const records = await listPayrollRecords({ startDate, endDate, employeeId });
+    const { startDate, endDate, employeeId, ageBand } = queryResult.data;
+    const records = await listPayrollRecords({ startDate, endDate, employeeId, ageBand });
 
     // Calculate summary totals
     const summary = {
@@ -129,9 +129,9 @@ router.post(
   validate(payrollExportSchema),
   async (req: Request, res: Response) => {
     try {
-      const { startDate, endDate, employeeId } = req.body;
+      const { startDate, endDate, employeeId, ageBand } = req.body;
 
-      const records = await listPayrollRecords({ startDate, endDate, employeeId });
+      const records = await listPayrollRecords({ startDate, endDate, employeeId, ageBand });
 
       if (records.length === 0) {
         res.status(404).json({

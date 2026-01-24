@@ -11,6 +11,7 @@ import taskCodesRouter from './routes/task-codes.js';
 import timesheetsRouter from './routes/timesheets.js';
 import supervisorRouter from './routes/supervisor.js';
 import payrollRouter from './routes/payroll.js';
+import reportsRouter from './routes/reports.js';
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use('/api/task-codes', taskCodesRouter);
 app.use('/api/timesheets', timesheetsRouter);
 app.use('/api/supervisor', supervisorRouter);
 app.use('/api/payroll', payrollRouter);
+app.use('/api/reports', reportsRouter);
 // Document upload endpoint is nested under employees
 app.use('/api', documentsRouter);
 
