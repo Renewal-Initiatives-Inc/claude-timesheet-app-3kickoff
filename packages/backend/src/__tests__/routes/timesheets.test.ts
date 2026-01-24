@@ -653,4 +653,106 @@ describe('Timesheets API Routes', () => {
       expect(response.body.dates).toHaveLength(7);
     });
   });
+
+  describe('POST /api/timesheets/:id/submit', () => {
+    it('should return 401 for unauthenticated request', async () => {
+      const response = await request(app).post('/api/timesheets/ts-1/submit');
+
+      expect(response.status).toBe(401);
+    });
+
+    it('should return 403 for access denied', async () => {
+      vi.mocked(db.query.employees.findFirst).mockResolvedValueOnce(testEmployee as never);
+
+      const mockTimesheet = {
+        id: 'ts-1',
+        employeeId: 'emp-other', // Different employee
+      };
+
+      vi.mocked(db.query.timesheets.findFirst).mockResolvedValueOnce(mockTimesheet as never);
+
+      const response = await request(app)
+        .post('/api/timesheets/ts-1/submit')
+        .set('Authorization', 'Bearer valid-employee-token');
+
+      expect(response.status).toBe(403);
+      expect(response.body.error).toBe('TIMESHEET_ACCESS_DENIED');
+    });
+
+    it('should return 400 for non-editable timesheet', async () => {
+      vi.mocked(db.query.employees.findFirst).mockResolvedValueOnce(testEmployee as never);
+
+      const mockTimesheet = {
+        id: 'ts-1',
+        employeeId: 'emp-1',
+        weekStartDate: '2024-06-09',
+        status: 'submitted', // Already submitted
+        submittedAt: new Date(),
+        reviewedBy: null,
+        reviewedAt: null,
+        supervisorNotes: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      vi.mocked(db.query.timesheets.findFirst)
+        .mockResolvedValueOnce(mockTimesheet as never) // validateTimesheetAccess
+        .mockResolvedValueOnce(mockTimesheet as never); // getTimesheetById
+
+      const response = await request(app)
+        .post('/api/timesheets/ts-1/submit')
+        .set('Authorization', 'Bearer valid-employee-token');
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('TIMESHEET_ALREADY_SUBMITTED');
+    });
+
+    it('should return 404 for non-existent timesheet', async () => {
+      vi.mocked(db.query.employees.findFirst).mockResolvedValueOnce(testEmployee as never);
+      vi.mocked(db.query.timesheets.findFirst).mockResolvedValueOnce(null as never);
+
+      const response = await request(app)
+        .post('/api/timesheets/ts-1/submit')
+        .set('Authorization', 'Bearer valid-employee-token');
+
+      expect(response.status).toBe(404);
+    });
+  });
+
+  describe('POST /api/timesheets/:id/validate', () => {
+    it('should return 401 for unauthenticated request', async () => {
+      const response = await request(app).post('/api/timesheets/ts-1/validate');
+
+      expect(response.status).toBe(401);
+    });
+
+    it('should return 403 for access denied', async () => {
+      vi.mocked(db.query.employees.findFirst).mockResolvedValueOnce(testEmployee as never);
+
+      const mockTimesheet = {
+        id: 'ts-1',
+        employeeId: 'emp-other', // Different employee
+      };
+
+      vi.mocked(db.query.timesheets.findFirst).mockResolvedValueOnce(mockTimesheet as never);
+
+      const response = await request(app)
+        .post('/api/timesheets/ts-1/validate')
+        .set('Authorization', 'Bearer valid-employee-token');
+
+      expect(response.status).toBe(403);
+      expect(response.body.error).toBe('TIMESHEET_ACCESS_DENIED');
+    });
+
+    it('should return 404 for non-existent timesheet', async () => {
+      vi.mocked(db.query.employees.findFirst).mockResolvedValueOnce(testEmployee as never);
+      vi.mocked(db.query.timesheets.findFirst).mockResolvedValueOnce(null as never);
+
+      const response = await request(app)
+        .post('/api/timesheets/ts-1/validate')
+        .set('Authorization', 'Bearer valid-employee-token');
+
+      expect(response.status).toBe(404);
+    });
+  });
 });

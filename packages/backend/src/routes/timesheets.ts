@@ -12,6 +12,10 @@ import {
   TimesheetError,
 } from '../services/timesheet.service.js';
 import {
+  checkCompliance,
+  ComplianceError,
+} from '../services/compliance/index.js';
+import {
   createEntry,
   updateEntry,
   deleteEntry,
@@ -559,6 +563,150 @@ router.get('/:id/week-info', async (req: Request, res: Response) => {
   } catch (error) {
     if (error instanceof TimesheetError) {
       const statusCode = error.code === 'TIMESHEET_NOT_FOUND' ? 404 : 400;
+      res.status(statusCode).json({
+        error: error.code,
+        message: error.message,
+      });
+      return;
+    }
+    throw error;
+  }
+});
+
+/**
+ * POST /api/timesheets/:id/submit
+ * Submit timesheet for compliance check and supervisor review.
+ */
+router.post('/:id/submit', async (req: Request, res: Response) => {
+  try {
+    const id = req.params['id'] as string;
+
+    // Verify access
+    const hasAccess = await validateTimesheetAccess(id, req.employee!.id);
+    if (!hasAccess) {
+      res.status(403).json({
+        error: 'TIMESHEET_ACCESS_DENIED',
+        message: 'You do not have access to this timesheet',
+      });
+      return;
+    }
+
+    // Verify timesheet exists and is editable
+    const timesheet = await getTimesheetById(id);
+    if (!timesheet) {
+      res.status(404).json({
+        error: 'TIMESHEET_NOT_FOUND',
+        message: 'Timesheet not found',
+      });
+      return;
+    }
+
+    if (timesheet.status !== 'open') {
+      res.status(400).json({
+        error: 'TIMESHEET_ALREADY_SUBMITTED',
+        message: 'This timesheet has already been submitted',
+      });
+      return;
+    }
+
+    // Run compliance checks
+    const complianceResult = await checkCompliance(id);
+
+    if (!complianceResult.passed) {
+      // Return detailed errors without changing status
+      res.status(400).json({
+        error: 'COMPLIANCE_CHECK_FAILED',
+        message: 'Compliance check failed',
+        passed: false,
+        violations: complianceResult.violations,
+        summary: {
+          total: complianceResult.results.length,
+          passed: complianceResult.passedRules.length,
+          failed: complianceResult.failedRules.length,
+          notApplicable: complianceResult.notApplicableRules.length,
+        },
+      });
+      return;
+    }
+
+    // All checks passed - update status to submitted
+    await db
+      .update(schema.timesheets)
+      .set({
+        status: 'submitted',
+        submittedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.timesheets.id, id));
+
+    res.json({
+      passed: true,
+      message: 'Timesheet submitted successfully',
+      status: 'submitted',
+      complianceSummary: {
+        total: complianceResult.results.length,
+        passed: complianceResult.passedRules.length,
+        notApplicable: complianceResult.notApplicableRules.length,
+      },
+    });
+  } catch (error) {
+    if (error instanceof TimesheetError) {
+      const statusCode = error.code === 'TIMESHEET_NOT_FOUND' ? 404 : 400;
+      res.status(statusCode).json({
+        error: error.code,
+        message: error.message,
+      });
+      return;
+    }
+    if (error instanceof ComplianceError) {
+      const statusCode = error.code === 'TIMESHEET_NOT_FOUND' ? 404 : 500;
+      res.status(statusCode).json({
+        error: error.code,
+        message: error.message,
+      });
+      return;
+    }
+    throw error;
+  }
+});
+
+/**
+ * POST /api/timesheets/:id/validate
+ * Preview compliance check without submitting.
+ */
+router.post('/:id/validate', async (req: Request, res: Response) => {
+  try {
+    const id = req.params['id'] as string;
+
+    // Verify access
+    const hasAccess = await validateTimesheetAccess(id, req.employee!.id);
+    if (!hasAccess) {
+      res.status(403).json({
+        error: 'TIMESHEET_ACCESS_DENIED',
+        message: 'You do not have access to this timesheet',
+      });
+      return;
+    }
+
+    // Run compliance preview (no logging)
+    const { previewCompliance } = await import('../services/compliance/index.js');
+    const result = await previewCompliance(id);
+
+    res.json({
+      valid: result.valid,
+      violations: result.violations,
+    });
+  } catch (error) {
+    if (error instanceof TimesheetError) {
+      const statusCode = error.code === 'TIMESHEET_NOT_FOUND' ? 404 : 400;
+      res.status(statusCode).json({
+        error: error.code,
+        message: error.message,
+      });
+      return;
+    }
+    if (error instanceof ComplianceError) {
+      const statusCode = error.code === 'TIMESHEET_NOT_FOUND' ? 404 : 500;
       res.status(statusCode).json({
         error: error.code,
         message: error.message,

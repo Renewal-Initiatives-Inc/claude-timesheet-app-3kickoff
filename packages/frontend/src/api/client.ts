@@ -449,3 +449,76 @@ export async function getTimesheetWeekInfo(
 ): Promise<WeekInfo> {
   return apiRequest(`/timesheets/${timesheetId}/week-info`);
 }
+
+/**
+ * Compliance violation from the API.
+ */
+export interface ComplianceViolation {
+  ruleId: string;
+  ruleName: string;
+  message: string;
+  remediation: string;
+  affectedDates?: string[];
+  affectedEntries?: string[];
+}
+
+/**
+ * Result of submitting a timesheet.
+ */
+export interface SubmitTimesheetResult {
+  passed: boolean;
+  message?: string;
+  status?: string;
+  violations?: ComplianceViolation[];
+  summary?: {
+    total: number;
+    passed: number;
+    failed: number;
+    notApplicable: number;
+  };
+  complianceSummary?: {
+    total: number;
+    passed: number;
+    notApplicable: number;
+  };
+}
+
+/**
+ * Result of validating a timesheet.
+ */
+export interface ValidateTimesheetResult {
+  valid: boolean;
+  violations: ComplianceViolation[];
+}
+
+/**
+ * Submit a timesheet for compliance check and review.
+ */
+export async function submitTimesheet(
+  timesheetId: string
+): Promise<SubmitTimesheetResult> {
+  try {
+    return await apiRequest(`/timesheets/${timesheetId}/submit`, {
+      method: 'POST',
+    });
+  } catch (error) {
+    // Handle compliance check failures specially
+    if (error instanceof ApiRequestError && error.status === 400) {
+      // The response body should contain the compliance errors
+      // Re-throw with parsed violations if present
+      throw error;
+    }
+    throw error;
+  }
+}
+
+/**
+ * Validate a timesheet without submitting.
+ */
+export async function validateTimesheet(
+  timesheetId: string
+): Promise<ValidateTimesheetResult> {
+  return apiRequest(`/timesheets/${timesheetId}/validate`, {
+    method: 'POST',
+  });
+}

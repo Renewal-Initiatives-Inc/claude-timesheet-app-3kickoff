@@ -6,6 +6,8 @@ import { WeekSelector } from '../components/WeekSelector.js';
 import { TimesheetGrid } from '../components/TimesheetGrid.js';
 import { EntryFormModal } from '../components/EntryFormModal.js';
 import { HourLimitsDisplay } from '../components/HourLimitsDisplay.js';
+import { ComplianceErrorDisplay, type ComplianceViolation } from '../components/ComplianceErrorDisplay.js';
+import { submitTimesheet, ApiRequestError } from '../api/client.js';
 import type { CreateEntryRequest, UpdateEntryRequest, AgeBand, TimesheetEntryWithTaskCode } from '@renewal/types';
 import './Timesheet.css';
 
@@ -78,6 +80,9 @@ export function Timesheet() {
 
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [editingEntry, setEditingEntry] = useState<TimesheetEntryWithTaskCode | null>(null);
+  const [complianceErrors, setComplianceErrors] = useState<ComplianceViolation[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   const handleWeekChange = (newWeekStartDate: string) => {
     if (newWeekStartDate === timesheet?.weekStartDate) return;
@@ -107,6 +112,65 @@ export function Timesheet() {
     const entry = timesheet.entries.find((e) => e.id === entryId);
     if (entry) {
       setEditingEntry(entry);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!timesheet) return;
+
+    setSubmitting(true);
+    setComplianceErrors([]);
+    setSubmitSuccess(false);
+
+    try {
+      const result = await submitTimesheet(timesheet.id);
+      if (result.passed) {
+        setSubmitSuccess(true);
+        // Refresh to get updated status
+        refresh();
+      }
+    } catch (err) {
+      if (err instanceof ApiRequestError) {
+        // Try to parse compliance violations from error
+        try {
+          const errorResponse = JSON.parse(err.message);
+          if (errorResponse.violations) {
+            setComplianceErrors(errorResponse.violations);
+          } else {
+            setComplianceErrors([{
+              ruleId: 'ERROR',
+              ruleName: 'Submission Error',
+              message: err.message,
+              remediation: 'Please try again or contact your supervisor.',
+            }]);
+          }
+        } catch {
+          // Fetch the actual error response from the API
+          // The error message might contain the compliance failures
+          setComplianceErrors([{
+            ruleId: 'ERROR',
+            ruleName: 'Submission Error',
+            message: err.message,
+            remediation: 'Please try again or contact your supervisor.',
+          }]);
+        }
+      } else {
+        setComplianceErrors([{
+          ruleId: 'ERROR',
+          ruleName: 'Submission Error',
+          message: 'An unexpected error occurred.',
+          remediation: 'Please try again or contact your supervisor.',
+        }]);
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const scrollToEntry = (entryId: string) => {
+    const element = document.querySelector(`[data-entry-id="${entryId}"]`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
 
@@ -198,6 +262,24 @@ export function Timesheet() {
         </div>
       )}
 
+      {submitSuccess && (
+        <div className="success-alert" data-testid="submit-success-alert">
+          <span className="success-icon">&#10003;</span>
+          <div className="success-message">
+            <strong>Timesheet submitted successfully!</strong>
+            <p>Your timesheet has been sent to your supervisor for review.</p>
+          </div>
+        </div>
+      )}
+
+      {complianceErrors.length > 0 && (
+        <ComplianceErrorDisplay
+          violations={complianceErrors}
+          onClose={() => setComplianceErrors([])}
+          onEntryClick={scrollToEntry}
+        />
+      )}
+
       <div className="timesheet-content">
         <div className="timesheet-main">
           <TimesheetGrid
@@ -219,6 +301,22 @@ export function Timesheet() {
           />
         </aside>
       </div>
+
+      {isEditable && (
+        <div className="timesheet-actions">
+          <button
+            className="submit-button"
+            onClick={handleSubmit}
+            disabled={submitting || timesheet.entries.length === 0}
+            data-testid="submit-timesheet-button"
+          >
+            {submitting ? 'Submitting...' : 'Submit for Review'}
+          </button>
+          <p className="submit-hint">
+            Once submitted, your timesheet will be reviewed by your supervisor.
+          </p>
+        </div>
+      )}
 
       {selectedDate && user && (
         <EntryFormModal
