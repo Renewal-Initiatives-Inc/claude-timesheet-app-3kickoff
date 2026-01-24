@@ -28,17 +28,17 @@ test.describe('Task Code Management', () => {
 
   test('supervisor can view task codes list', async ({ page }) => {
     // Navigate to task codes
-    await page.click('a[href="/task-codes"]');
+    await page.getByRole('link', { name: /task codes/i }).click();
     await page.waitForURL('/task-codes');
 
     // Verify page loaded
-    await expect(page.locator('h1')).toContainText('Task Codes');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Task Codes');
 
     // Verify table is visible
-    await expect(page.locator('table.task-codes-table')).toBeVisible();
+    await expect(page.getByTestId('task-codes-table')).toBeVisible();
 
     // Verify at least one task code is listed (from seed data)
-    const rows = page.locator('table.task-codes-table tbody tr');
+    const rows = page.getByTestId('task-codes-table').locator('tbody tr');
     await expect(rows).not.toHaveCount(0);
   });
 
@@ -46,13 +46,13 @@ test.describe('Task Code Management', () => {
     await page.goto('/task-codes');
 
     // Filter by Agricultural
-    await page.selectOption('#type-filter', 'true');
+    await page.getByTestId('field-isAgricultural').selectOption('true');
 
     // Wait for results to update
     await page.waitForTimeout(500);
 
     // Check that all visible task codes are Agricultural
-    const typeBadges = page.locator('.type-badge');
+    const typeBadges = page.getByTestId('task-code-type-badge');
     const count = await typeBadges.count();
 
     for (let i = 0; i < count; i++) {
@@ -64,13 +64,13 @@ test.describe('Task Code Management', () => {
     await page.goto('/task-codes');
 
     // Search for a specific task code
-    await page.fill('#search', 'Field');
+    await page.getByTestId('field-search').fill('Field');
 
     // Wait for results to update
     await page.waitForTimeout(500);
 
     // Verify search results contain the search term
-    const rows = page.locator('table.task-codes-table tbody tr');
+    const rows = page.getByTestId('task-codes-table').locator('tbody tr');
     const rowCount = await rows.count();
 
     expect(rowCount).toBeGreaterThan(0);
@@ -80,114 +80,114 @@ test.describe('Task Code Management', () => {
     await page.goto('/task-codes');
 
     // Click on the first task code's View link
-    await page.click('table.task-codes-table tbody tr:first-child a.view-link');
+    await page.getByTestId('task-codes-table').locator('tbody tr').first().getByRole('link', { name: 'View' }).click();
 
     // Wait for detail page
     await page.waitForURL(/\/task-codes\/[a-zA-Z0-9-]+$/);
 
     // Verify the page shows task code details (h1 contains task code name)
-    await expect(page.locator('h1')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   });
 
   test('supervisor can create a new task code', async ({ page }) => {
     await page.goto('/task-codes');
 
     // Click Add Task Code button
-    await page.click('a.add-button');
+    await page.getByTestId('task-code-add-button').click();
     await page.waitForURL('/task-codes/new');
 
-    // Fill in the form using id selectors
+    // Fill in the form
     const uniqueCode = `T${Date.now().toString().slice(-4)}`;
-    await page.fill('#code', uniqueCode);
-    await page.fill('#name', 'Test Task Code');
-    await page.fill('#description', 'A test task code for E2E testing');
+    await page.getByTestId('field-code').fill(uniqueCode);
+    await page.getByTestId('field-name').fill('Test Task Code');
+    await page.getByTestId('field-description').fill('A test task code for E2E testing');
 
     // Set classification (work type select)
-    await page.selectOption('#type', 'agricultural');
+    await page.getByTestId('field-type').selectOption('agricultural');
 
     // Set minimum age
-    await page.selectOption('#minAge', '14');
+    await page.getByTestId('field-minAge').selectOption('14');
 
     // Set initial rate
-    await page.fill('#initialRate', '10.00');
+    await page.getByTestId('field-initialRate').fill('10.00');
 
     // Set effective date (today)
     const today = new Date().toISOString().split('T')[0];
-    await page.fill('#effectiveDate', today!);
+    await page.getByTestId('field-rateEffectiveDate').fill(today!);
 
     // Submit the form
-    await page.click('button[type="submit"]');
+    await page.getByTestId('task-code-submit-button').click();
 
     // Wait for redirect to list page (form has 1.5s delay)
     await page.waitForURL('/task-codes', { timeout: 10000 });
 
     // Verify task code appears in list
-    await page.fill('#search', uniqueCode);
+    await page.getByTestId('field-search').fill(uniqueCode);
     await page.waitForTimeout(500);
 
-    await expect(page.locator(`text=${uniqueCode}`)).toBeVisible();
+    await expect(page.getByText(uniqueCode)).toBeVisible();
   });
 
   test('supervisor can edit a task code', async ({ page }) => {
     await page.goto('/task-codes');
 
     // Navigate to first task code detail
-    await page.click('table.task-codes-table tbody tr:first-child a.view-link');
+    await page.getByTestId('task-codes-table').locator('tbody tr').first().getByRole('link', { name: 'View' }).click();
     await page.waitForURL(/\/task-codes\/[a-zA-Z0-9-]+$/);
 
     // Click Edit button
-    await page.click('a:has-text("Edit")');
+    await page.getByTestId('task-code-edit-button').click();
     await page.waitForURL(/\/task-codes\/[a-zA-Z0-9-]+\/edit$/);
 
-    // Modify the name using id selector
-    const originalName = await page.inputValue('#name');
+    // Modify the name
+    const originalName = await page.getByTestId('field-name').inputValue();
     const newName = `${originalName} (Updated)`;
-    await page.fill('#name', newName);
+    await page.getByTestId('field-name').fill(newName);
 
     // Submit the form
-    await page.click('button[type="submit"]');
+    await page.getByTestId('task-code-submit-button').click();
 
     // Verify redirect back to detail page (form has 1.5s delay)
     await page.waitForURL(/\/task-codes\/[a-zA-Z0-9-]+$/, { timeout: 10000 });
 
     // Verify the name was updated
-    await expect(page.locator('h1')).toContainText(newName);
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(newName);
   });
 
   test('supervisor can add a new rate', async ({ page }) => {
     await page.goto('/task-codes');
 
     // Navigate to first task code detail
-    await page.click('table.task-codes-table tbody tr:first-child a.view-link');
+    await page.getByTestId('task-codes-table').locator('tbody tr').first().getByRole('link', { name: 'View' }).click();
     await page.waitForURL(/\/task-codes\/[a-zA-Z0-9-]+$/);
 
     // Get initial rate count
-    const initialRateRows = await page.locator('.rate-history-section table tbody tr').count();
+    const initialRateRows = await page.getByTestId('rate-history-table').locator('tbody tr').count();
 
     // Click Add New Rate button
-    await page.click('button:has-text("Add New Rate")');
+    await page.getByTestId('task-code-add-rate-button').click();
 
     // Wait for modal
-    await expect(page.locator('.add-rate-modal')).toBeVisible();
+    await expect(page.getByTestId('add-rate-modal')).toBeVisible();
 
     // Fill in the new rate
-    await page.fill('.add-rate-modal #hourlyRate', '12.00');
+    await page.getByTestId('field-hourlyRate').fill('12.00');
 
     // Set future effective date
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + 7);
-    await page.fill('.add-rate-modal #effectiveDate', futureDate.toISOString().split('T')[0]!);
+    await page.getByTestId('field-effectiveDate').fill(futureDate.toISOString().split('T')[0]!);
 
-    await page.fill('.add-rate-modal #justificationNotes', 'Rate increase for testing');
+    await page.getByTestId('field-justificationNotes').fill('Rate increase for testing');
 
     // Submit the form
-    await page.click('.add-rate-modal button[type="submit"]');
+    await page.getByTestId('add-rate-modal-submit-button').click();
 
     // Wait for modal to close
-    await expect(page.locator('.add-rate-modal')).not.toBeVisible({ timeout: 5000 });
+    await expect(page.getByTestId('add-rate-modal')).not.toBeVisible({ timeout: 5000 });
 
     // Verify new rate appears in history
-    const newRateRows = await page.locator('.rate-history-section table tbody tr').count();
+    const newRateRows = await page.getByTestId('rate-history-table').locator('tbody tr').count();
     expect(newRateRows).toBe(initialRateRows + 1);
   });
 
@@ -196,46 +196,43 @@ test.describe('Task Code Management', () => {
     await page.goto('/task-codes/new');
 
     const uniqueCode = `A${Date.now().toString().slice(-4)}`;
-    await page.fill('#code', uniqueCode);
-    await page.fill('#name', 'Task Code To Archive');
-    await page.selectOption('#minAge', '12');
-    await page.fill('#initialRate', '8.00');
+    await page.getByTestId('field-code').fill(uniqueCode);
+    await page.getByTestId('field-name').fill('Task Code To Archive');
+    await page.getByTestId('field-minAge').selectOption('12');
+    await page.getByTestId('field-initialRate').fill('8.00');
 
     const today = new Date().toISOString().split('T')[0];
-    await page.fill('#effectiveDate', today!);
+    await page.getByTestId('field-rateEffectiveDate').fill(today!);
 
-    await page.click('button[type="submit"]');
+    await page.getByTestId('task-code-submit-button').click();
     await page.waitForURL('/task-codes', { timeout: 10000 });
 
     // Navigate to the task code detail
-    await page.fill('#search', uniqueCode);
+    await page.getByTestId('field-search').fill(uniqueCode);
     await page.waitForTimeout(500);
-    await page.click(`text=${uniqueCode}`);
+    await page.getByText(uniqueCode).click();
     await page.waitForURL(/\/task-codes\/[a-zA-Z0-9-]+$/);
 
     // Click Archive button
-    await page.click('button:has-text("Archive")');
+    await page.getByTestId('task-code-archive-button').click();
 
-    // Confirm archive (look for confirmation dialog)
-    const confirmButton = page.locator('button:has-text("Confirm")');
-    if (await confirmButton.isVisible()) {
-      await confirmButton.click();
-    }
+    // Confirm archive
+    await page.getByTestId('task-code-archive-confirm-button').click();
 
     // Should redirect to list
     await page.waitForURL('/task-codes', { timeout: 10000 });
 
     // Verify task code is not visible by default (active only)
-    await page.fill('#search', uniqueCode);
+    await page.getByTestId('field-search').fill(uniqueCode);
     await page.waitForTimeout(500);
-    await expect(page.locator(`table.task-codes-table >> text=${uniqueCode}`)).not.toBeVisible();
+    await expect(page.getByTestId('task-codes-table').getByText(uniqueCode)).not.toBeVisible();
 
     // Enable "Include Inactive" filter
-    await page.selectOption('#status-filter', 'true');
+    await page.getByTestId('field-includeInactive').selectOption('true');
     await page.waitForTimeout(500);
 
     // Verify task code is now visible
-    await expect(page.locator(`text=${uniqueCode}`)).toBeVisible();
+    await expect(page.getByText(uniqueCode)).toBeVisible();
   });
 });
 

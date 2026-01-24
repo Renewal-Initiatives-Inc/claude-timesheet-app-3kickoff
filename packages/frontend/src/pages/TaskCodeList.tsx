@@ -20,7 +20,7 @@ export function TaskCodeList() {
     <div className="task-code-list-page">
       <header className="page-header">
         <h1>Task Codes</h1>
-        <Link to="/task-codes/new" className="add-button">
+        <Link to="/task-codes/new" className="add-button" data-testid="task-code-add-button">
           + Add Task Code
         </Link>
       </header>
@@ -32,6 +32,7 @@ export function TaskCodeList() {
             id="type-filter"
             value={isAgricultural}
             onChange={(e) => setIsAgricultural(e.target.value as typeof isAgricultural)}
+            data-testid="field-isAgricultural"
           >
             <option value="">All Types</option>
             <option value="true">Agricultural</option>
@@ -45,6 +46,7 @@ export function TaskCodeList() {
             id="hazard-filter"
             value={isHazardous}
             onChange={(e) => setIsHazardous(e.target.value as typeof isHazardous)}
+            data-testid="field-isHazardous"
           >
             <option value="">All</option>
             <option value="true">Hazardous Only</option>
@@ -58,6 +60,7 @@ export function TaskCodeList() {
             id="status-filter"
             value={includeInactive}
             onChange={(e) => setIncludeInactive(e.target.value as typeof includeInactive)}
+            data-testid="field-includeInactive"
           >
             <option value="false">Active Only</option>
             <option value="true">Include Inactive</option>
@@ -72,6 +75,7 @@ export function TaskCodeList() {
             placeholder="Search by code or name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            data-testid="field-search"
           />
         </div>
       </div>
@@ -81,7 +85,7 @@ export function TaskCodeList() {
       {error && (
         <div className="error-message">
           <p>Error: {error}</p>
-          <button onClick={refetch}>Retry</button>
+          <button onClick={refetch} data-testid="task-code-list-retry-button">Retry</button>
         </div>
       )}
 
@@ -93,7 +97,7 @@ export function TaskCodeList() {
       )}
 
       {!loading && !error && taskCodes.length > 0 && (
-        <table className="task-codes-table">
+        <table className="task-codes-table" data-testid="task-codes-table">
           <thead>
             <tr>
               <th>Code</th>
@@ -111,6 +115,7 @@ export function TaskCodeList() {
               <tr
                 key={taskCode.id}
                 className={!taskCode.isActive ? 'inactive-row' : ''}
+                data-testid={`task-code-row-${taskCode.code}`}
               >
                 <td>
                   <Link to={`/task-codes/${taskCode.id}`} className="task-code-link">
@@ -119,7 +124,10 @@ export function TaskCodeList() {
                 </td>
                 <td className="name-cell">{taskCode.name}</td>
                 <td>
-                  <span className={`type-badge ${taskCode.isAgricultural ? 'type-agricultural' : 'type-non-agricultural'}`}>
+                  <span
+                    className={`type-badge ${taskCode.isAgricultural ? 'type-agricultural' : 'type-non-agricultural'}`}
+                    data-testid="task-code-type-badge"
+                  >
                     {taskCode.isAgricultural ? 'Agricultural' : 'Non-Agricultural'}
                   </span>
                 </td>
@@ -162,7 +170,7 @@ export function TaskCodeList() {
                   )}
                 </td>
                 <td>
-                  <Link to={`/task-codes/${taskCode.id}`} className="view-link">
+                  <Link to={`/task-codes/${taskCode.id}`} className="view-link" data-testid={`task-code-view-${taskCode.code}`}>
                     View
                   </Link>
                 </td>

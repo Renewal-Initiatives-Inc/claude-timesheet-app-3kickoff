@@ -52,7 +52,7 @@ export function TaskCodeDetail() {
           </h1>
         </div>
         <div className="header-actions">
-          <Link to={`/task-codes/${id}/edit`} className="edit-button">
+          <Link to={`/task-codes/${id}/edit`} className="edit-button" data-testid="task-code-edit-button">
             Edit
           </Link>
           {taskCode.isActive && (
@@ -60,6 +60,7 @@ export function TaskCodeDetail() {
               className="archive-button"
               onClick={() => setShowArchiveConfirm(true)}
               disabled={actionLoading}
+              data-testid="task-code-archive-button"
             >
               Archive
             </button>
@@ -149,12 +150,13 @@ export function TaskCodeDetail() {
           </div>
         </section>
 
-        <section className="rates-section">
+        <section className="rates-section" data-testid="rate-history-section">
           <div className="section-header">
             <h2>Rate History</h2>
             <button
               className="add-rate-button"
               onClick={() => setShowAddRateModal(true)}
+              data-testid="task-code-add-rate-button"
             >
               + Add New Rate
             </button>
@@ -162,7 +164,7 @@ export function TaskCodeDetail() {
           {taskCode.rateHistory.length === 0 ? (
             <p className="no-rates">No rate history available.</p>
           ) : (
-            <table className="rates-table">
+            <table className="rates-table" data-testid="rate-history-table">
               <thead>
                 <tr>
                   <th>Effective Date</th>
@@ -208,6 +210,7 @@ export function TaskCodeDetail() {
                 className="cancel-button"
                 onClick={() => setShowArchiveConfirm(false)}
                 disabled={actionLoading}
+                data-testid="task-code-archive-cancel-button"
               >
                 Cancel
               </button>
@@ -215,6 +218,7 @@ export function TaskCodeDetail() {
                 className="confirm-archive-button"
                 onClick={handleArchive}
                 disabled={actionLoading}
+                data-testid="task-code-archive-confirm-button"
               >
                 {actionLoading ? 'Archiving...' : 'Archive'}
               </button>

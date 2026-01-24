@@ -240,24 +240,73 @@ export function Timesheet() {
         </div>
       )}
 
-      {!isEditable && (
-        <div className="status-alert">
-          <span className="status-icon">&#9888;</span>
+      {!isEditable && timesheet.status === 'submitted' && (
+        <div className="status-alert status-alert--submitted" data-testid="status-submitted">
+          <span className="status-icon">&#9889;</span>
           <div className="status-message">
-            This timesheet has been{' '}
-            <strong>
-              {timesheet.status === 'submitted'
-                ? 'submitted for review'
-                : timesheet.status === 'approved'
-                ? 'approved'
-                : 'rejected'}
-            </strong>
-            . It cannot be edited.
-            {timesheet.supervisorNotes && (
-              <p className="supervisor-notes">
-                Supervisor notes: {timesheet.supervisorNotes}
+            <strong>Submitted for Review</strong>
+            <p>This timesheet is awaiting supervisor approval and cannot be edited.</p>
+            {timesheet.submittedAt && (
+              <p className="status-timestamp">
+                Submitted on {new Date(timesheet.submittedAt).toLocaleDateString('en-US', {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric',
+                  hour: 'numeric',
+                  minute: '2-digit',
+                })}
               </p>
             )}
+          </div>
+        </div>
+      )}
+
+      {!isEditable && timesheet.status === 'approved' && (
+        <div className="status-alert status-alert--approved" data-testid="status-approved">
+          <span className="status-icon">&#10003;</span>
+          <div className="status-message">
+            <strong>Approved</strong>
+            <p>This timesheet has been approved by your supervisor.</p>
+            {timesheet.reviewedAt && (
+              <p className="status-timestamp">
+                Approved on {new Date(timesheet.reviewedAt).toLocaleDateString('en-US', {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+              </p>
+            )}
+            {timesheet.supervisorNotes && (
+              <p className="supervisor-notes">
+                <strong>Supervisor notes:</strong> {timesheet.supervisorNotes}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {timesheet.status === 'open' && timesheet.supervisorNotes && timesheet.reviewedAt && (
+        <div className="status-alert status-alert--rejected" data-testid="status-rejected">
+          <span className="status-icon">&#9888;</span>
+          <div className="status-message">
+            <strong>Returned for Revision</strong>
+            <p>Your supervisor has returned this timesheet with feedback. Please review the notes below, make any necessary corrections, and resubmit.</p>
+            {timesheet.reviewedAt && (
+              <p className="status-timestamp">
+                Returned on {new Date(timesheet.reviewedAt).toLocaleDateString('en-US', {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+              </p>
+            )}
+            <div className="supervisor-feedback">
+              <strong>Supervisor feedback:</strong>
+              <p className="feedback-text">{timesheet.supervisorNotes}</p>
+            </div>
+            <p className="resubmit-hint">
+              Make your corrections and click "Submit for Review" when ready.
+            </p>
           </div>
         </div>
       )}

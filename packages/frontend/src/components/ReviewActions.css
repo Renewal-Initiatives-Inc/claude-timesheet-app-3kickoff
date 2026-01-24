@@ -1,0 +1,232 @@
+.review-actions {
+  background: var(--color-surface);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.review-actions-notes {
+  margin-bottom: 1rem;
+}
+
+.review-actions-notes label {
+  display: block;
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+}
+
+.review-actions-notes textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.875rem;
+  resize: vertical;
+  transition: border-color 0.15s ease;
+}
+
+.review-actions-notes textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.review-actions-notes textarea:disabled {
+  background: var(--color-background);
+  cursor: not-allowed;
+}
+
+.review-actions-error {
+  padding: 0.75rem 1rem;
+  background: rgba(var(--color-danger-rgb, 239, 68, 68), 0.1);
+  border: 1px solid var(--color-danger);
+  border-radius: 6px;
+  color: var(--color-danger);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.review-actions-buttons {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.review-action-button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.review-action-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.review-action-button--approve {
+  background: var(--color-success);
+  color: white;
+}
+
+.review-action-button--approve:hover:not(:disabled) {
+  filter: brightness(0.9);
+}
+
+.review-action-button--reject {
+  background: transparent;
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+}
+
+.review-action-button--reject:hover:not(:disabled) {
+  background: var(--color-danger);
+  color: white;
+}
+
+/* Modal styles */
+.review-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.review-modal {
+  background: var(--color-surface);
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow: auto;
+}
+
+.review-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.review-modal-header h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.review-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.review-modal-close:hover {
+  color: var(--color-text);
+}
+
+.review-modal-body {
+  padding: 1.25rem;
+}
+
+.review-modal-body p {
+  margin: 0 0 1rem;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.review-modal-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.review-modal-notes textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.875rem;
+  resize: vertical;
+  transition: border-color 0.15s ease;
+}
+
+.review-modal-notes textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.review-modal-error {
+  color: var(--color-danger);
+  font-size: 0.75rem;
+}
+
+.review-modal-hint {
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+}
+
+.review-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.review-modal-cancel {
+  padding: 0.625rem 1rem;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: var(--color-text);
+}
+
+.review-modal-cancel:hover:not(:disabled) {
+  background: var(--color-background);
+}
+
+.review-modal-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.review-modal-confirm {
+  padding: 0.625rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.review-modal-confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.review-modal-confirm--primary {
+  background: var(--color-primary);
+  color: white;
+}
+
+.review-modal-confirm--danger {
+  background: var(--color-danger);
+  color: white;
+}

@@ -81,20 +81,81 @@
   gap: 0.75rem;
   padding: 1rem;
   margin-bottom: 1rem;
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
   border-radius: 0.5rem;
+}
+
+.status-alert--submitted {
+  background-color: #eff6ff;
+  border: 1px solid #93c5fd;
+}
+
+.status-alert--submitted .status-icon {
+  color: #2563eb;
+}
+
+.status-alert--submitted .status-message {
+  color: #1e40af;
+}
+
+.status-alert--submitted .status-message strong {
+  color: #1d4ed8;
+}
+
+.status-alert--approved {
+  background-color: #ecfdf5;
+  border: 1px solid #6ee7b7;
+}
+
+.status-alert--approved .status-icon {
+  color: #059669;
+}
+
+.status-alert--approved .status-message {
+  color: #047857;
+}
+
+.status-alert--approved .status-message strong {
+  color: #065f46;
+}
+
+.status-alert--rejected {
+  background-color: #fef9e7;
+  border: 2px solid #f59e0b;
+}
+
+.status-alert--rejected .status-icon {
+  color: #d97706;
+}
+
+.status-alert--rejected .status-message {
+  color: #92400e;
+}
+
+.status-alert--rejected .status-message strong {
+  color: #b45309;
 }
 
 .status-icon {
   font-size: 1.25rem;
-  color: #dc2626;
   flex-shrink: 0;
 }
 
 .status-message {
   font-size: 0.875rem;
-  color: #991b1b;
+}
+
+.status-message strong {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.status-message p {
+  margin: 0 0 0.5rem;
+}
+
+.status-timestamp {
+  font-size: 0.75rem;
+  opacity: 0.8;
 }
 
 .supervisor-notes {
@@ -103,6 +164,38 @@
   background-color: white;
   border-radius: 0.25rem;
   font-style: italic;
+}
+
+.supervisor-feedback {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background-color: white;
+  border-radius: 0.375rem;
+  border-left: 3px solid #f59e0b;
+}
+
+.supervisor-feedback strong {
+  display: block;
+  font-size: 0.75rem;
+  color: #78350f;
+  margin-bottom: 0.375rem;
+}
+
+.feedback-text {
+  margin: 0;
+  font-style: normal;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.resubmit-hint {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background-color: #fef3c7;
+  border-radius: 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #92400e;
 }
 
 .timesheet-content {

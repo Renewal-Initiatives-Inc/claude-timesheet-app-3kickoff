@@ -29,7 +29,7 @@ export function AlertsBanner({ alerts, maxItems = 5 }: AlertsBannerProps) {
             <span className={`alert-icon alert-icon-${alert.type}`}>
               {getAlertIcon(alert.type)}
             </span>
-            <Link to={`/employees/${alert.employeeId}`} className="alert-link">
+            <Link to={`/employees/${alert.employeeId}`} className="alert-link" data-testid={`alert-link-${alert.employeeId}`}>
               <span className="alert-employee">{alert.employeeName}</span>
               <span className="alert-message">{alert.message}</span>
             </Link>

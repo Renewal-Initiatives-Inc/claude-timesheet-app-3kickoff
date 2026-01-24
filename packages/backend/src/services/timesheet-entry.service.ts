@@ -119,7 +119,7 @@ export async function createEntry(
 
   if (timesheet.status !== 'open') {
     throw new TimesheetEntryError(
-      'Cannot add entries to a timesheet that is not open',
+      `Cannot add entries to timesheet with status: ${timesheet.status}`,
       'TIMESHEET_NOT_EDITABLE'
     );
   }
@@ -198,7 +198,7 @@ export async function updateEntry(
 
   if (entry.timesheet.status !== 'open') {
     throw new TimesheetEntryError(
-      'Cannot update entries on a timesheet that is not open',
+      `Cannot update entries on timesheet with status: ${entry.timesheet.status}`,
       'TIMESHEET_NOT_EDITABLE'
     );
   }
@@ -261,7 +261,7 @@ export async function deleteEntry(entryId: string): Promise<void> {
 
   if (entry.timesheet.status !== 'open') {
     throw new TimesheetEntryError(
-      'Cannot delete entries from a timesheet that is not open',
+      `Cannot delete entries from timesheet with status: ${entry.timesheet.status}`,
       'TIMESHEET_NOT_EDITABLE'
     );
   }

@@ -1,0 +1,203 @@
+.review-detail {
+  padding: 1.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.review-detail-loading,
+.review-detail-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: var(--color-text-secondary);
+}
+
+.review-detail-error p {
+  margin-bottom: 1rem;
+  color: var(--color-danger);
+}
+
+.review-detail-error button {
+  padding: 0.5rem 1rem;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.review-detail-header {
+  margin-bottom: 1.5rem;
+}
+
+.review-detail-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.review-detail-back:hover {
+  color: var(--color-primary);
+}
+
+.review-detail-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.review-employee-info {
+  margin-bottom: 1.5rem;
+}
+
+.employee-info-card {
+  background: var(--color-surface);
+  border-radius: 8px;
+  padding: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.employee-info-main h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.employee-email {
+  margin: 0.25rem 0 0;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.employee-info-details {
+  display: flex;
+  gap: 2rem;
+}
+
+.employee-info-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.info-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.info-value {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-badge--open {
+  background: var(--color-background);
+  color: var(--color-text-secondary);
+}
+
+.status-badge--submitted {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.status-badge--approved {
+  background: rgba(var(--color-success-rgb, 34, 197, 94), 0.1);
+  color: var(--color-success);
+}
+
+.status-badge--rejected {
+  background: rgba(var(--color-danger-rgb, 239, 68, 68), 0.1);
+  color: var(--color-danger);
+}
+
+.review-compliance {
+  margin-bottom: 1.5rem;
+}
+
+.review-timesheet {
+  margin-bottom: 1.5rem;
+}
+
+.review-timesheet h3 {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.review-timesheet-readonly {
+  opacity: 0.9;
+}
+
+.review-timesheet-readonly .timesheet-grid {
+  pointer-events: none;
+}
+
+.review-actions-section {
+  margin-bottom: 1.5rem;
+}
+
+.review-info-section {
+  margin-bottom: 1.5rem;
+}
+
+.review-info-message {
+  padding: 1rem 1.25rem;
+  background: var(--color-surface);
+  border-radius: 8px;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.review-existing-notes {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.review-existing-notes strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--color-text-secondary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .review-detail {
+    padding: 1rem;
+  }
+
+  .employee-info-card {
+    flex-direction: column;
+  }
+
+  .employee-info-details {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+}

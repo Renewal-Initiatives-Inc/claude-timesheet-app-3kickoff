@@ -335,7 +335,7 @@ describe('Timesheet Entry Service', () => {
 
       await expect(
         updateEntry('entry-1', { startTime: '08:00' })
-      ).rejects.toThrow('Cannot update entries on a timesheet that is not open');
+      ).rejects.toThrow('Cannot update entries on timesheet with status: approved');
     });
   });
 
@@ -377,7 +377,7 @@ describe('Timesheet Entry Service', () => {
       vi.mocked(db.query.timesheetEntries.findFirst).mockResolvedValueOnce(existingEntry as never);
 
       await expect(deleteEntry('entry-1')).rejects.toThrow(
-        'Cannot delete entries from a timesheet that is not open'
+        'Cannot delete entries from timesheet with status: submitted'
       );
     });
   });

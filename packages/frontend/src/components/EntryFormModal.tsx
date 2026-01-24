@@ -84,7 +84,7 @@ export function EntryFormModal({
     supervisorPresentName: '',
     mealBreakConfirmed: null,
   });
-  const [errors, setErrors] = useState<FormErrors>({});
+  const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
 
   // Initialize form data when entry changes (edit mode)
@@ -106,7 +106,7 @@ export function EntryFormModal({
         mealBreakConfirmed: null,
       });
     }
-    setErrors({});
+    setFieldErrors({});
   }, [entry, isOpen]);
 
   if (!isOpen) return null;
@@ -141,7 +141,7 @@ export function EntryFormModal({
       newErrors.mealBreakConfirmed = 'Please confirm if you took a meal break';
     }
 
-    setErrors(newErrors);
+    setFieldErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
@@ -173,7 +173,7 @@ export function EntryFormModal({
       await onSubmit(data);
       onClose();
     } catch (err) {
-      setErrors({ submit: err instanceof Error ? err.message : 'Failed to save' });
+      setFieldErrors({ submit: err instanceof Error ? err.message : 'Failed to save' });
     } finally {
       setSubmitting(false);
     }
@@ -191,7 +191,7 @@ export function EntryFormModal({
         </header>
 
         <form onSubmit={handleSubmit}>
-          {errors.submit && <div className="form-error">{errors.submit}</div>}
+          {fieldErrors.submit && <div className="form-error">{fieldErrors.submit}</div>}
 
           <div className="form-group">
             <label htmlFor="taskCodeId">Task *</label>
@@ -213,7 +213,7 @@ export function EntryFormModal({
                 ))}
               </select>
             )}
-            {errors.taskCodeId && <span className="field-error">{errors.taskCodeId}</span>}
+            {fieldErrors.taskCodeId && <span className="field-error">{fieldErrors.taskCodeId}</span>}
           </div>
 
           <div className="form-row">
@@ -227,7 +227,7 @@ export function EntryFormModal({
                 required
                 data-testid="field-startTime"
               />
-              {errors.startTime && <span className="field-error">{errors.startTime}</span>}
+              {fieldErrors.startTime && <span className="field-error">{fieldErrors.startTime}</span>}
             </div>
             <div className="form-group">
               <label htmlFor="endTime">End Time *</label>
@@ -239,7 +239,7 @@ export function EntryFormModal({
                 required
                 data-testid="field-endTime"
               />
-              {errors.endTime && <span className="field-error">{errors.endTime}</span>}
+              {fieldErrors.endTime && <span className="field-error">{fieldErrors.endTime}</span>}
             </div>
           </div>
 
@@ -263,8 +263,8 @@ export function EntryFormModal({
                 data-testid="field-supervisorPresentName"
               />
               <span className="help-text">This task requires a supervisor to be present</span>
-              {errors.supervisorPresentName && (
-                <span className="field-error">{errors.supervisorPresentName}</span>
+              {fieldErrors.supervisorPresentName && (
+                <span className="field-error">{fieldErrors.supervisorPresentName}</span>
               )}
             </div>
           )}
@@ -287,8 +287,8 @@ export function EntryFormModal({
                 </label>
               </div>
               <span className="help-text">Required for shifts over 6 hours (workers under 18)</span>
-              {errors.mealBreakConfirmed && (
-                <span className="field-error">{errors.mealBreakConfirmed}</span>
+              {fieldErrors.mealBreakConfirmed && (
+                <span className="field-error">{fieldErrors.mealBreakConfirmed}</span>
               )}
             </div>
           )}

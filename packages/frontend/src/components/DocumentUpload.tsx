@@ -127,6 +127,7 @@ export function DocumentUpload({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={handleClick}
+        data-testid="doc-upload-dropzone"
       >
         <input
           ref={fileInputRef}
@@ -135,6 +136,7 @@ export function DocumentUpload({
           onChange={handleInputChange}
           disabled={disabled}
           className="doc-upload-input"
+          data-testid="doc-upload-file-input"
         />
         {file ? (
           <div className="doc-upload-selected">
@@ -162,6 +164,7 @@ export function DocumentUpload({
             onChange={(e) => setExpiresAt(e.target.value)}
             min={new Date().toISOString().split('T')[0]}
             disabled={disabled}
+            data-testid="field-expiresAt"
           />
         </div>
       )}
@@ -173,6 +176,7 @@ export function DocumentUpload({
         onClick={handleUpload}
         disabled={!file || uploading || disabled}
         className="doc-upload-button"
+        data-testid="doc-upload-submit-button"
       >
         {uploading ? 'Uploading...' : 'Upload Document'}
       </button>

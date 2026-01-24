@@ -13,7 +13,7 @@ export function EmployeeList() {
     <div className="employee-list-page">
       <header className="page-header">
         <h1>Employees</h1>
-        <Link to="/employees/add" className="add-button">
+        <Link to="/employees/add" className="add-button" data-testid="employee-list-add-button">
           + Add Employee
         </Link>
       </header>
@@ -25,6 +25,7 @@ export function EmployeeList() {
             id="status-filter"
             value={status}
             onChange={(e) => setStatus(e.target.value as typeof status)}
+            data-testid="field-status"
           >
             <option value="active">Active</option>
             <option value="archived">Archived</option>
@@ -40,6 +41,7 @@ export function EmployeeList() {
             placeholder="Search by name or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            data-testid="field-search"
           />
         </div>
       </div>
@@ -49,7 +51,7 @@ export function EmployeeList() {
       {error && (
         <div className="error-message">
           <p>Error: {error}</p>
-          <button onClick={refetch}>Retry</button>
+          <button onClick={refetch} data-testid="employee-list-retry-button">Retry</button>
         </div>
       )}
 

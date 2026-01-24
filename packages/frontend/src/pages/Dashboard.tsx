@@ -22,7 +22,7 @@ export function Dashboard() {
       <div className="dashboard">
         <div className="dashboard-error">
           <p>Error loading dashboard: {error}</p>
-          <button onClick={refetch}>Retry</button>
+          <button onClick={refetch} data-testid="dashboard-retry-button">Retry</button>
         </div>
       </div>
     );
@@ -35,7 +35,7 @@ export function Dashboard() {
           <h1>Dashboard</h1>
           <p>Welcome back, {user?.name}</p>
         </div>
-        <Link to="/employees/add" className="dashboard-add-button">
+        <Link to="/employees/add" className="dashboard-add-button" data-testid="dashboard-add-employee-button">
           + Add Employee
         </Link>
       </header>
@@ -66,7 +66,7 @@ export function Dashboard() {
       <section className="dashboard-section">
         <div className="section-header">
           <h2>Employees</h2>
-          <Link to="/employees" className="section-link">
+          <Link to="/employees" className="section-link" data-testid="dashboard-view-all-employees-link">
             View All
           </Link>
         </div>
@@ -74,7 +74,7 @@ export function Dashboard() {
         {employees.length === 0 ? (
           <div className="dashboard-empty">
             <p>No employees found.</p>
-            <Link to="/employees/add">Add your first employee</Link>
+            <Link to="/employees/add" data-testid="dashboard-add-first-employee-link">Add your first employee</Link>
           </div>
         ) : (
           <div className="dashboard-employees">

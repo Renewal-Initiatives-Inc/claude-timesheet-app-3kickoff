@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth.js';
+import { usePendingReviewCount } from './hooks/useReviewQueue.js';
 import { Login } from './pages/Login.js';
 import { Dashboard } from './pages/Dashboard.js';
 import { EmployeeList } from './pages/EmployeeList.js';
@@ -9,6 +10,8 @@ import { TaskCodeList } from './pages/TaskCodeList.js';
 import { TaskCodeDetail } from './pages/TaskCodeDetail.js';
 import { TaskCodeForm } from './components/TaskCodeForm.js';
 import { Timesheet } from './pages/Timesheet.js';
+import { ReviewQueue } from './pages/ReviewQueue.js';
+import { ReviewDetail } from './pages/ReviewDetail.js';
 import './App.css';
 
 /**
@@ -16,6 +19,7 @@ import './App.css';
  */
 function AppLayout() {
   const { user, logout, isSupervisor } = useAuth();
+  const { count: pendingReviewCount } = usePendingReviewCount();
 
   return (
     <div className="app-layout">
@@ -28,6 +32,14 @@ function AppLayout() {
           {isSupervisor && (
             <>
               <a href="/dashboard">Dashboard</a>
+              <a href="/review" className="nav-link-with-badge">
+                Review Queue
+                {pendingReviewCount > 0 && (
+                  <span className="nav-badge" data-testid="review-queue-badge">
+                    {pendingReviewCount}
+                  </span>
+                )}
+              </a>
               <a href="/employees">Employees</a>
               <a href="/task-codes">Task Codes</a>
             </>
@@ -104,6 +116,8 @@ function App() {
                 <Route path="/task-codes/new" element={<TaskCodeForm mode="create" />} />
                 <Route path="/task-codes/:id" element={<TaskCodeDetail />} />
                 <Route path="/task-codes/:id/edit" element={<TaskCodeForm mode="edit" />} />
+                <Route path="/review" element={<ReviewQueue />} />
+                <Route path="/review/:timesheetId" element={<ReviewDetail />} />
               </Route>
             </Route>
           </Route>

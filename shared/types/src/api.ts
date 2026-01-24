@@ -494,3 +494,146 @@ export type TimesheetErrorCode =
   | 'DATE_OUTSIDE_WEEK'
   | 'TASK_CODE_NOT_FOUND'
   | 'TASK_CODE_AGE_RESTRICTED';
+
+// ============================================================================
+// Compliance Types
+// ============================================================================
+
+import type { ComplianceCheckLog } from './db.js';
+
+/**
+ * Compliance violation details for display.
+ */
+export interface ComplianceViolation {
+  ruleId: string;
+  ruleName: string;
+  message: string;
+  remediation: string;
+  affectedDates?: string[];
+  affectedEntries?: string[];
+}
+
+/**
+ * Compliance summary statistics.
+ */
+export interface ComplianceSummary {
+  total: number;
+  passed: number;
+  failed: number;
+  notApplicable: number;
+}
+
+/**
+ * Timesheet submission result.
+ */
+export interface SubmitTimesheetResult {
+  passed: boolean;
+  message?: string;
+  status?: TimesheetStatus;
+  violations?: ComplianceViolation[];
+  summary?: ComplianceSummary;
+}
+
+/**
+ * Compliance validation result (preview without submission).
+ */
+export interface ValidateTimesheetResult {
+  passed: boolean;
+  violations?: ComplianceViolation[];
+  summary?: ComplianceSummary;
+}
+
+// ============================================================================
+// Supervisor Review Types
+// ============================================================================
+
+/**
+ * Review queue item (summary for list view).
+ */
+export interface ReviewQueueItem {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  weekStartDate: string;
+  submittedAt: string;
+  totalHours: number;
+  entryCount: number;
+}
+
+/**
+ * Full timesheet data for supervisor review.
+ */
+export interface TimesheetReviewData {
+  timesheet: TimesheetWithEntries;
+  employee: EmployeePublic;
+  complianceLogs: ComplianceCheckLog[];
+}
+
+/**
+ * Approve timesheet request.
+ */
+export interface ApproveTimesheetRequest {
+  notes?: string;
+}
+
+/**
+ * Approve timesheet response.
+ */
+export interface ApproveTimesheetResponse {
+  success: boolean;
+  timesheet: Timesheet;
+  message: string;
+}
+
+/**
+ * Reject timesheet request.
+ */
+export interface RejectTimesheetRequest {
+  notes: string; // Required, minimum 10 characters
+}
+
+/**
+ * Reject timesheet response.
+ */
+export interface RejectTimesheetResponse {
+  success: boolean;
+  timesheet: Timesheet;
+  message: string;
+}
+
+/**
+ * Unlock week request.
+ */
+export interface UnlockWeekRequest {
+  employeeId: string;
+  weekStartDate: string;
+}
+
+/**
+ * Unlock week response.
+ */
+export interface UnlockWeekResponse {
+  success: boolean;
+  timesheet: Timesheet;
+  message: string;
+}
+
+/**
+ * Review queue response.
+ */
+export interface ReviewQueueResponse {
+  items: ReviewQueueItem[];
+  total: number;
+}
+
+/**
+ * Supervisor review error codes.
+ */
+export type ReviewErrorCode =
+  | 'TIMESHEET_NOT_FOUND'
+  | 'TIMESHEET_NOT_SUBMITTED'
+  | 'NOTES_REQUIRED'
+  | 'NOTES_TOO_SHORT'
+  | 'NOT_SUPERVISOR'
+  | 'EMPLOYEE_NOT_FOUND'
+  | 'INVALID_WEEK_START_DATE';

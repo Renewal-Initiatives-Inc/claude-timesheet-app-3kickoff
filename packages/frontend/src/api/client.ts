@@ -522,3 +522,101 @@ export async function validateTimesheet(
     method: 'POST',
   });
 }
+
+// ============================================================================
+// Supervisor Review API
+// ============================================================================
+
+import type {
+  ReviewQueueItem,
+  TimesheetReviewData,
+  ApproveTimesheetResponse,
+  RejectTimesheetResponse,
+  UnlockWeekResponse,
+  ComplianceCheckLog,
+} from '@renewal/types';
+
+/**
+ * Review queue response.
+ */
+export interface ReviewQueueResponse {
+  items: ReviewQueueItem[];
+  total: number;
+}
+
+/**
+ * Get list of timesheets awaiting review.
+ */
+export async function getReviewQueue(params?: {
+  employeeId?: string;
+}): Promise<ReviewQueueResponse> {
+  const searchParams = new URLSearchParams();
+  if (params?.employeeId) searchParams.set('employeeId', params.employeeId);
+
+  const query = searchParams.toString();
+  return apiRequest(`/supervisor/review-queue${query ? `?${query}` : ''}`);
+}
+
+/**
+ * Get count of timesheets pending review.
+ */
+export async function getPendingReviewCount(): Promise<{ count: number }> {
+  return apiRequest('/supervisor/review-count');
+}
+
+/**
+ * Get a timesheet for supervisor review with full details.
+ */
+export async function getTimesheetForReview(
+  timesheetId: string
+): Promise<TimesheetReviewData> {
+  return apiRequest(`/supervisor/review/${timesheetId}`);
+}
+
+/**
+ * Get compliance logs for a timesheet.
+ */
+export async function getComplianceLogs(
+  timesheetId: string
+): Promise<{ logs: ComplianceCheckLog[] }> {
+  return apiRequest(`/supervisor/review/${timesheetId}/compliance`);
+}
+
+/**
+ * Approve a submitted timesheet.
+ */
+export async function approveTimesheet(
+  timesheetId: string,
+  notes?: string
+): Promise<ApproveTimesheetResponse> {
+  return apiRequest(`/supervisor/review/${timesheetId}/approve`, {
+    method: 'POST',
+    body: JSON.stringify({ notes }),
+  });
+}
+
+/**
+ * Reject a submitted timesheet.
+ */
+export async function rejectTimesheet(
+  timesheetId: string,
+  notes: string
+): Promise<RejectTimesheetResponse> {
+  return apiRequest(`/supervisor/review/${timesheetId}/reject`, {
+    method: 'POST',
+    body: JSON.stringify({ notes }),
+  });
+}
+
+/**
+ * Unlock a historical week for an employee.
+ */
+export async function unlockWeek(
+  employeeId: string,
+  weekStartDate: string
+): Promise<UnlockWeekResponse> {
+  return apiRequest('/supervisor/unlock-week', {
+    method: 'POST',
+    body: JSON.stringify({ employeeId, weekStartDate }),
+  });
+}

@@ -181,6 +181,7 @@ export function TaskCodeForm({ mode }: TaskCodeFormProps) {
                 maxLength={10}
                 disabled={mode === 'edit'}
                 required
+                data-testid="field-code"
               />
               {mode === 'edit' && (
                 <span className="help-text">Code cannot be changed after creation</span>
@@ -197,6 +198,7 @@ export function TaskCodeForm({ mode }: TaskCodeFormProps) {
                 placeholder="e.g., Field Preparation"
                 maxLength={100}
                 required
+                data-testid="field-name"
               />
             </div>
           </div>
@@ -210,6 +212,7 @@ export function TaskCodeForm({ mode }: TaskCodeFormProps) {
               placeholder="Optional description of this task code..."
               rows={3}
               maxLength={500}
+              data-testid="field-description"
             />
           </div>
         </section>
@@ -224,6 +227,7 @@ export function TaskCodeForm({ mode }: TaskCodeFormProps) {
                 id="type"
                 value={isAgricultural ? 'agricultural' : 'non-agricultural'}
                 onChange={(e) => setIsAgricultural(e.target.value === 'agricultural')}
+                data-testid="field-type"
               >
                 <option value="agricultural">Agricultural</option>
                 <option value="non-agricultural">Non-Agricultural</option>
@@ -236,6 +240,7 @@ export function TaskCodeForm({ mode }: TaskCodeFormProps) {
                 id="minAge"
                 value={minAgeAllowed}
                 onChange={(e) => setMinAgeAllowed(parseInt(e.target.value))}
+                data-testid="field-minAge"
               >
                 <option value={12}>12+</option>
                 <option value={14}>14+</option>
@@ -250,6 +255,7 @@ export function TaskCodeForm({ mode }: TaskCodeFormProps) {
                 id="supervisor"
                 value={supervisorRequired}
                 onChange={(e) => setSupervisorRequired(e.target.value as SupervisorRequired)}
+                data-testid="field-supervisor"
               >
                 <option value="none">None</option>
                 <option value="for_minors">For Minors</option>
@@ -268,6 +274,7 @@ export function TaskCodeForm({ mode }: TaskCodeFormProps) {
                 type="checkbox"
                 checked={isHazardous}
                 onChange={(e) => setIsHazardous(e.target.checked)}
+                data-testid="field-isHazardous"
               />
               <span className="checkbox-text">
                 <strong>Hazardous Work</strong>
@@ -280,6 +287,7 @@ export function TaskCodeForm({ mode }: TaskCodeFormProps) {
                 type="checkbox"
                 checked={soloCashHandling}
                 onChange={(e) => setSoloCashHandling(e.target.checked)}
+                data-testid="field-soloCashHandling"
               />
               <span className="checkbox-text">
                 <strong>Solo Cash Handling</strong>
@@ -292,6 +300,7 @@ export function TaskCodeForm({ mode }: TaskCodeFormProps) {
                 type="checkbox"
                 checked={drivingRequired}
                 onChange={(e) => setDrivingRequired(e.target.checked)}
+                data-testid="field-drivingRequired"
               />
               <span className="checkbox-text">
                 <strong>Driving Required</strong>
@@ -304,6 +313,7 @@ export function TaskCodeForm({ mode }: TaskCodeFormProps) {
                 type="checkbox"
                 checked={powerMachinery}
                 onChange={(e) => setPowerMachinery(e.target.checked)}
+                data-testid="field-powerMachinery"
               />
               <span className="checkbox-text">
                 <strong>Power Machinery</strong>
@@ -329,6 +339,7 @@ export function TaskCodeForm({ mode }: TaskCodeFormProps) {
                   onChange={(e) => setInitialRate(e.target.value)}
                   placeholder="e.g., 15.00"
                   required
+                  data-testid="field-initialRate"
                 />
               </div>
 
@@ -341,6 +352,7 @@ export function TaskCodeForm({ mode }: TaskCodeFormProps) {
                   onChange={(e) => setRateEffectiveDate(e.target.value)}
                   min={today}
                   required
+                  data-testid="field-rateEffectiveDate"
                 />
               </div>
             </div>
@@ -354,6 +366,7 @@ export function TaskCodeForm({ mode }: TaskCodeFormProps) {
                 placeholder="Optional: Document the rationale for this rate..."
                 rows={2}
                 maxLength={500}
+                data-testid="field-rateJustificationNotes"
               />
               <span className="help-text">Recommended for audit documentation</span>
             </div>
@@ -364,10 +377,11 @@ export function TaskCodeForm({ mode }: TaskCodeFormProps) {
           <Link
             to={mode === 'edit' ? `/task-codes/${id}` : '/task-codes'}
             className="cancel-button"
+            data-testid="task-code-cancel-button"
           >
             Cancel
           </Link>
-          <button type="submit" className="submit-button" disabled={loading}>
+          <button type="submit" className="submit-button" disabled={loading} data-testid="task-code-submit-button">
             {loading ? 'Saving...' : mode === 'create' ? 'Create Task Code' : 'Save Changes'}
           </button>
         </div>

@@ -111,7 +111,7 @@ export function AddEmployee() {
         {error && (
           <div className="form-error">
             {error}
-            <button type="button" onClick={() => setError(null)} className="error-close">
+            <button type="button" onClick={() => setError(null)} className="error-close" data-testid="add-employee-error-close-button">
               ×
             </button>
           </div>
@@ -130,6 +130,7 @@ export function AddEmployee() {
               required
               maxLength={255}
               disabled={loading}
+              data-testid="field-name"
             />
           </div>
 
@@ -143,6 +144,7 @@ export function AddEmployee() {
               required
               maxLength={255}
               disabled={loading}
+              data-testid="field-email"
             />
           </div>
 
@@ -157,6 +159,7 @@ export function AddEmployee() {
               max={maxDate}
               min={minDate.toISOString().split('T')[0]}
               disabled={loading}
+              data-testid="field-dateOfBirth"
             />
             {previewAge !== null && previewAge < 12 && (
               <p className="field-error">
@@ -172,6 +175,7 @@ export function AddEmployee() {
                 checked={isSupervisor}
                 onChange={(e) => setIsSupervisor(e.target.checked)}
                 disabled={loading}
+                data-testid="field-isSupervisor"
               />
               <span>Grant supervisor privileges</span>
             </label>
@@ -199,12 +203,14 @@ export function AddEmployee() {
                 required
                 minLength={8}
                 disabled={loading}
+                data-testid="field-tempPassword"
               />
               <button
                 type="button"
                 onClick={generatePassword}
                 className="generate-button"
                 disabled={loading}
+                data-testid="add-employee-generate-password-button"
               >
                 Generate
               </button>
@@ -257,13 +263,14 @@ export function AddEmployee() {
         )}
 
         <div className="form-actions">
-          <Link to="/employees" className="cancel-button">
+          <Link to="/employees" className="cancel-button" data-testid="add-employee-cancel-button">
             Cancel
           </Link>
           <button
             type="submit"
             disabled={loading || (previewAge !== null && previewAge < 12)}
             className="submit-button"
+            data-testid="add-employee-submit-button"
           >
             {loading ? 'Creating...' : 'Create Employee'}
           </button>

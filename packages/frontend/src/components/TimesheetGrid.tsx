@@ -99,8 +99,8 @@ export function TimesheetGrid({
   const entriesByDate = groupEntriesByDate(timesheet.entries);
 
   return (
-    <div className="timesheet-grid">
-      <div className="grid-body">
+    <div className="timesheet-grid" data-testid="timesheet-grid">
+      <div className="grid-body" data-testid="timesheet-grid-body">
         {weekDates.map((date) => {
           const entries = entriesByDate.get(date) || [];
           const isSchoolDay = entries.length > 0
@@ -127,8 +127,8 @@ export function TimesheetGrid({
         })}
       </div>
 
-      <div className="grid-footer">
-        <div className="weekly-total">
+      <div className="grid-footer" data-testid="timesheet-grid-footer">
+        <div className="weekly-total" data-testid="weekly-total">
           <span className="weekly-total-label">Weekly Total:</span>
           <span
             className={`weekly-total-hours ${
@@ -138,6 +138,7 @@ export function TimesheetGrid({
                   : 'approaching-limit'
                 : ''
             }`}
+            data-testid="weekly-total-hours"
           >
             {totals.weekly.toFixed(1)}
           </span>
@@ -147,9 +148,9 @@ export function TimesheetGrid({
         </div>
 
         {totals.warnings.length > 0 && (
-          <div className="warnings-list">
+          <div className="warnings-list" data-testid="timesheet-warnings">
             {totals.warnings.map((warning: string, idx: number) => (
-              <div key={idx} className="warning-item">
+              <div key={idx} className="warning-item" data-testid={`warning-item-${idx}`}>
                 &#9888; {warning}
               </div>
             ))}
