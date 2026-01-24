@@ -31,6 +31,9 @@ const envSchema = z.object({
 
   // Vercel Blob storage
   BLOB_READ_WRITE_TOKEN: z.string().optional(),
+
+  // Cron job security
+  CRON_SECRET: z.string().optional(),
 });
 
 function loadEnv() {

@@ -8,3 +8,4 @@ export * from './timesheet';
 export * from './compliance';
 export * from './payroll';
 export * from './session';
+export * from './alert';

@@ -1,0 +1,127 @@
+.alerts-list-container {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.alerts-list-loading,
+.alerts-list-empty {
+  padding: 3rem;
+  text-align: center;
+  color: #666;
+}
+
+.alerts-list-empty p:first-child {
+  font-size: 1.125rem;
+  margin-bottom: 0.5rem;
+}
+
+.alerts-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.alerts-table th {
+  text-align: left;
+  padding: 1rem;
+  background: #f8f9fa;
+  font-weight: 500;
+  color: #666;
+  font-size: 0.875rem;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.alerts-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+}
+
+.alert-row:hover {
+  background: #f8f9fa;
+}
+
+.alert-type-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.alert-type-missing_document {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.alert-type-expiring_document {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.alert-type-age_transition {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.alert-employee-link {
+  color: #2c5530;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.alert-employee-link:hover {
+  text-decoration: underline;
+}
+
+.alert-message-cell {
+  color: #333;
+}
+
+.alert-date-cell {
+  color: #666;
+  white-space: nowrap;
+}
+
+.alert-action-link {
+  color: #2c5530;
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.alert-action-link:hover {
+  text-decoration: underline;
+}
+
+/* Responsive table */
+@media (max-width: 768px) {
+  .alerts-table thead {
+    display: none;
+  }
+
+  .alerts-table,
+  .alerts-table tbody,
+  .alerts-table tr,
+  .alerts-table td {
+    display: block;
+  }
+
+  .alerts-table tr {
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .alerts-table td {
+    padding: 0.25rem 0;
+    border: none;
+  }
+
+  .alerts-table td::before {
+    content: attr(data-label);
+    font-weight: 500;
+    color: #666;
+    display: inline-block;
+    width: 80px;
+  }
+}

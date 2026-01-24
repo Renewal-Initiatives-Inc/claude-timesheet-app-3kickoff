@@ -269,6 +269,30 @@ export interface DashboardAlertsResponse {
   alerts: DashboardAlert[];
 }
 
+/**
+ * Dashboard stats response.
+ */
+export interface DashboardStats {
+  totalEmployees: number;
+  completeDocumentation: number;
+  missingDocumentation: number;
+  expiringDocuments: number;
+  pendingReviewCount: number;
+  byAgeBand: {
+    '12-13': number;
+    '14-15': number;
+    '16-17': number;
+    '18+': number;
+  };
+}
+
+/**
+ * Dashboard stats response.
+ */
+export interface DashboardStatsResponse {
+  stats: DashboardStats;
+}
+
 // ============================================================================
 // Task Code Management Types
 // ============================================================================

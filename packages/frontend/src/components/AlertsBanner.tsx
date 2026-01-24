@@ -5,12 +5,24 @@ import './AlertsBanner.css';
 interface AlertsBannerProps {
   alerts: DashboardAlert[];
   maxItems?: number;
+  loading?: boolean;
+  onRefresh?: () => void;
 }
 
 /**
  * Banner displaying pending alerts/actions for supervisors
  */
-export function AlertsBanner({ alerts, maxItems = 5 }: AlertsBannerProps) {
+export function AlertsBanner({ alerts, maxItems = 5, loading = false, onRefresh }: AlertsBannerProps) {
+  if (loading) {
+    return (
+      <div className="alerts-banner alerts-banner-loading" data-testid="alerts-banner-loading">
+        <div className="alerts-header">
+          <h3>Loading alerts...</h3>
+        </div>
+      </div>
+    );
+  }
+
   if (alerts.length === 0) {
     return null;
   }
@@ -19,9 +31,19 @@ export function AlertsBanner({ alerts, maxItems = 5 }: AlertsBannerProps) {
   const remainingCount = alerts.length - maxItems;
 
   return (
-    <div className="alerts-banner">
+    <div className="alerts-banner" data-testid="alerts-banner">
       <div className="alerts-header">
         <h3>Action Required ({alerts.length})</h3>
+        {onRefresh && (
+          <button
+            className="alerts-refresh-button"
+            onClick={onRefresh}
+            data-testid="alerts-refresh-button"
+            aria-label="Refresh alerts"
+          >
+            Refresh
+          </button>
+        )}
       </div>
       <ul className="alerts-list">
         {displayAlerts.map((alert, index) => (
@@ -41,7 +63,9 @@ export function AlertsBanner({ alerts, maxItems = 5 }: AlertsBannerProps) {
       </ul>
       {remainingCount > 0 && (
         <div className="alerts-more">
-          +{remainingCount} more alert{remainingCount > 1 ? 's' : ''}
+          <Link to="/alerts" className="alerts-view-all" data-testid="alerts-view-all-link">
+            View all {alerts.length} alerts
+          </Link>
         </div>
       )}
     </div>

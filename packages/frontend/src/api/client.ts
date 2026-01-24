@@ -273,6 +273,7 @@ export async function getDashboardStats(): Promise<{
     completeDocumentation: number;
     missingDocumentation: number;
     expiringDocuments: number;
+    pendingReviewCount: number;
     byAgeBand: {
       '12-13': number;
       '14-15': number;

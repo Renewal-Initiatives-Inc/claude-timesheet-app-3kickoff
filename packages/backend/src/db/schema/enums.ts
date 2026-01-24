@@ -31,3 +31,10 @@ export const complianceResultEnum = pgEnum('compliance_result', [
   'fail',
   'not_applicable',
 ]);
+
+// Alert types for notifications
+export const alertTypeEnum = pgEnum('alert_type', [
+  'missing_document',
+  'expiring_document',
+  'age_transition',
+]);

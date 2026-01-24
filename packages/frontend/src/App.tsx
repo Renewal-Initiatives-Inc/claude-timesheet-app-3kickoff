@@ -13,6 +13,7 @@ import { Timesheet } from './pages/Timesheet.js';
 import { ReviewQueue } from './pages/ReviewQueue.js';
 import { ReviewDetail } from './pages/ReviewDetail.js';
 import { PayrollReportPage } from './pages/PayrollReportPage.js';
+import { Alerts } from './pages/Alerts.js';
 import './App.css';
 
 /**
@@ -121,6 +122,7 @@ function App() {
                 <Route path="/review" element={<ReviewQueue />} />
                 <Route path="/review/:timesheetId" element={<ReviewDetail />} />
                 <Route path="/payroll" element={<PayrollReportPage />} />
+                <Route path="/alerts" element={<Alerts />} />
               </Route>
             </Route>
           </Route>

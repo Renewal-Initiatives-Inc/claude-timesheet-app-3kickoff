@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useDashboard } from '../hooks/useEmployees.js';
 import { useAuth } from '../hooks/useAuth.js';
@@ -5,9 +6,21 @@ import { AlertsBanner } from '../components/AlertsBanner.js';
 import { DocumentationBadge } from '../components/DocumentationStatus.js';
 import './Dashboard.css';
 
+// Auto-refresh interval in milliseconds (5 minutes)
+const AUTO_REFRESH_INTERVAL = 5 * 60 * 1000;
+
 export function Dashboard() {
   const { user } = useAuth();
   const { employees, alerts, stats, loading, error, refetch } = useDashboard();
+
+  // Auto-refresh dashboard every 5 minutes
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      refetch();
+    }, AUTO_REFRESH_INTERVAL);
+
+    return () => clearInterval(intervalId);
+  }, [refetch]);
 
   if (loading) {
     return (
@@ -40,7 +53,7 @@ export function Dashboard() {
         </Link>
       </header>
 
-      <AlertsBanner alerts={alerts} maxItems={5} />
+      <AlertsBanner alerts={alerts} maxItems={5} onRefresh={refetch} />
 
       {stats && (
         <div className="dashboard-stats">
@@ -60,6 +73,14 @@ export function Dashboard() {
             <span className="stat-value">{stats.expiringDocuments}</span>
             <span className="stat-label">Expiring Soon</span>
           </div>
+          <Link
+            to="/review"
+            className={`stat-card stat-card-link ${stats.pendingReviewCount > 0 ? 'stat-pending' : ''}`}
+            data-testid="dashboard-pending-review-link"
+          >
+            <span className="stat-value">{stats.pendingReviewCount}</span>
+            <span className="stat-label">Pending Review</span>
+          </Link>
         </div>
       )}
 

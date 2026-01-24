@@ -9,5 +9,11 @@
       "source": "/api/:path*",
       "destination": "/api/:path*"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/crons/check-alerts",
+      "schedule": "0 13 * * *"
+    }
   ]
 }

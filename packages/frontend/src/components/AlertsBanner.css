@@ -6,10 +6,36 @@
   margin-bottom: 1.5rem;
 }
 
+.alerts-banner-loading {
+  opacity: 0.7;
+}
+
+.alerts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
 .alerts-header h3 {
   font-size: 1rem;
   color: #856404;
-  margin-bottom: 0.75rem;
+  margin: 0;
+}
+
+.alerts-refresh-button {
+  background: transparent;
+  border: 1px solid #856404;
+  color: #856404;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.alerts-refresh-button:hover {
+  background: rgba(133, 100, 4, 0.1);
 }
 
 .alerts-list {
@@ -89,6 +115,15 @@
 .alerts-more {
   margin-top: 0.75rem;
   font-size: 0.875rem;
-  color: #856404;
   text-align: center;
+}
+
+.alerts-view-all {
+  color: #2c5530;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.alerts-view-all:hover {
+  text-decoration: underline;
 }

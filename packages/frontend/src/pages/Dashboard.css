@@ -91,6 +91,35 @@
   color: #856404;
 }
 
+.stat-card-link {
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.stat-pending {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  animation: pending-pulse 2s ease-in-out infinite;
+}
+
+.stat-pending .stat-value {
+  color: #1565c0;
+}
+
+@keyframes pending-pulse {
+  0%, 100% {
+    box-shadow: 0 2px 4px rgba(21, 101, 192, 0.2);
+  }
+  50% {
+    box-shadow: 0 4px 12px rgba(21, 101, 192, 0.4);
+  }
+}
+
 .dashboard-section {
   background: white;
   padding: 1.5rem;

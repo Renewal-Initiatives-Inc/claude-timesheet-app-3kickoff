@@ -7,7 +7,7 @@ import { db, schema } from '../db/index.js';
 import { calculateAge, checkBirthdayInWeek, getAgeBand } from '../utils/age.js';
 import type { DashboardAlert, AlertType } from '@renewal/types';
 
-const { employees } = schema;
+const { employees, timesheets } = schema;
 
 const router = Router();
 
@@ -147,6 +147,11 @@ router.get('/stats', requireAuth, requireSupervisor, async (req: Request, res: R
   try {
     const employeeList = await listEmployees({ status: 'active' });
 
+    // Count pending (submitted) timesheets
+    const pendingTimesheets = await db.query.timesheets.findMany({
+      where: eq(timesheets.status, 'submitted'),
+    });
+
     const stats = {
       totalEmployees: employeeList.length,
       completeDocumentation: employeeList.filter((e) => e.documentation.isComplete).length,
@@ -155,6 +160,7 @@ router.get('/stats', requireAuth, requireSupervisor, async (req: Request, res: R
         (sum, e) => sum + e.documentation.expiringCount,
         0
       ),
+      pendingReviewCount: pendingTimesheets.length,
       byAgeBand: {
         '12-13': employeeList.filter((e) => e.ageBand === '12-13').length,
         '14-15': employeeList.filter((e) => e.ageBand === '14-15').length,
