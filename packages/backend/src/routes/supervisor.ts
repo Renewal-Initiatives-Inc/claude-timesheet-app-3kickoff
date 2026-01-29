@@ -17,6 +17,9 @@ import {
   unlockWeekSchema,
   reviewQueueQuerySchema,
 } from '../validation/supervisor.schema.js';
+import { getHourLimitsForAge } from '../services/timesheet-entry.service.js';
+import { isDefaultSchoolDay } from '../utils/timezone.js';
+import { calculateAge } from '../utils/age.js';
 
 const router: Router = Router();
 
@@ -72,7 +75,40 @@ router.get('/review/:id', async (req: Request, res: Response) => {
       return;
     }
 
-    res.json(reviewData);
+    // Calculate hour limits based on employee age
+    const employeeAge = calculateAge(
+      reviewData.employee.dateOfBirth,
+      reviewData.timesheet.weekStartDate
+    );
+    const limits = getHourLimitsForAge(employeeAge);
+
+    // Generate warnings
+    const warnings: string[] = [];
+    if (reviewData.timesheet.totals.weekly >= limits.weeklyLimit * 0.8) {
+      warnings.push(`Approaching weekly limit of ${limits.weeklyLimit} hours`);
+    }
+    for (const [date, hours] of Object.entries(reviewData.timesheet.totals.daily)) {
+      const dailyLimit =
+        limits.dailyLimitSchoolDay && isDefaultSchoolDay(date)
+          ? limits.dailyLimitSchoolDay
+          : limits.dailyLimit;
+      if (hours >= dailyLimit * 0.8) {
+        warnings.push(`Approaching daily limit on ${date}`);
+      }
+    }
+
+    // Add limits and warnings to response
+    res.json({
+      ...reviewData,
+      timesheet: {
+        ...reviewData.timesheet,
+        totals: {
+          ...reviewData.timesheet.totals,
+          limits,
+          warnings,
+        },
+      },
+    });
   } catch (error) {
     if (error instanceof ReviewError) {
       const statusCode = getStatusCodeForError(error.code);
