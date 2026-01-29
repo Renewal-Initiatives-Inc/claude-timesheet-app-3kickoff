@@ -1,18 +1,38 @@
 /**
  * Vercel Serverless Function Entry Point
- *
- * This file serves as the entry point for the Express backend when deployed
- * to Vercel. It imports the pre-compiled Express app from packages/backend/dist.
- *
- * How it works:
- * - Locally: This file is NOT used. Vite proxies /api/* to localhost:3001
- * - Production: Vercel builds the backend first (via buildCommand), then
- *   bundles this file which imports the compiled JS from dist/
- *
- * The source code lives in packages/backend/src/app.ts
- * The compiled output is packages/backend/dist/app.js
+ * Routes all /api/* requests to the Express backend
  */
 
-import app from '../packages/backend/dist/app.js';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-export default app;
+// Dynamic import to catch any module load errors
+let app: ((req: VercelRequest, res: VercelResponse) => void) | null = null;
+let loadError: Error | null = null;
+
+async function loadApp() {
+  if (app) return app;
+  if (loadError) throw loadError;
+
+  try {
+    const module = await import('../packages/backend/dist/app.js');
+    app = module.default;
+    return app;
+  } catch (error) {
+    loadError = error as Error;
+    throw error;
+  }
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  try {
+    const expressApp = await loadApp();
+    return expressApp(req, res);
+  } catch (error) {
+    const err = error as Error;
+    return res.status(500).json({
+      error: 'Failed to load backend application',
+      message: err.message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+    });
+  }
+}
