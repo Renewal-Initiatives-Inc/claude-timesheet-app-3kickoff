@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet, Link } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth.js';
 import { usePendingReviewCount } from './hooks/useReviewQueue.js';
 import './App.css';
@@ -75,21 +75,21 @@ function AppLayout() {
       </a>
       <nav className="app-nav" aria-label="Main navigation">
         <div className="nav-brand">
-          <a href="/dashboard" aria-label="Renewal Initiatives Home">
+          <Link to="/dashboard" aria-label="Renewal Initiatives Home">
             Renewal Initiatives
-          </a>
+          </Link>
         </div>
         <div className="nav-links" role="menubar">
-          <a href="/timesheet" role="menuitem">
+          <Link to="/timesheet" role="menuitem">
             My Timesheet
-          </a>
+          </Link>
           {isSupervisor && (
             <>
-              <a href="/dashboard" role="menuitem">
+              <Link to="/dashboard" role="menuitem">
                 Dashboard
-              </a>
-              <a
-                href="/review"
+              </Link>
+              <Link
+                to="/review"
                 className="nav-link-with-badge"
                 role="menuitem"
                 aria-label={
@@ -104,16 +104,16 @@ function AppLayout() {
                     {pendingReviewCount}
                   </span>
                 )}
-              </a>
-              <a href="/employees" role="menuitem">
+              </Link>
+              <Link to="/employees" role="menuitem">
                 Employees
-              </a>
-              <a href="/task-codes" role="menuitem">
+              </Link>
+              <Link to="/task-codes" role="menuitem">
                 Task Codes
-              </a>
-              <a href="/reports" role="menuitem">
+              </Link>
+              <Link to="/reports" role="menuitem">
                 Reports
-              </a>
+              </Link>
             </>
           )}
         </div>
@@ -161,7 +161,7 @@ function ProtectedRoute({ requireSupervisor = false }: { requireSupervisor?: boo
       <div className="forbidden-screen" role="alert">
         <h1>Access Denied</h1>
         <p>You need supervisor privileges to access this page.</p>
-        <a href="/dashboard">Go to Dashboard</a>
+        <Link to="/dashboard">Go to Dashboard</Link>
       </div>
     );
   }
@@ -218,7 +218,7 @@ function App() {
               element={
                 <div className="not-found">
                   <h1>Page Not Found</h1>
-                  <a href="/dashboard">Go to Dashboard</a>
+                  <Link to="/dashboard">Go to Dashboard</Link>
                 </div>
               }
             />

@@ -11,7 +11,6 @@ Renewal Initiatives Timesheet Application - A compliance-focused timesheet syste
 - `technology_decisions.md` - Technology stack rationale
 - `implementation_plan.md` - Build phases and tasks
 - `CONVENTIONS.md` - Naming conventions (read before generating code)
-- `harmonization_plan.md` - Post-build cleanup tasks
 
 ## Naming Conventions
 

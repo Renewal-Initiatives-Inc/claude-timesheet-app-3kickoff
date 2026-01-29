@@ -1,5 +1,5 @@
 import { useState, FormEvent } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.js';
 import './Login.css';
 
@@ -82,9 +82,9 @@ export function Login() {
         </form>
 
         <div className="login-footer">
-          <a href="/password-reset" data-testid="login-forgot-password-link">
+          <Link to="/password-reset" data-testid="login-forgot-password-link">
             Forgot password?
-          </a>
+          </Link>
         </div>
       </div>
     </div>
