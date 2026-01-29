@@ -156,15 +156,15 @@ async function seed() {
   const insertedDocs = await db.insert(employeeDocuments).values(documents).returning();
   console.log(`Created ${insertedDocs.length} documents`);
 
-  // Create task codes
+  // Create task codes - aligned with official Rate Card (MA, 2026)
   console.log('Creating task codes...');
 
   const taskCodeData = [
-    // Field work (agricultural)
+    // F1: Field Help (Agricultural)
     {
       code: 'F1',
-      name: 'Field Harvesting - Light',
-      description: 'Light crop harvesting, berry picking',
+      name: 'Field Help',
+      description: 'Hand weeding, transplanting, light harvesting; no powered equipment',
       isAgricultural: true,
       isHazardous: false,
       supervisorRequired: 'for_minors' as const,
@@ -174,11 +174,12 @@ async function seed() {
       minAgeAllowed: 12,
       isActive: true,
     },
+    // G1: Grounds / Paths (Non-Agricultural)
     {
-      code: 'F2',
-      name: 'Field Planting',
-      description: 'Seedling planting and transplanting',
-      isAgricultural: true,
+      code: 'G1',
+      name: 'Grounds / Paths',
+      description: 'Raking, mulching, trail upkeep, hand-tool care; no powered mowers or trimmers',
+      isAgricultural: false,
       isHazardous: false,
       supervisorRequired: 'for_minors' as const,
       soloCashHandling: false,
@@ -187,164 +188,102 @@ async function seed() {
       minAgeAllowed: 12,
       isActive: true,
     },
+    // C1: Cleaning / Sanitation (Non-Agricultural)
     {
-      code: 'F3',
-      name: 'Irrigation Assistance',
-      description: 'Helping with irrigation systems',
-      isAgricultural: true,
+      code: 'C1',
+      name: 'Cleaning / Sanitation',
+      description: 'Sweeping, mopping, tidying common areas; no industrial chemicals',
+      isAgricultural: false,
       isHazardous: false,
       supervisorRequired: 'for_minors' as const,
       soloCashHandling: false,
       drivingRequired: false,
       powerMachinery: false,
-      minAgeAllowed: 14,
+      minAgeAllowed: 12,
       isActive: true,
     },
+    // P1: Post-Harvest Wash / Pack (Non-Agricultural)
     {
-      code: 'F4',
-      name: 'Equipment Operation - Light',
-      description: 'Small equipment operation (non-hazardous)',
-      isAgricultural: true,
+      code: 'P1',
+      name: 'Post-Harvest Wash / Pack',
+      description: 'Washing, packing, labeling produce; packshed assistance',
+      isAgricultural: false,
       isHazardous: false,
-      supervisorRequired: 'always' as const,
-      soloCashHandling: false,
-      drivingRequired: false,
-      powerMachinery: true,
-      minAgeAllowed: 16,
-      isActive: true,
-    },
-    {
-      code: 'F5',
-      name: 'Heavy Equipment Operation',
-      description: 'Tractor and heavy machinery',
-      isAgricultural: true,
-      isHazardous: true,
-      supervisorRequired: 'always' as const,
-      soloCashHandling: false,
-      drivingRequired: true,
-      powerMachinery: true,
-      minAgeAllowed: 18,
-      isActive: true,
-    },
-    {
-      code: 'F6',
-      name: 'Pesticide Application',
-      description: 'Applying agricultural chemicals',
-      isAgricultural: true,
-      isHazardous: true,
-      supervisorRequired: 'always' as const,
+      supervisorRequired: 'for_minors' as const,
       soloCashHandling: false,
       drivingRequired: false,
       powerMachinery: false,
-      minAgeAllowed: 18,
+      minAgeAllowed: 12,
       isActive: true,
     },
-    // Retail (non-agricultural)
+    // R1: CSA Assembly / Fulfillment (Non-Agricultural)
     {
       code: 'R1',
-      name: 'Farm Stand - Customer Service',
-      description: 'Greeting customers, answering questions',
+      name: 'CSA Assembly / Fulfillment',
+      description: 'Weighing, labeling, assembling CSA boxes; staging orders',
       isAgricultural: false,
       isHazardous: false,
-      supervisorRequired: 'none' as const,
+      supervisorRequired: 'for_minors' as const,
       soloCashHandling: false,
       drivingRequired: false,
       powerMachinery: false,
       minAgeAllowed: 12,
       isActive: true,
     },
+    // R2: Farmers' Market / Retail (Non-Agricultural) - Cash handling, min age 14
     {
       code: 'R2',
-      name: 'Farm Stand - Cash Register',
-      description: 'Operating register, handling payments',
+      name: "Farmers' Market / Retail",
+      description: 'Booth setup, stocking, greeting, cashiering',
       isAgricultural: false,
       isHazardous: false,
-      supervisorRequired: 'for_minors' as const,
+      supervisorRequired: 'always' as const,
       soloCashHandling: true,
       drivingRequired: false,
       powerMachinery: false,
-      minAgeAllowed: 16,
-      isActive: true,
-    },
-    {
-      code: 'R3',
-      name: 'Inventory Stocking',
-      description: 'Stocking shelves and displays',
-      isAgricultural: false,
-      isHazardous: false,
-      supervisorRequired: 'none' as const,
-      soloCashHandling: false,
-      drivingRequired: false,
-      powerMachinery: false,
-      minAgeAllowed: 12,
-      isActive: true,
-    },
-    // Administrative
-    {
-      code: 'A1',
-      name: 'Office Filing',
-      description: 'Document organization and filing',
-      isAgricultural: false,
-      isHazardous: false,
-      supervisorRequired: 'none' as const,
-      soloCashHandling: false,
-      drivingRequired: false,
-      powerMachinery: false,
       minAgeAllowed: 14,
       isActive: true,
     },
+    // O1: Office / Data Entry (Non-Agricultural)
     {
-      code: 'A2',
-      name: 'Data Entry',
-      description: 'Computer data entry tasks',
-      isAgricultural: false,
-      isHazardous: false,
-      supervisorRequired: 'none' as const,
-      soloCashHandling: false,
-      drivingRequired: false,
-      powerMachinery: false,
-      minAgeAllowed: 14,
-      isActive: true,
-    },
-    // Maintenance
-    {
-      code: 'M1',
-      name: 'Grounds Keeping - Light',
-      description: 'Sweeping, raking, light cleanup',
-      isAgricultural: false,
-      isHazardous: false,
-      supervisorRequired: 'none' as const,
-      soloCashHandling: false,
-      drivingRequired: false,
-      powerMachinery: false,
-      minAgeAllowed: 12,
-      isActive: true,
-    },
-    {
-      code: 'M2',
-      name: 'Grounds Keeping - Power Tools',
-      description: 'Using lawn mowers, leaf blowers',
+      code: 'O1',
+      name: 'Office / Data Entry',
+      description: 'Logs, inventory sheets, basic spreadsheets',
       isAgricultural: false,
       isHazardous: false,
       supervisorRequired: 'for_minors' as const,
       soloCashHandling: false,
       drivingRequired: false,
-      powerMachinery: true,
-      minAgeAllowed: 16,
+      powerMachinery: false,
+      minAgeAllowed: 12,
       isActive: true,
     },
-    // Delivery
+    // O2: Website / Online Promotion (Non-Agricultural) - min age 14
     {
-      code: 'D1',
-      name: 'Delivery Driver',
-      description: 'Driving delivery vehicle',
+      code: 'O2',
+      name: 'Website / Online Promotion',
+      description: 'CMS edits, product posts, photo captions; no coding',
       isAgricultural: false,
       isHazardous: false,
-      supervisorRequired: 'none' as const,
+      supervisorRequired: 'for_minors' as const,
       soloCashHandling: false,
-      drivingRequired: true,
+      drivingRequired: false,
       powerMachinery: false,
-      minAgeAllowed: 18,
+      minAgeAllowed: 14,
+      isActive: true,
+    },
+    // L1: Light Loading / Stock Movement (Non-Agricultural) - min age 14
+    {
+      code: 'L1',
+      name: 'Light Loading / Stock Movement',
+      description: 'Carrying/loading ≤50 lbs; team lifts; no forklifts/tractors',
+      isAgricultural: false,
+      isHazardous: false,
+      supervisorRequired: 'for_minors' as const,
+      soloCashHandling: false,
+      drivingRequired: false,
+      powerMachinery: false,
+      minAgeAllowed: 14,
       isActive: true,
     },
   ];
@@ -352,16 +291,28 @@ async function seed() {
   const insertedTaskCodes = await db.insert(taskCodes).values(taskCodeData).returning();
   console.log(`Created ${insertedTaskCodes.length} task codes`);
 
-  // Create initial rates for each task code
+  // Create initial rates for each task code - aligned with official Rate Card (MA, 2026)
   console.log('Creating task code rates...');
+
+  // Rate card mapping per task code (based on BLS OEWS data and MA market rates)
+  const rateCardRates: Record<string, string> = {
+    F1: '20.00', // Field Help - Agricultural
+    G1: '23.00', // Grounds / Paths - Non-Ag (BLS Landscaping median $22.41)
+    C1: '20.00', // Cleaning / Sanitation - Non-Ag (BLS Janitors mean $20.23)
+    P1: '20.00', // Post-Harvest Wash / Pack - Non-Ag
+    R1: '20.00', // CSA Assembly / Fulfillment - Non-Ag (BLS Stockers mean $19.24)
+    R2: '20.00', // Farmers' Market / Retail - Non-Ag (BLS Retail mean $19.47)
+    O1: '24.00', // Office / Data Entry - Non-Ag (BLS Office Clerks mean $24.75)
+    O2: '29.50', // Website / Online Promotion - Non-Ag (higher skill)
+    L1: '21.50', // Light Loading / Stock Movement - Non-Ag (BLS Laborers mean $21.46)
+  };
 
   const today = new Date().toISOString().split('T')[0]!;
   const rates = insertedTaskCodes.map((tc) => ({
     taskCodeId: tc.id,
-    // Agricultural tasks get lower rate ($8/hr), non-agricultural $15/hr
-    hourlyRate: tc.isAgricultural ? '8.00' : '15.00',
+    hourlyRate: rateCardRates[tc.code] || '15.00',
     effectiveDate: today,
-    justificationNotes: 'Initial rate setup',
+    justificationNotes: 'Rate Card v2.0 (Jan 2026) - aligned with BLS OEWS MA market data',
   }));
 
   const insertedRates = await db.insert(taskCodeRates).values(rates).returning();

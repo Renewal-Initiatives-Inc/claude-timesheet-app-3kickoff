@@ -18,7 +18,10 @@
  * - Verify task codes and rates with the organization before running
  * - Use create-admin.ts separately to create the initial supervisor
  *
- * Rate verification before seeding:
+ * Rate Card: Junior Farmer Apprenticeship Rate Card v2.0 (MA, Jan 2026)
+ * Rates aligned with BLS OEWS MA market data.
+ *
+ * Wage Floors (for reference only - actual rates are higher):
  * - Agricultural tasks: $8.00/hr (MA agricultural minimum)
  * - Non-agricultural tasks: $15.00/hr (MA general minimum)
  */
@@ -27,13 +30,13 @@ import { db, schema } from './index.js';
 
 const { taskCodes, taskCodeRates } = schema;
 
-// Task code definitions - VERIFY WITH ORGANIZATION BEFORE DEPLOYING
+// Task code definitions - aligned with official Rate Card v2.0 (Jan 2026)
 const TASK_CODE_DATA = [
-  // Field work (agricultural)
+  // F1: Field Help (Agricultural)
   {
     code: 'F1',
-    name: 'Field Harvesting - Light',
-    description: 'Light crop harvesting, berry picking',
+    name: 'Field Help',
+    description: 'Hand weeding, transplanting, light harvesting; no powered equipment',
     isAgricultural: true,
     isHazardous: false,
     supervisorRequired: 'for_minors' as const,
@@ -42,13 +45,14 @@ const TASK_CODE_DATA = [
     powerMachinery: false,
     minAgeAllowed: 12,
     isActive: true,
-    rate: '8.00', // Agricultural rate
+    rate: '20.00', // BLS agricultural worker reference
   },
+  // G1: Grounds / Paths (Non-Agricultural)
   {
-    code: 'F2',
-    name: 'Field Planting',
-    description: 'Seedling planting and transplanting',
-    isAgricultural: true,
+    code: 'G1',
+    name: 'Grounds / Paths',
+    description: 'Raking, mulching, trail upkeep, hand-tool care; no powered mowers or trimmers',
+    isAgricultural: false,
     isHazardous: false,
     supervisorRequired: 'for_minors' as const,
     soloCashHandling: false,
@@ -56,179 +60,112 @@ const TASK_CODE_DATA = [
     powerMachinery: false,
     minAgeAllowed: 12,
     isActive: true,
-    rate: '8.00',
+    rate: '23.00', // BLS Landscaping median $22.41
   },
+  // C1: Cleaning / Sanitation (Non-Agricultural)
   {
-    code: 'F3',
-    name: 'Irrigation Assistance',
-    description: 'Helping with irrigation systems',
-    isAgricultural: true,
+    code: 'C1',
+    name: 'Cleaning / Sanitation',
+    description: 'Sweeping, mopping, tidying common areas; no industrial chemicals',
+    isAgricultural: false,
     isHazardous: false,
     supervisorRequired: 'for_minors' as const,
     soloCashHandling: false,
     drivingRequired: false,
     powerMachinery: false,
-    minAgeAllowed: 14,
+    minAgeAllowed: 12,
     isActive: true,
-    rate: '8.00',
+    rate: '20.00', // BLS Janitors mean $20.23
   },
+  // P1: Post-Harvest Wash / Pack (Non-Agricultural)
   {
-    code: 'F4',
-    name: 'Equipment Operation - Light',
-    description: 'Small equipment operation (non-hazardous)',
-    isAgricultural: true,
+    code: 'P1',
+    name: 'Post-Harvest Wash / Pack',
+    description: 'Washing, packing, labeling produce; packshed assistance',
+    isAgricultural: false,
     isHazardous: false,
-    supervisorRequired: 'always' as const,
-    soloCashHandling: false,
-    drivingRequired: false,
-    powerMachinery: true,
-    minAgeAllowed: 16,
-    isActive: true,
-    rate: '8.00',
-  },
-  {
-    code: 'F5',
-    name: 'Heavy Equipment Operation',
-    description: 'Tractor and heavy machinery',
-    isAgricultural: true,
-    isHazardous: true,
-    supervisorRequired: 'always' as const,
-    soloCashHandling: false,
-    drivingRequired: true,
-    powerMachinery: true,
-    minAgeAllowed: 18,
-    isActive: true,
-    rate: '8.00',
-  },
-  {
-    code: 'F6',
-    name: 'Pesticide Application',
-    description: 'Applying agricultural chemicals',
-    isAgricultural: true,
-    isHazardous: true,
-    supervisorRequired: 'always' as const,
+    supervisorRequired: 'for_minors' as const,
     soloCashHandling: false,
     drivingRequired: false,
     powerMachinery: false,
-    minAgeAllowed: 18,
+    minAgeAllowed: 12,
     isActive: true,
-    rate: '8.00',
+    rate: '20.00', // Non-ag per MA case law (Arias-Villano)
   },
-  // Retail (non-agricultural)
+  // R1: CSA Assembly / Fulfillment (Non-Agricultural)
   {
     code: 'R1',
-    name: 'Farm Stand - Customer Service',
-    description: 'Greeting customers, answering questions',
+    name: 'CSA Assembly / Fulfillment',
+    description: 'Weighing, labeling, assembling CSA boxes; staging orders',
     isAgricultural: false,
     isHazardous: false,
-    supervisorRequired: 'none' as const,
+    supervisorRequired: 'for_minors' as const,
     soloCashHandling: false,
     drivingRequired: false,
     powerMachinery: false,
     minAgeAllowed: 12,
     isActive: true,
-    rate: '15.00', // Non-agricultural rate
+    rate: '20.00', // BLS Stockers mean $19.24
   },
+  // R2: Farmers' Market / Retail (Non-Agricultural) - Cash handling, min age 14
   {
     code: 'R2',
-    name: 'Farm Stand - Cash Register',
-    description: 'Operating register, handling payments',
+    name: "Farmers' Market / Retail",
+    description: 'Booth setup, stocking, greeting, cashiering',
     isAgricultural: false,
     isHazardous: false,
-    supervisorRequired: 'for_minors' as const,
+    supervisorRequired: 'always' as const,
     soloCashHandling: true,
     drivingRequired: false,
     powerMachinery: false,
-    minAgeAllowed: 16,
-    isActive: true,
-    rate: '15.00',
-  },
-  {
-    code: 'R3',
-    name: 'Inventory Stocking',
-    description: 'Stocking shelves and displays',
-    isAgricultural: false,
-    isHazardous: false,
-    supervisorRequired: 'none' as const,
-    soloCashHandling: false,
-    drivingRequired: false,
-    powerMachinery: false,
-    minAgeAllowed: 12,
-    isActive: true,
-    rate: '15.00',
-  },
-  // Administrative
-  {
-    code: 'A1',
-    name: 'Office Filing',
-    description: 'Document organization and filing',
-    isAgricultural: false,
-    isHazardous: false,
-    supervisorRequired: 'none' as const,
-    soloCashHandling: false,
-    drivingRequired: false,
-    powerMachinery: false,
     minAgeAllowed: 14,
     isActive: true,
-    rate: '15.00',
+    rate: '20.00', // BLS Retail mean $19.47
   },
+  // O1: Office / Data Entry (Non-Agricultural)
   {
-    code: 'A2',
-    name: 'Data Entry',
-    description: 'Computer data entry tasks',
-    isAgricultural: false,
-    isHazardous: false,
-    supervisorRequired: 'none' as const,
-    soloCashHandling: false,
-    drivingRequired: false,
-    powerMachinery: false,
-    minAgeAllowed: 14,
-    isActive: true,
-    rate: '15.00',
-  },
-  // Maintenance
-  {
-    code: 'M1',
-    name: 'Grounds Keeping - Light',
-    description: 'Sweeping, raking, light cleanup',
-    isAgricultural: false,
-    isHazardous: false,
-    supervisorRequired: 'none' as const,
-    soloCashHandling: false,
-    drivingRequired: false,
-    powerMachinery: false,
-    minAgeAllowed: 12,
-    isActive: true,
-    rate: '15.00',
-  },
-  {
-    code: 'M2',
-    name: 'Grounds Keeping - Power Tools',
-    description: 'Using lawn mowers, leaf blowers',
+    code: 'O1',
+    name: 'Office / Data Entry',
+    description: 'Logs, inventory sheets, basic spreadsheets',
     isAgricultural: false,
     isHazardous: false,
     supervisorRequired: 'for_minors' as const,
     soloCashHandling: false,
     drivingRequired: false,
-    powerMachinery: true,
-    minAgeAllowed: 16,
+    powerMachinery: false,
+    minAgeAllowed: 12,
     isActive: true,
-    rate: '15.00',
+    rate: '24.00', // BLS Office Clerks mean $24.75
   },
-  // Delivery
+  // O2: Website / Online Promotion (Non-Agricultural) - min age 14
   {
-    code: 'D1',
-    name: 'Delivery Driver',
-    description: 'Driving delivery vehicle',
+    code: 'O2',
+    name: 'Website / Online Promotion',
+    description: 'CMS edits, product posts, photo captions; no coding',
     isAgricultural: false,
     isHazardous: false,
-    supervisorRequired: 'none' as const,
+    supervisorRequired: 'for_minors' as const,
     soloCashHandling: false,
-    drivingRequired: true,
+    drivingRequired: false,
     powerMachinery: false,
-    minAgeAllowed: 18,
+    minAgeAllowed: 14,
     isActive: true,
-    rate: '15.00',
+    rate: '29.50', // Higher skill + judgment
+  },
+  // L1: Light Loading / Stock Movement (Non-Agricultural) - min age 14
+  {
+    code: 'L1',
+    name: 'Light Loading / Stock Movement',
+    description: 'Carrying/loading ≤50 lbs; team lifts; no forklifts/tractors',
+    isAgricultural: false,
+    isHazardous: false,
+    supervisorRequired: 'for_minors' as const,
+    soloCashHandling: false,
+    drivingRequired: false,
+    powerMachinery: false,
+    minAgeAllowed: 14,
+    isActive: true,
+    rate: '21.50', // BLS Laborers mean $21.46
   },
 ];
 
@@ -292,7 +229,7 @@ async function seedProduction() {
       taskCodeId: tc.id,
       hourlyRate: taskCodeData?.rate || (tc.isAgricultural ? '8.00' : '15.00'),
       effectiveDate: today,
-      justificationNotes: 'Initial production rate setup',
+      justificationNotes: 'Rate Card v2.0 (Jan 2026) - aligned with BLS OEWS MA market data',
     };
   });
 

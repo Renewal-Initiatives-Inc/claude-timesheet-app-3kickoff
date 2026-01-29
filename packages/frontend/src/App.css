@@ -1,3 +1,38 @@
+/* ========================================
+   CSS CUSTOM PROPERTIES (Design Tokens)
+   WCAG 2.1 AA Compliant Color Palette
+   ======================================== */
+:root {
+  /* Primary brand colors - matches existing navbar (#2c5530) */
+  --color-primary: #2c5530;
+  --color-primary-dark: #1e3c21;
+  --color-primary-rgb: 44, 85, 48;
+
+  /* Text colors - high contrast for readability */
+  --color-text: #333333;
+  --color-text-secondary: #525252; /* 7:1 contrast ratio on white */
+
+  /* Surface and background colors */
+  --color-surface: #ffffff;
+  --color-background: #f5f5f5;
+  --color-border: #d4d4d4;
+
+  /* Success colors - darker green for WCAG AA compliance (5:1 ratio) */
+  --color-success: #15803d;
+  --color-success-dark: #166534;
+  --color-success-rgb: 21, 128, 61;
+
+  /* Danger colors - darker red for WCAG AA compliance (4.8:1 ratio) */
+  --color-danger: #dc2626;
+  --color-danger-dark: #b91c1c;
+  --color-danger-rgb: 220, 38, 38;
+
+  /* Warning colors - darker amber for WCAG AA compliance */
+  --color-warning: #b45309;
+  --color-warning-dark: #92400e;
+  --color-warning-rgb: 180, 83, 9;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
