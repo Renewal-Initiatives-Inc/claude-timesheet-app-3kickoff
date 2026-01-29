@@ -118,7 +118,7 @@ export function TimesheetHistoryReport() {
         startDate,
         endDate,
         employeeId: employeeId || undefined,
-        status: (status as 'open' | 'submitted' | 'approved' | 'rejected') || undefined,
+        status: (status as 'open' | 'submitted' | 'approved') || undefined,
         ageBand: (ageBand as AgeBand) || undefined,
       });
       setTimesheets(response.timesheets);
@@ -241,7 +241,6 @@ export function TimesheetHistoryReport() {
               <option value="open">Open</option>
               <option value="submitted">Submitted</option>
               <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
             </select>
           </div>
           <div className="filter-field">
@@ -302,14 +301,10 @@ export function TimesheetHistoryReport() {
                 <span className="summary-value">{getStatusCount('approved')}</span>
               </div>
               <div
-                className="summary-card rejected"
-                data-testid="timesheet-history-summary-rejected"
+                className="summary-card submitted"
+                data-testid="timesheet-history-summary-submitted"
               >
-                <span className="summary-label">Rejected</span>
-                <span className="summary-value">{getStatusCount('rejected')}</span>
-              </div>
-              <div className="summary-card submitted">
-                <span className="summary-label">Pending</span>
+                <span className="summary-label">Submitted</span>
                 <span className="summary-value">{getStatusCount('submitted')}</span>
               </div>
               <div className="summary-card">
