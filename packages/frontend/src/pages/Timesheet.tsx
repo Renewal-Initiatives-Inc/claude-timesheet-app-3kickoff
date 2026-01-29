@@ -167,6 +167,8 @@ export function Timesheet() {
           },
         ]);
       }
+      // Refresh to ensure state sync after failed submission
+      refresh();
     } finally {
       setSubmitting(false);
     }

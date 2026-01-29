@@ -54,6 +54,7 @@ export interface LoginRequest {
 export interface LoginResponse {
   token: string;
   employee: EmployeePublic;
+  requiresPasswordChange?: boolean;
 }
 
 /**

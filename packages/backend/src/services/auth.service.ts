@@ -30,6 +30,7 @@ export interface RegisterData {
 export interface LoginResult {
   token: string;
   employee: EmployeePublic;
+  requiresPasswordChange: boolean;
 }
 
 export interface AccountLockStatus {
@@ -104,7 +105,7 @@ export async function register(data: RegisterData): Promise<{
   // Hash the password
   const passwordHash = await hashPassword(data.tempPassword);
 
-  // Create employee
+  // Create employee with requiresPasswordChange = true (temporary password)
   const [employee] = await db
     .insert(employees)
     .values({
@@ -113,6 +114,7 @@ export async function register(data: RegisterData): Promise<{
       dateOfBirth: data.dateOfBirth,
       isSupervisor: data.isSupervisor ?? false,
       passwordHash,
+      requiresPasswordChange: true, // New employees must change their temp password
       failedLoginAttempts: 0,
     })
     .returning();
@@ -174,6 +176,7 @@ export async function login(email: string, password: string): Promise<LoginResul
   return {
     token,
     employee: toPublic(employee),
+    requiresPasswordChange: employee.requiresPasswordChange ?? false,
   };
 }
 
@@ -268,6 +271,7 @@ export async function changePassword(employeeId: string, newPassword: string): P
     .update(employees)
     .set({
       passwordHash,
+      requiresPasswordChange: false, // Clear the flag after password change
       failedLoginAttempts: 0,
       lockedUntil: null,
       updatedAt: new Date(),

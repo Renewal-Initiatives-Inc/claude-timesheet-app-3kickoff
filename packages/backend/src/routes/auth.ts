@@ -1,5 +1,8 @@
 import { Router, Request, Response } from 'express';
-import { register, login, logout, AuthError } from '../services/auth.service.js';
+import { register, login, logout, changePassword, AuthError } from '../services/auth.service.js';
+import { verifyPassword } from '../utils/password.js';
+import { db, schema } from '../db/index.js';
+import { eq } from 'drizzle-orm';
 import {
   requestPasswordReset,
   validateResetToken,
@@ -78,6 +81,7 @@ router.post(
       res.json({
         token: result.token,
         employee: result.employee,
+        requiresPasswordChange: result.requiresPasswordChange,
       });
     } catch (error) {
       if (error instanceof AuthError) {
@@ -183,6 +187,64 @@ router.get('/me', requireAuth, (req: Request, res: Response) => {
   res.json({
     employee: req.employee,
   });
+});
+
+/**
+ * POST /api/auth/change-password
+ * Change password for the authenticated user.
+ * Used when employee needs to change their temporary password.
+ */
+router.post('/change-password', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      res.status(400).json({
+        error: 'MISSING_FIELDS',
+        message: 'Current password and new password are required',
+      });
+      return;
+    }
+
+    // Get employee with password hash
+    const employee = await db.query.employees.findFirst({
+      where: eq(schema.employees.id, req.employee!.id),
+    });
+
+    if (!employee?.passwordHash) {
+      res.status(400).json({
+        error: 'INVALID_STATE',
+        message: 'No password set for this account',
+      });
+      return;
+    }
+
+    // Verify current password
+    const valid = await verifyPassword(currentPassword, employee.passwordHash);
+    if (!valid) {
+      res.status(401).json({
+        error: 'INVALID_PASSWORD',
+        message: 'Current password is incorrect',
+      });
+      return;
+    }
+
+    // Change password (this also clears requiresPasswordChange flag)
+    await changePassword(req.employee!.id, newPassword);
+
+    res.json({
+      message: 'Password changed successfully',
+    });
+  } catch (error) {
+    if (error instanceof AuthError) {
+      res.status(400).json({
+        error: error.code,
+        message: error.message,
+      });
+      return;
+    }
+    throw error;
+  }
 });
 
 export default router;

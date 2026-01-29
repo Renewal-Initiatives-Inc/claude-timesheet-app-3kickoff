@@ -6,6 +6,7 @@ import './App.css';
 
 // Eagerly loaded pages (needed immediately)
 import { Login } from './pages/Login.js';
+import { ChangePassword } from './pages/ChangePassword.js';
 import { Dashboard } from './pages/Dashboard.js';
 import { Timesheet } from './pages/Timesheet.js';
 
@@ -48,6 +49,14 @@ const TimesheetHistoryReport = lazy(() =>
   import('./pages/TimesheetHistoryReport.js').then((m) => ({ default: m.TimesheetHistoryReport }))
 );
 
+// Employee report pages (accessible to all authenticated users)
+const MyReportsDashboard = lazy(() =>
+  import('./pages/MyReportsDashboard.js').then((m) => ({ default: m.MyReportsDashboard }))
+);
+const MyTimesheetHistory = lazy(() =>
+  import('./pages/MyTimesheetHistory.js').then((m) => ({ default: m.MyTimesheetHistory }))
+);
+
 /**
  * Loading fallback for lazy-loaded routes
  */
@@ -82,6 +91,9 @@ function AppLayout() {
         <div className="nav-links" role="menubar">
           <Link to="/timesheet" role="menuitem">
             My Timesheet
+          </Link>
+          <Link to="/my-reports" role="menuitem">
+            My Reports
           </Link>
           {isSupervisor && (
             <>
@@ -178,6 +190,11 @@ function App() {
             {/* Public routes */}
             <Route path="/login" element={<Login />} />
 
+            {/* Password change - protected but no layout (special page) */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/change-password" element={<ChangePassword />} />
+            </Route>
+
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
               <Route element={<AppLayout />}>
@@ -190,6 +207,10 @@ function App() {
                 {/* Timesheet - accessible to all authenticated users */}
                 <Route path="/timesheet" element={<Timesheet />} />
                 <Route path="/timesheet/:weekStartDate" element={<Timesheet />} />
+
+                {/* Employee reports - accessible to all authenticated users */}
+                <Route path="/my-reports" element={<MyReportsDashboard />} />
+                <Route path="/my-reports/timesheet-history" element={<MyTimesheetHistory />} />
 
                 {/* Supervisor-only routes (lazy loaded) */}
                 <Route element={<ProtectedRoute requireSupervisor />}>

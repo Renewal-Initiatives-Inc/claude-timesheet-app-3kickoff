@@ -3,6 +3,7 @@ import { db, schema } from '../db/index.js';
 import type { TimesheetEntry } from '@renewal/types';
 import { isDefaultSchoolDay, timeToMinutes } from '../utils/timezone.js';
 import { getWeekDates } from './timesheet.service.js';
+import { calculateAge } from '../utils/age.js';
 
 const { timesheetEntries, timesheets, taskCodes } = schema;
 
@@ -18,7 +19,8 @@ export type TimesheetEntryErrorCode =
   | 'TIMESHEET_NOT_EDITABLE'
   | 'TIMESHEET_NOT_FOUND'
   | 'TASK_CODE_NOT_FOUND'
-  | 'TASK_CODE_AGE_RESTRICTED';
+  | 'TASK_CODE_AGE_RESTRICTED'
+  | 'HOUR_LIMIT_EXCEEDED';
 
 /**
  * Error thrown for timesheet entry-related business logic errors.
@@ -85,6 +87,99 @@ export function getDefaultSchoolDayStatus(workDate: string): boolean {
 }
 
 /**
+ * Result of hour limit validation.
+ */
+interface HourValidationResult {
+  valid: boolean;
+  error?: string;
+  dailyTotal?: number;
+  dailyLimit?: number;
+  weeklyTotal?: number;
+  weeklyLimit?: number;
+}
+
+/**
+ * Validate that an entry doesn't exceed hour limits.
+ * Checks both daily and weekly limits based on employee age.
+ */
+async function validateHourLimits(
+  timesheetId: string,
+  workDate: string,
+  newHours: number,
+  isSchoolDay: boolean,
+  excludeEntryId?: string // For updates, exclude the entry being updated
+): Promise<HourValidationResult> {
+  // Get timesheet with employee info
+  const timesheet = await db.query.timesheets.findFirst({
+    where: eq(timesheets.id, timesheetId),
+    with: { employee: true },
+  });
+
+  if (!timesheet || !timesheet.employee) {
+    return { valid: false, error: 'Timesheet or employee not found' };
+  }
+
+  // Calculate employee age on work date
+  const age = calculateAge(timesheet.employee.dateOfBirth, workDate);
+  const limits = getHourLimitsForAge(age);
+
+  // Get existing entries for this timesheet
+  const entries = await db.query.timesheetEntries.findMany({
+    where: eq(timesheetEntries.timesheetId, timesheetId),
+  });
+
+  // Calculate current totals (excluding entry being updated)
+  let dailyTotal = 0;
+  let weeklyTotal = 0;
+
+  for (const entry of entries) {
+    if (excludeEntryId && entry.id === excludeEntryId) continue;
+
+    const hours = parseFloat(entry.hours);
+    weeklyTotal += hours;
+
+    if (entry.workDate === workDate) {
+      dailyTotal += hours;
+    }
+  }
+
+  // Add new hours
+  const newDailyTotal = dailyTotal + newHours;
+  const newWeeklyTotal = weeklyTotal + newHours;
+
+  // Determine daily limit (school day vs non-school day for 14-15)
+  const dailyLimit =
+    limits.dailyLimitSchoolDay !== undefined && isSchoolDay
+      ? limits.dailyLimitSchoolDay
+      : limits.dailyLimit;
+
+  // Determine weekly limit (use school week limit if available)
+  const weeklyLimit = limits.weeklyLimitSchoolWeek ?? limits.weeklyLimit;
+
+  // Check daily limit
+  if (newDailyTotal > dailyLimit) {
+    return {
+      valid: false,
+      error: `This entry would exceed the daily limit of ${dailyLimit} hours for your age group (${age} years old). Current: ${dailyTotal.toFixed(1)}h, Entry: ${newHours.toFixed(1)}h, Total would be: ${newDailyTotal.toFixed(1)}h`,
+      dailyTotal: newDailyTotal,
+      dailyLimit,
+    };
+  }
+
+  // Check weekly limit
+  if (newWeeklyTotal > weeklyLimit) {
+    return {
+      valid: false,
+      error: `This entry would exceed the weekly limit of ${weeklyLimit} hours for your age group (${age} years old). Current: ${weeklyTotal.toFixed(1)}h, Entry: ${newHours.toFixed(1)}h, Total would be: ${newWeeklyTotal.toFixed(1)}h`,
+      weeklyTotal: newWeeklyTotal,
+      weeklyLimit,
+    };
+  }
+
+  return { valid: true };
+}
+
+/**
  * Input for creating a timesheet entry.
  */
 export interface CreateEntryInput {
@@ -140,6 +235,17 @@ export async function createEntry(
 
   // Calculate hours
   const hours = calculateHours(input.startTime, input.endTime);
+
+  // Validate hour limits before saving
+  const validation = await validateHourLimits(
+    timesheetId,
+    input.workDate,
+    hours,
+    input.isSchoolDay
+  );
+  if (!validation.valid) {
+    throw new TimesheetEntryError(validation.error!, 'HOUR_LIMIT_EXCEEDED');
+  }
 
   // Create entry
   const [newEntry] = await db
@@ -220,6 +326,20 @@ export async function updateEntry(
 
   if (input.startTime || input.endTime) {
     const hours = calculateHours(newStartTime, newEndTime);
+
+    // Validate hour limits before saving (exclude current entry from calculation)
+    const isSchoolDay = input.isSchoolDay ?? entry.isSchoolDay;
+    const validation = await validateHourLimits(
+      entry.timesheet.id,
+      entry.workDate,
+      hours,
+      isSchoolDay,
+      entryId // Exclude this entry from calculation
+    );
+    if (!validation.valid) {
+      throw new TimesheetEntryError(validation.error!, 'HOUR_LIMIT_EXCEEDED');
+    }
+
     updates.startTime = newStartTime;
     updates.endTime = newEndTime;
     updates.hours = hours.toFixed(2);

@@ -20,6 +20,7 @@ export const employees = pgTable('employees', {
   status: employeeStatusEnum('status').notNull().default('active'),
   // Auth fields (for Phase 3)
   passwordHash: varchar('password_hash', { length: 255 }),
+  requiresPasswordChange: boolean('requires_password_change').notNull().default(false),
   failedLoginAttempts: integer('failed_login_attempts').default(0),
   lockedUntil: timestamp('locked_until', { withTimezone: true }),
   // Timestamps

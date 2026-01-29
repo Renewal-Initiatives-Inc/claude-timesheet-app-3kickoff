@@ -10,12 +10,20 @@ export function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = (location.state as { from?: string })?.from || '/dashboard';
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      await login({ email, password });
+      const response = await login({ email, password });
+
+      // Check if password change is required (new employee with temp password)
+      if (response.requiresPasswordChange) {
+        navigate('/change-password', { replace: true });
+        return;
+      }
+
+      // Role-based default redirect: employees go to timesheet, supervisors go to dashboard
+      const defaultPath = response.employee.isSupervisor ? '/dashboard' : '/timesheet';
+      const from = (location.state as { from?: string })?.from || defaultPath;
       navigate(from, { replace: true });
     } catch {
       // Error is handled by useAuth

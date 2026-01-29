@@ -17,7 +17,8 @@ const shouldSkip = () => process.env['NODE_ENV'] === 'test';
 
 /**
  * Strict rate limit for login attempts.
- * 5 requests per 15 minutes per IP.
+ * 5 failed requests per 15 minutes per IP.
+ * Successful logins don't count against the limit.
  */
 export const loginRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -26,6 +27,7 @@ export const loginRateLimiter = rateLimit({
   legacyHeaders: true, // Also send X-RateLimit-* headers for compatibility
   message: rateLimitMessage('Too many login attempts. Please try again in 15 minutes.'),
   skip: shouldSkip,
+  skipSuccessfulRequests: true, // Only count failed login attempts (4xx/5xx responses)
   // Use default keyGenerator which properly handles IPv6
 });
 

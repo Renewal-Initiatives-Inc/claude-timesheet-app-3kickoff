@@ -201,3 +201,27 @@ export async function getTimesheetHistoryReport(
 
   return apiRequest(`/reports/timesheet-history?${params.toString()}`);
 }
+
+/**
+ * Filters for employee's own timesheet history (no employeeId needed - auto-filtered server-side)
+ */
+export interface MyTimesheetHistoryFilters {
+  startDate: string;
+  endDate: string;
+  status?: 'open' | 'submitted' | 'approved' | 'rejected';
+}
+
+/**
+ * Get current employee's own timesheet history.
+ * Server auto-filters to the authenticated user's data.
+ */
+export async function getMyTimesheetHistoryReport(
+  filters: MyTimesheetHistoryFilters
+): Promise<TimesheetHistoryResponse> {
+  const params = new URLSearchParams();
+  params.set('startDate', filters.startDate);
+  params.set('endDate', filters.endDate);
+  if (filters.status) params.set('status', filters.status);
+
+  return apiRequest(`/reports/my/timesheet-history?${params.toString()}`);
+}

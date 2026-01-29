@@ -285,6 +285,16 @@ export async function registerEmployee(data: RegisterRequest): Promise<{
   });
 }
 
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string
+): Promise<{ message: string }> {
+  return apiRequest('/auth/change-password', {
+    method: 'POST',
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+}
+
 // ============================================================================
 // Employee API
 // ============================================================================

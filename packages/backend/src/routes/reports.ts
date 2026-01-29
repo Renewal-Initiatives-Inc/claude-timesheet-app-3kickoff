@@ -14,8 +14,55 @@ import { generateComplianceAuditCSV } from '../utils/compliance-export.js';
 
 const router: Router = Router();
 
-// All routes require authentication and supervisor role
+// All routes require authentication
 router.use(requireAuth);
+
+// ============================================
+// EMPLOYEE-ACCESSIBLE ROUTES (before requireSupervisor)
+// These routes auto-filter to the current user's data
+// ============================================
+
+/**
+ * GET /api/reports/my/timesheet-history
+ * Get current employee's timesheet history.
+ * Query params: startDate, endDate (required), status (optional)
+ */
+router.get('/my/timesheet-history', async (req: Request, res: Response) => {
+  try {
+    const queryResult = timesheetHistoryQuerySchema.safeParse(req.query);
+    if (!queryResult.success) {
+      res.status(400).json({
+        error: 'Validation Error',
+        message: 'Invalid query parameters',
+        details: queryResult.error.errors,
+      });
+      return;
+    }
+
+    // Force filter to current employee's data only
+    const filters = {
+      ...queryResult.data,
+      employeeId: req.employee!.id,
+    };
+    const report = await getTimesheetHistoryReport(filters);
+
+    res.json(report);
+  } catch (error) {
+    if (error instanceof ReportError) {
+      const statusCode = getStatusCodeForError(error.code);
+      res.status(statusCode).json({
+        error: error.code,
+        message: error.message,
+      });
+      return;
+    }
+    throw error;
+  }
+});
+
+// ============================================
+// SUPERVISOR-ONLY ROUTES
+// ============================================
 router.use(requireSupervisor);
 
 /**

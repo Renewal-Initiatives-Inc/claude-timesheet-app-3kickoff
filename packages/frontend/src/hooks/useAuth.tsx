@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, createContext, useContext, ReactNode } from 'react';
-import type { EmployeePublic, LoginRequest } from '@renewal/types';
+import type { EmployeePublic, LoginRequest, LoginResponse } from '@renewal/types';
 import {
   login as loginApi,
   logout as logoutApi,
@@ -14,7 +14,7 @@ interface AuthContextValue {
   error: string | null;
   isAuthenticated: boolean;
   isSupervisor: boolean;
-  login: (data: LoginRequest) => Promise<void>;
+  login: (data: LoginRequest) => Promise<LoginResponse>;
   logout: () => Promise<void>;
   clearError: () => void;
 }
@@ -52,12 +52,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     initAuth();
   }, []);
 
-  const login = useCallback(async (data: LoginRequest) => {
+  const login = useCallback(async (data: LoginRequest): Promise<LoginResponse> => {
     setLoading(true);
     setError(null);
     try {
       const response = await loginApi(data);
       setUser(response.employee);
+      return response;
     } catch (err) {
       if (err instanceof ApiRequestError) {
         setError(err.message);
