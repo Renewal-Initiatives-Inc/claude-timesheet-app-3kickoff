@@ -1,5 +1,5 @@
-import { drizzle as drizzleVercel } from 'drizzle-orm/vercel-postgres';
-import { sql } from '@vercel/postgres';
+import { drizzle as drizzleNeon } from 'drizzle-orm/neon-http';
+import { neon } from '@neondatabase/serverless';
 import { drizzle as drizzlePg } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
 import * as schema from './schema/index.js';
@@ -14,12 +14,14 @@ const isLocal = nodeEnv === 'development' || nodeEnv === 'test' || databaseUrl?.
 
 // Create appropriate database client
 function createDb() {
-  // Production on Vercel: use Vercel Postgres adapter
+  // Production on Vercel: use Neon serverless HTTP driver
+  // Optimized for serverless with HTTP-based connections
   if (isVercel && !isLocal) {
-    return drizzleVercel({
-      client: sql,
-      schema,
-    });
+    if (!databaseUrl) {
+      throw new Error('DATABASE_URL environment variable is required');
+    }
+    const sql = neon(databaseUrl);
+    return drizzleNeon(sql, { schema });
   }
 
   // Local development or tests: use pg Pool with connection pooling

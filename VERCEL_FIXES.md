@@ -393,16 +393,117 @@ These errors don't prevent the frontend from deploying but would need to be fixe
 
 ---
 
-## Remaining Issues
+## Backend API Debugging (2026-01-28 to 2026-01-29)
 
-### Backend TypeScript Errors
-The serverless functions (api/ folder) have TypeScript errors that need fixing:
+### Problem
+After frontend deployment succeeded, backend API requests to `/api/auth/*` and other Express routes were timing out (FUNCTION_INVOCATION_FAILED or 504 Gateway Timeout).
 
-1. **Missing @types/node**: Add to root package.json or api folder
-2. **Module resolution**: Backend schema files need `.js` extensions for Node16 moduleResolution
-3. **Drizzle schema types**: Some type inference issues in service files
+### Root Cause Found
+**`EMAIL_FROM` environment variable is set to an invalid email format**, causing Zod validation to fail in `env.ts`. The env validation throws an error at module load time, which causes the Express app import to hang/fail.
 
-These don't affect the frontend deployment but will prevent serverless functions from working.
+### Key Discovery: Vercel File-Based Routing
+The `/api` directory contains multiple files:
+- `api/health.ts` - Direct Vercel function (works, bypasses Express)
+- `api/test.ts` - Direct Vercel function (works, bypasses Express)
+- `api/index.ts` - Express app handler (times out)
+- `api/crons/` - Cron job handlers
+
+**Vercel routes requests like this:**
+1. `/api/health` → matches `api/health.ts` directly (works)
+2. `/api/test` → matches `api/test.ts` directly (works)
+3. `/api/anything-else` → rewrite rule sends to `api/index.ts` (times out)
+
+The rewrite in `vercel.json`:
+```json
+"rewrites": [{ "source": "/api/(.*)", "destination": "/api" }]
+```
+
+This means any `/api/*` request that doesn't match a specific file goes to `api/index.ts`, which imports the Express app, which imports `env.ts`, which fails validation.
+
+### Things Tried That Didn't Work
+
+1. **Replacing bcrypt with bcryptjs** - Fixed native module issue, but didn't solve timeout
+2. **Using @vercel/postgres** - Deprecated, expects `POSTGRES_URL` not `DATABASE_URL`
+3. **Using drizzle-orm/neon-http driver** - Correct approach, but env validation was failing first
+4. **Dynamic imports in api/index.ts** - Good for error catching, but env still failed
+5. **Various api/index.ts patterns** - Tried handler wrappers, direct exports, etc.
+6. **Checking database connection** - Database was fine; env validation was the issue
+7. **Changed env.ts from process.exit(1) to throw** - Good fix, but email validation still failed
+
+### Diagnostic Approach That Worked
+
+Created step-by-step diagnostic in `api/index.ts`:
+```typescript
+export default async function handler(req, res) {
+  try {
+    diagnostics['step'] = 'importing_env';
+    const { env } = await import('../packages/backend/dist/config/env.js');
+    // ... more steps
+  } catch (error) {
+    // Return error with validation details
+    return res.status(500).json({
+      step: diagnostics['step'],
+      error: err.message,
+      validationErrors: err.errors, // Zod errors
+    });
+  }
+}
+```
+
+This revealed:
+```json
+{
+  "step": "importing_env",
+  "error": "Invalid environment variables",
+  "validationErrors": {
+    "issues": [{
+      "validation": "email",
+      "code": "invalid_string",
+      "message": "Invalid email",
+      "path": ["EMAIL_FROM"]
+    }]
+  }
+}
+```
+
+### Fix Applied - RESOLVED
+
+**Root Cause:** `EMAIL_FROM` had a trailing newline character (`noreply@renewalinitiatives.org\n`) which caused Zod email validation to fail.
+
+**Fix:** Removed and re-added the env var using `echo -n` to avoid trailing newline:
+```bash
+vercel env rm EMAIL_FROM production -y
+echo -n "noreply@renewalinitiatives.org" | vercel env add EMAIL_FROM production
+```
+
+**Result:** Backend API fully working as of 2026-01-29:
+- `/api/health` - ✅ Returns health status
+- `/api/auth/me` - ✅ Returns "Unauthorized" (correct for no token)
+- `/api/csrf-token` - ✅ Returns CSRF token
+- Database queries - ✅ Working
+
+### Other Issues Fixed Along the Way
+
+1. **bcrypt → bcryptjs**: Native modules don't work in Vercel serverless
+2. **env.ts process.exit(1) → throw**: Allows error catching in serverless
+3. **Added @neondatabase/serverless**: Better driver for Neon HTTP connections
+4. **Router type annotations**: Fixed pnpm symlink TypeScript errors
+
+### Issues That Were NOT Problems (verified working)
+
+1. **Database connection**: Neon HTTP driver works correctly with DATABASE_URL
+2. **DATABASE_URL format**: Pooled URL works fine (Neon handles it)
+3. **CSRF middleware**: Works correctly, blocks POST/PUT/DELETE without token as expected
+
+---
+
+## Current State (FULLY RESOLVED)
+
+- **Frontend**: ✅ Deployed at https://renewal-timesheet.vercel.app
+- **Backend API**: ✅ All endpoints working
+- **Database**: ✅ Connected and querying successfully
+- **Authentication**: ✅ JWT middleware working
+- **CSRF Protection**: ✅ Working correctly
 
 ---
 

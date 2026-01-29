@@ -36,13 +36,27 @@ const envSchema = z.object({
   CRON_SECRET: z.string().optional(),
 });
 
+class EnvValidationError extends Error {
+  constructor(
+    message: string,
+    public errors: ReturnType<typeof envSchema.safeParse>['error']
+  ) {
+    super(message);
+    this.name = 'EnvValidationError';
+  }
+}
+
 function loadEnv() {
   const result = envSchema.safeParse(process.env);
 
   if (!result.success) {
-    console.error('Invalid environment variables:');
+    const errorMessage = 'Invalid environment variables';
+    console.error(errorMessage + ':');
     console.error(result.error.format());
-    process.exit(1);
+
+    // In serverless environments, throw error instead of exiting
+    // This allows the error to be caught and returned as a response
+    throw new EnvValidationError(errorMessage, result.error);
   }
 
   return result.data;
