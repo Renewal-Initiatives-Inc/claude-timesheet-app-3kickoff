@@ -411,6 +411,53 @@ export async function recalculatePayroll(timesheetId: string): Promise<PayrollRe
 }
 
 /**
+ * Recalculate payroll for all approved timesheets.
+ * Useful after fixing rate effective dates or other bulk updates.
+ */
+export async function recalculateAllApprovedPayroll(): Promise<{
+  success: number;
+  failed: number;
+  results: Array<{ timesheetId: string; weekStartDate: string; earnings: string | null; error?: string }>;
+}> {
+  // Get all approved timesheets
+  const approvedTimesheets = await db.query.timesheets.findMany({
+    where: eq(timesheets.status, 'approved'),
+    columns: { id: true, weekStartDate: true },
+  });
+
+  const results: Array<{ timesheetId: string; weekStartDate: string; earnings: string | null; error?: string }> = [];
+  let success = 0;
+  let failed = 0;
+
+  for (const ts of approvedTimesheets) {
+    try {
+      // Delete existing payroll record if exists
+      await db.delete(payrollRecords).where(eq(payrollRecords.timesheetId, ts.id));
+
+      // Recalculate
+      const payroll = await calculatePayrollForTimesheet(ts.id);
+      results.push({
+        timesheetId: ts.id,
+        weekStartDate: ts.weekStartDate,
+        earnings: payroll.totalEarnings,
+      });
+      success++;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      results.push({
+        timesheetId: ts.id,
+        weekStartDate: ts.weekStartDate,
+        earnings: null,
+        error: message,
+      });
+      failed++;
+    }
+  }
+
+  return { success, failed, results };
+}
+
+/**
  * Mark payroll records as exported.
  * Updates the exportedAt timestamp.
  */

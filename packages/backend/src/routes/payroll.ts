@@ -5,6 +5,7 @@ import {
   getPayrollRecord,
   listPayrollRecords,
   recalculatePayroll,
+  recalculateAllApprovedPayroll,
   markPayrollExported,
   PayrollError,
 } from '../services/payroll.service.js';
@@ -174,6 +175,37 @@ router.post('/recalculate/:timesheetId', async (req: Request, res: Response) => 
       success: true,
       payroll: record,
       message: 'Payroll recalculated successfully',
+    });
+  } catch (error) {
+    if (error instanceof PayrollError) {
+      const statusCode = getStatusCodeForError(error.code);
+      res.status(statusCode).json({
+        error: error.code,
+        message: error.message,
+      });
+      return;
+    }
+    throw error;
+  }
+});
+
+/**
+ * POST /api/payroll/recalculate-all
+ * Recalculate payroll for all approved timesheets.
+ * Use after fixing rate issues or bulk updates.
+ */
+router.post('/recalculate-all', async (_req: Request, res: Response) => {
+  try {
+    const result = await recalculateAllApprovedPayroll();
+
+    res.json({
+      success: true,
+      message: `Recalculated payroll for ${result.success} timesheets (${result.failed} failed)`,
+      summary: {
+        success: result.success,
+        failed: result.failed,
+      },
+      results: result.results,
     });
   } catch (error) {
     if (error instanceof PayrollError) {

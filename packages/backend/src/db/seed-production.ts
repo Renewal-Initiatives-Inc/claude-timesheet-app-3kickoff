@@ -220,15 +220,16 @@ async function seedProduction() {
   console.log(`Created ${insertedTaskCodes.length} task codes`);
 
   // Create initial rates for each task code
+  // Use 2020-01-01 as effective date to ensure rates are valid for all work dates
   console.log('Creating task code rates...');
 
-  const today = new Date().toISOString().split('T')[0]!;
+  const effectiveDate = '2020-01-01';
   const rates = insertedTaskCodes.map((tc) => {
     const taskCodeData = TASK_CODE_DATA.find((t) => t.code === tc.code);
     return {
       taskCodeId: tc.id,
       hourlyRate: taskCodeData?.rate || (tc.isAgricultural ? '8.00' : '15.00'),
-      effectiveDate: today,
+      effectiveDate,
       justificationNotes: 'Rate Card v2.0 (Jan 2026) - aligned with BLS OEWS MA market data',
     };
   });
