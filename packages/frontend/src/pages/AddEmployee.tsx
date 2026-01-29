@@ -1,6 +1,6 @@
 import { useState, FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { registerEmployee, ApiRequestError } from '../api/client.js';
+import { registerEmployee, formatApiError } from '../api/client.js';
 import type { RequiredDocuments } from '@renewal/types';
 import './AddEmployee.css';
 
@@ -84,11 +84,7 @@ export function AddEmployee() {
         state: { message: 'Employee created successfully. A welcome email has been sent.' },
       });
     } catch (err) {
-      if (err instanceof ApiRequestError) {
-        setError(err.message);
-      } else {
-        setError('Failed to create employee');
-      }
+      setError(formatApiError(err));
     } finally {
       setLoading(false);
     }

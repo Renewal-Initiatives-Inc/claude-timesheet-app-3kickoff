@@ -7,8 +7,8 @@ import {
   index,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import { timesheets } from './timesheet';
-import { employees } from './employee';
+import { timesheets } from './timesheet.js';
+import { employees } from './employee.js';
 
 export const payrollRecords = pgTable('payroll_records', {
   id: uuid('id').defaultRandom().primaryKey(),

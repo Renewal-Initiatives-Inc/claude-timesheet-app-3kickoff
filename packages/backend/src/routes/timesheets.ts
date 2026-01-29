@@ -37,7 +37,7 @@ import { db, schema } from '../db/index.js';
 import { eq } from 'drizzle-orm';
 import type { TimesheetStatus } from '@renewal/types';
 
-const router = Router();
+const router: Router = Router();
 
 // All routes require authentication
 router.use(requireAuth);

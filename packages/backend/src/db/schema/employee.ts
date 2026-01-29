@@ -9,7 +9,7 @@ import {
   integer,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import { employeeStatusEnum, documentTypeEnum } from './enums';
+import { employeeStatusEnum, documentTypeEnum } from './enums.js';
 
 export const employees = pgTable('employees', {
   id: uuid('id').defaultRandom().primaryKey(),

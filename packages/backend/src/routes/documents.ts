@@ -13,7 +13,7 @@ import { EmployeeError } from '../services/employee.service.js';
 import { isAllowedFileType, MAX_FILE_SIZE } from '../services/storage.service.js';
 import { documentUploadSchema } from '../validation/document.schema.js';
 
-const router = Router();
+const router: Router = Router();
 
 // Configure multer for file uploads
 const upload = multer({

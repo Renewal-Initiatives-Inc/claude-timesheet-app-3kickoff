@@ -1,13 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm run build -w @renewal/frontend",
+  "buildCommand": "pnpm run build -w @renewal/backend && cd packages/frontend && pnpm run build",
   "outputDirectory": "packages/frontend/dist",
-  "installCommand": "npm install",
-  "framework": "vite",
+  "installCommand": "pnpm install",
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
+      "source": "/api/(.*)",
+      "destination": "/api"
     }
   ],
   "crons": [

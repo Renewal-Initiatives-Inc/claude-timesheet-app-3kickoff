@@ -16,7 +16,7 @@ import {
 } from '../validation/employee.schema.js';
 import { validate } from '../validation/auth.schema.js';
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * GET /api/employees

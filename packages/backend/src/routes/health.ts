@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import type { HealthResponse } from '@renewal/types';
 
-const router = Router();
+const router: Router = Router();
 
 router.get('/health', (_req, res) => {
   const response: HealthResponse = {

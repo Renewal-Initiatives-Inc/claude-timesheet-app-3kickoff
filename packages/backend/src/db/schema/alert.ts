@@ -5,8 +5,8 @@ import {
   timestamp,
   index,
 } from 'drizzle-orm/pg-core';
-import { alertTypeEnum } from './enums';
-import { employees } from './employee';
+import { alertTypeEnum } from './enums.js';
+import { employees } from './employee.js';
 
 // Track sent email notifications to avoid duplicates
 export const alertNotificationLogs = pgTable('alert_notification_logs', {

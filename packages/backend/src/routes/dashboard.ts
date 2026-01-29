@@ -9,7 +9,7 @@ import type { DashboardAlert, AlertType } from '@renewal/types';
 
 const { employees, timesheets } = schema;
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * GET /api/dashboard/employees

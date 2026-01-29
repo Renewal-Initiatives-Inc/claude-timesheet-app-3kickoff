@@ -34,17 +34,82 @@ import type {
 const API_BASE = '/api';
 
 /**
- * Custom error for API calls
+ * Custom error for API calls with enhanced diagnostics
  */
 export class ApiRequestError extends Error {
+  public readonly isTimeout: boolean;
+  public readonly endpoint: string;
+  public readonly timestamp: string;
+  public readonly diagnosticInfo: string;
+
   constructor(
     message: string,
     public status: number,
-    public code?: string
+    public code?: string,
+    endpoint?: string
   ) {
     super(message);
     this.name = 'ApiRequestError';
+    this.endpoint = endpoint || 'unknown';
+    this.timestamp = new Date().toISOString();
+    this.isTimeout = status === 504 || code === 'FUNCTION_INVOCATION_TIMEOUT';
+
+    // Build diagnostic string for easy debugging
+    this.diagnosticInfo = [
+      `Status: ${status}`,
+      `Endpoint: ${this.endpoint}`,
+      `Time: ${this.timestamp}`,
+      code ? `Code: ${code}` : null,
+      this.isTimeout ? 'Type: SERVERLESS_TIMEOUT' : null,
+    ].filter(Boolean).join(' | ');
   }
+
+  /**
+   * Get a user-friendly error message
+   */
+  getUserMessage(): string {
+    if (this.isTimeout) {
+      return 'The server took too long to respond. This may happen during high load or after periods of inactivity. Please try again in a moment.';
+    }
+    return this.message;
+  }
+
+  /**
+   * Log diagnostic info to console for debugging
+   */
+  logDiagnostics(): void {
+    console.error(`[API Error] ${this.diagnosticInfo}`);
+    console.error(`[API Error] Message: ${this.message}`);
+    if (this.isTimeout) {
+      console.error('[API Error] This is a serverless function timeout (10s limit on Vercel Hobby)');
+      console.error('[API Error] Consider: retry the request, or check Vercel function logs');
+    }
+  }
+}
+
+/**
+ * Check if an error is a timeout error
+ */
+export function isTimeoutError(error: unknown): error is ApiRequestError {
+  return error instanceof ApiRequestError && error.isTimeout;
+}
+
+/**
+ * Format error for display, with special handling for timeouts
+ */
+export function formatApiError(error: unknown): string {
+  if (error instanceof ApiRequestError) {
+    error.logDiagnostics();
+    return error.getUserMessage();
+  }
+  if (error instanceof Error) {
+    // Network errors (offline, DNS failure, etc.)
+    if (error.message === 'Failed to fetch') {
+      return 'Unable to connect to the server. Please check your internet connection.';
+    }
+    return error.message;
+  }
+  return 'An unexpected error occurred. Please try again.';
 }
 
 /**
@@ -132,23 +197,53 @@ async function apiRequest<T>(
     }
   }
 
-  const response = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers,
-    credentials: 'include', // Include cookies for CSRF
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      headers,
+      credentials: 'include', // Include cookies for CSRF
+    });
+  } catch (fetchError) {
+    // Network-level errors (offline, DNS, CORS, etc.)
+    const apiError = new ApiRequestError(
+      'Failed to fetch',
+      0,
+      'NETWORK_ERROR',
+      endpoint
+    );
+    apiError.logDiagnostics();
+    throw apiError;
+  }
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({
-      error: 'Unknown error',
-      message: response.statusText,
-    })) as ApiError;
+    // Try to parse error response, but handle timeout specially
+    let errorBody: ApiError;
+    try {
+      errorBody = await response.json() as ApiError;
+    } catch {
+      // For 504 timeouts, Vercel returns plain text, not JSON
+      if (response.status === 504) {
+        errorBody = {
+          error: 'FUNCTION_INVOCATION_TIMEOUT',
+          message: 'Request timed out',
+        };
+      } else {
+        errorBody = {
+          error: 'Unknown error',
+          message: response.statusText,
+        };
+      }
+    }
 
-    throw new ApiRequestError(
-      error.message || 'Request failed',
+    const apiError = new ApiRequestError(
+      errorBody.message || 'Request failed',
       response.status,
-      error.error
+      errorBody.error,
+      endpoint
     );
+    apiError.logDiagnostics();
+    throw apiError;
   }
 
   // Handle 204 No Content

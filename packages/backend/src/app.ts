@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
@@ -17,7 +17,7 @@ import supervisorRouter from './routes/supervisor.js';
 import payrollRouter from './routes/payroll.js';
 import reportsRouter from './routes/reports.js';
 
-const app = express();
+const app: Express = express();
 
 // Trust proxy for rate limiting behind reverse proxy (Vercel)
 app.set('trust proxy', 1);

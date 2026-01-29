@@ -27,7 +27,7 @@ import {
   passwordResetCompleteSchema,
 } from '../validation/auth.schema.js';
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * POST /api/auth/register

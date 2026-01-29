@@ -10,9 +10,9 @@ import {
   index,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import { timesheetStatusEnum } from './enums';
-import { employees } from './employee';
-import { taskCodes } from './task-code';
+import { timesheetStatusEnum } from './enums.js';
+import { employees } from './employee.js';
+import { taskCodes } from './task-code.js';
 
 export const timesheets = pgTable('timesheets', {
   id: uuid('id').defaultRandom().primaryKey(),

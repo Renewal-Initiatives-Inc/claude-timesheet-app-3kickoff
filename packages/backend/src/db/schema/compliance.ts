@@ -8,8 +8,8 @@ import {
   index,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import { complianceResultEnum } from './enums';
-import { timesheets } from './timesheet';
+import { complianceResultEnum } from './enums.js';
+import { timesheets } from './timesheet.js';
 
 // JSONB type for compliance details
 export type ComplianceDetails = {

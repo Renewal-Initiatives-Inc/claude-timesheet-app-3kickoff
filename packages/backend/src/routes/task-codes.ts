@@ -19,7 +19,7 @@ import {
   taskCodeListQuerySchema,
 } from '../validation/task-code.schema.js';
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * GET /api/task-codes

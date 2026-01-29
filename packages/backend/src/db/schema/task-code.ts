@@ -10,7 +10,7 @@ import {
   timestamp,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import { supervisorRequiredEnum } from './enums';
+import { supervisorRequiredEnum } from './enums.js';
 
 export const taskCodes = pgTable('task_codes', {
   id: uuid('id').defaultRandom().primaryKey(),

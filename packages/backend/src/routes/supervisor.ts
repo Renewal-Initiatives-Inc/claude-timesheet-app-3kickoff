@@ -18,7 +18,7 @@ import {
   reviewQueueQuerySchema,
 } from '../validation/supervisor.schema.js';
 
-const router = Router();
+const router: Router = Router();
 
 // All routes require authentication and supervisor role
 router.use(requireAuth);

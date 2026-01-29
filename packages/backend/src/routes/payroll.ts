@@ -14,7 +14,7 @@ import {
 } from '../validation/payroll.schema.js';
 import { generatePayrollCSV, generatePayrollFilename } from '../utils/payroll-export.js';
 
-const router = Router();
+const router: Router = Router();
 
 // All routes require authentication and supervisor role
 router.use(requireAuth);
