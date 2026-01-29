@@ -6,6 +6,7 @@ import {
   type TimesheetHistorySummary,
   type AgeBand,
 } from '../api/reports.js';
+import { Breadcrumb } from '../components/Breadcrumb.js';
 import './TimesheetHistoryReport.css';
 
 /**
@@ -175,6 +176,12 @@ export function TimesheetHistoryReport() {
 
   return (
     <div className="timesheet-history-report">
+      <Breadcrumb
+        items={[
+          { label: 'Reports', href: '/reports' },
+          { label: 'Timesheet History Report' },
+        ]}
+      />
       <header className="timesheet-history-report-header">
         <h1>Timesheet History Report</h1>
         <p className="timesheet-history-report-subtitle">

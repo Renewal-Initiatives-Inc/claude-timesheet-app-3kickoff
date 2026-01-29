@@ -7,6 +7,7 @@ import {
   ApiRequestError,
   type AgeBand,
 } from '../api/client.js';
+import { Breadcrumb } from '../components/Breadcrumb.js';
 import './PayrollReportPage.css';
 
 /**
@@ -153,6 +154,12 @@ export function PayrollReportPage() {
 
   return (
     <div className="payroll-report">
+      <Breadcrumb
+        items={[
+          { label: 'Reports', href: '/reports' },
+          { label: 'Payroll Reports' },
+        ]}
+      />
       <header className="payroll-report-header">
         <h1>Payroll Reports</h1>
         <p className="payroll-report-subtitle">

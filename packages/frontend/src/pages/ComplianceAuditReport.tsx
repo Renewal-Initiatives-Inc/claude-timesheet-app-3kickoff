@@ -8,6 +8,7 @@ import {
   type AgeBand,
   type ComplianceResultFilter,
 } from '../api/reports.js';
+import { Breadcrumb } from '../components/Breadcrumb.js';
 import './ComplianceAuditReport.css';
 
 /**
@@ -185,6 +186,12 @@ export function ComplianceAuditReport() {
 
   return (
     <div className="compliance-audit-report">
+      <Breadcrumb
+        items={[
+          { label: 'Reports', href: '/reports' },
+          { label: 'Compliance Audit Report' },
+        ]}
+      />
       <header className="compliance-audit-report-header">
         <h1>Compliance Audit Report</h1>
         <p className="compliance-audit-report-subtitle">
