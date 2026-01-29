@@ -199,12 +199,8 @@ describe('Auth Service', () => {
         errors: ['Password must be at least 8 characters'],
       });
 
-      await expect(
-        register({ ...registerData, tempPassword: 'weak' })
-      ).rejects.toThrow(AuthError);
-      await expect(
-        register({ ...registerData, tempPassword: 'weak' })
-      ).rejects.toMatchObject({
+      await expect(register({ ...registerData, tempPassword: 'weak' })).rejects.toThrow(AuthError);
+      await expect(register({ ...registerData, tempPassword: 'weak' })).rejects.toMatchObject({
         code: 'PASSWORD_TOO_WEAK',
       });
     });

@@ -42,12 +42,8 @@ test.describe('Payroll Report - Access Control', () => {
 
     // Should see the payroll report page
     await expect(page.locator('h1')).toContainText('Payroll Reports');
-    await expect(
-      page.locator('[data-testid="payroll-report-start-date"]')
-    ).toBeVisible();
-    await expect(
-      page.locator('[data-testid="payroll-report-end-date"]')
-    ).toBeVisible();
+    await expect(page.locator('[data-testid="payroll-report-start-date"]')).toBeVisible();
+    await expect(page.locator('[data-testid="payroll-report-end-date"]')).toBeVisible();
   });
 
   test('employee cannot access payroll report page (403)', async ({ page }) => {
@@ -84,7 +80,9 @@ test.describe('Payroll Report - Filtering', () => {
     await page.click('[data-testid="payroll-report-apply-filters"]');
 
     // Should see loading state briefly, then results or empty message
-    await expect(page.locator('[data-testid="payroll-report-loading"]')).not.toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="payroll-report-loading"]')).not.toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('can filter by employee', async ({ page }) => {
@@ -105,7 +103,9 @@ test.describe('Payroll Report - Filtering', () => {
     await page.click('[data-testid="payroll-report-apply-filters"]');
 
     // Wait for loading to finish
-    await expect(page.locator('[data-testid="payroll-report-loading"]')).not.toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="payroll-report-loading"]')).not.toBeVisible({
+      timeout: 10000,
+    });
 
     // Should show empty state message
     await expect(page.locator('text=No payroll records found')).toBeVisible();
@@ -128,15 +128,14 @@ test.describe('Payroll Report - Results Display', () => {
       '[data-testid="payroll-report-start-date"]',
       thirtyDaysAgo.toISOString().split('T')[0]!
     );
-    await page.fill(
-      '[data-testid="payroll-report-end-date"]',
-      today.toISOString().split('T')[0]!
-    );
+    await page.fill('[data-testid="payroll-report-end-date"]', today.toISOString().split('T')[0]!);
 
     await page.click('[data-testid="payroll-report-apply-filters"]');
 
     // Wait for loading to complete
-    await expect(page.locator('[data-testid="payroll-report-loading"]')).not.toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="payroll-report-loading"]')).not.toBeVisible({
+      timeout: 10000,
+    });
 
     // If there are records, check table structure
     const table = page.locator('[data-testid="payroll-report-table"]');
@@ -154,7 +153,9 @@ test.describe('Payroll Report - Results Display', () => {
     await page.click('[data-testid="payroll-report-apply-filters"]');
 
     // Wait for loading to complete
-    await expect(page.locator('[data-testid="payroll-report-loading"]')).not.toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="payroll-report-loading"]')).not.toBeVisible({
+      timeout: 10000,
+    });
 
     // Check for total earnings summary (visible if there are records)
     const totalEarnings = page.locator('[data-testid="payroll-report-total-earnings"]');
@@ -178,7 +179,9 @@ test.describe('Payroll Report - CSV Export', () => {
     await page.click('[data-testid="payroll-report-apply-filters"]');
 
     // Wait for loading
-    await expect(page.locator('[data-testid="payroll-report-loading"]')).not.toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="payroll-report-loading"]')).not.toBeVisible({
+      timeout: 10000,
+    });
 
     // Check if export button is visible (only shown when records exist)
     const exportButton = page.locator('[data-testid="payroll-report-export-csv"]');
@@ -203,7 +206,9 @@ test.describe('Payroll Report - CSV Export', () => {
     await page.click('[data-testid="payroll-report-apply-filters"]');
 
     // Wait for loading
-    await expect(page.locator('[data-testid="payroll-report-loading"]')).not.toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="payroll-report-loading"]')).not.toBeVisible({
+      timeout: 10000,
+    });
 
     // Export button should not be visible
     await expect(page.locator('[data-testid="payroll-report-export-csv"]')).not.toBeVisible();
@@ -230,7 +235,9 @@ test.describe('Payroll Report - Error Handling', () => {
     await page.click('[data-testid="payroll-report-apply-filters"]');
 
     // Should show error message
-    await expect(page.locator('[data-testid="error-payroll-report"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="error-payroll-report"]')).toBeVisible({
+      timeout: 10000,
+    });
   });
 });
 

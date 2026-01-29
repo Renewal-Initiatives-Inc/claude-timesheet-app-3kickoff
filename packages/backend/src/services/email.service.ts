@@ -401,9 +401,7 @@ export async function sendMissingDocumentAlert(
 ): Promise<boolean> {
   const subject = 'Action Required: Missing Employee Documents - Renewal Initiatives';
   const dashboardUrl = `${env.APP_URL}/dashboard`;
-  const documentList = missingDocuments
-    .map((doc) => `<li>${doc}</li>`)
-    .join('\n');
+  const documentList = missingDocuments.map((doc) => `<li>${doc}</li>`).join('\n');
   const htmlBody = `
 <!DOCTYPE html>
 <html>

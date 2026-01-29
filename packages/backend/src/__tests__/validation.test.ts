@@ -1,12 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import {
-  updateEmployeeSchema,
-  employeeListQuerySchema,
-} from '../validation/employee.schema.js';
-import {
-  documentUploadSchema,
-  safetyTrainingSchema,
-} from '../validation/document.schema.js';
+import { updateEmployeeSchema, employeeListQuerySchema } from '../validation/employee.schema.js';
+import { documentUploadSchema, safetyTrainingSchema } from '../validation/document.schema.js';
 
 describe('Validation Schemas', () => {
   describe('updateEmployeeSchema', () => {

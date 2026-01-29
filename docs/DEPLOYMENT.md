@@ -3,6 +3,7 @@
 ## Overview
 
 This application is designed for deployment on Vercel with:
+
 - **Frontend**: React SPA served as static files
 - **Backend**: Express API as Vercel serverless functions
 - **Database**: PostgreSQL (Vercel Postgres, Neon, or other provider)
@@ -163,8 +164,8 @@ git push origin main
 
 The application uses Vercel Cron for scheduled tasks:
 
-| Job | Schedule | Description |
-|-----|----------|-------------|
+| Job                       | Schedule       | Description                 |
+| ------------------------- | -------------- | --------------------------- |
 | `/api/crons/check-alerts` | Daily 6 AM UTC | Check for compliance alerts |
 
 ### Securing Cron Jobs
@@ -203,27 +204,32 @@ npm run db:push
 ### Common Issues
 
 **Build Fails: TypeScript Errors**
+
 ```bash
 # Run type check locally first
 npm run typecheck
 ```
 
 **Database Connection Issues**
+
 - Verify DATABASE_URL format
 - Check connection pool limits (serverless needs small pools)
 - Ensure SSL is enabled for production
 
 **CORS Errors**
+
 - Verify FRONTEND_URL matches exactly (including protocol)
 - Check for trailing slashes
 
 **Rate Limiting Issues**
+
 - Rate limits reset on deployment
-- Check X-RateLimit-* headers for status
+- Check X-RateLimit-\* headers for status
 
 ### Logs
 
 View logs in Vercel dashboard:
+
 1. Go to Project → Deployments → Select deployment
 2. Click "Functions" tab for API logs
 3. Use "Runtime Logs" for real-time debugging
@@ -233,16 +239,19 @@ View logs in Vercel dashboard:
 ## Performance Optimization
 
 ### Frontend
+
 - Lazy loading enabled for routes
 - Vendor chunk splitting configured
 - Static assets cached by Vercel CDN
 
 ### Backend
+
 - Database indexes on frequently queried columns
 - Compliance checks optimized to < 5 seconds
 - Connection pooling for serverless
 
 ### Monitoring
+
 - Vercel Analytics for Web Vitals
 - Server-side logging with Pino
 
@@ -255,6 +264,7 @@ View logs in Vercel dashboard:
 3. Click "..." → "Promote to Production"
 
 Or via CLI:
+
 ```bash
 vercel rollback
 ```
@@ -264,6 +274,7 @@ vercel rollback
 ## Support
 
 For issues:
+
 1. Check Vercel deployment logs
 2. Review this guide's troubleshooting section
 3. File issue on GitHub repository

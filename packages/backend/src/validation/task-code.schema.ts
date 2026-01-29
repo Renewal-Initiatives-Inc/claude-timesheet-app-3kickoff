@@ -9,14 +9,8 @@ export const createTaskCodeSchema = z.object({
     .min(1, 'Code is required')
     .max(10, 'Code must be 10 characters or less')
     .regex(/^[A-Z0-9-]+$/i, 'Code must contain only letters, numbers, and hyphens'),
-  name: z
-    .string()
-    .min(1, 'Name is required')
-    .max(100, 'Name must be 100 characters or less'),
-  description: z
-    .string()
-    .max(500, 'Description must be 500 characters or less')
-    .optional(),
+  name: z.string().min(1, 'Name is required').max(100, 'Name must be 100 characters or less'),
+  description: z.string().max(500, 'Description must be 500 characters or less').optional(),
   isAgricultural: z.boolean(),
   isHazardous: z.boolean(),
   supervisorRequired: z.enum(['none', 'for_minors', 'always']),
@@ -29,12 +23,8 @@ export const createTaskCodeSchema = z.object({
   drivingRequired: z.boolean(),
   powerMachinery: z.boolean(),
   // Initial rate (required on creation)
-  initialRate: z
-    .number()
-    .positive('Initial rate must be a positive number'),
-  rateEffectiveDate: z
-    .string()
-    .min(1, 'Rate effective date is required'),
+  initialRate: z.number().positive('Initial rate must be a positive number'),
+  rateEffectiveDate: z.string().min(1, 'Rate effective date is required'),
   rateJustificationNotes: z
     .string()
     .max(500, 'Justification notes must be 500 characters or less')
@@ -51,10 +41,7 @@ export const updateTaskCodeSchema = z.object({
     .min(1, 'Name is required')
     .max(100, 'Name must be 100 characters or less')
     .optional(),
-  description: z
-    .string()
-    .max(500, 'Description must be 500 characters or less')
-    .optional(),
+  description: z.string().max(500, 'Description must be 500 characters or less').optional(),
   isAgricultural: z.boolean().optional(),
   isHazardous: z.boolean().optional(),
   supervisorRequired: z.enum(['none', 'for_minors', 'always']).optional(),
@@ -74,12 +61,8 @@ export const updateTaskCodeSchema = z.object({
  * Schema for adding a new rate to a task code.
  */
 export const addRateSchema = z.object({
-  hourlyRate: z
-    .number()
-    .positive('Hourly rate must be a positive number'),
-  effectiveDate: z
-    .string()
-    .min(1, 'Effective date is required'),
+  hourlyRate: z.number().positive('Hourly rate must be a positive number'),
+  effectiveDate: z.string().min(1, 'Effective date is required'),
   justificationNotes: z
     .string()
     .max(500, 'Justification notes must be 500 characters or less')

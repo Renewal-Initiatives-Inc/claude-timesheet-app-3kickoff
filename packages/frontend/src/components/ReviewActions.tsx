@@ -188,9 +188,7 @@ export function ReviewActions({
               {fieldErrors['notes']}
             </span>
           )}
-          <span className="review-modal-hint">
-            {rejectNotes.length}/10 characters minimum
-          </span>
+          <span className="review-modal-hint">{rejectNotes.length}/10 characters minimum</span>
         </div>
       </ConfirmModal>
     </div>

@@ -53,20 +53,25 @@ export function AddRateModal({ taskCodeId, onClose, onSuccess }: AddRateModalPro
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="add-rate-modal" onClick={(e) => e.stopPropagation()} data-testid="add-rate-modal">
+      <div
+        className="add-rate-modal"
+        onClick={(e) => e.stopPropagation()}
+        data-testid="add-rate-modal"
+      >
         <header className="modal-header">
           <h3>Add New Rate</h3>
-          <button className="close-button" onClick={onClose} aria-label="Close" data-testid="add-rate-modal-close-button">
+          <button
+            className="close-button"
+            onClick={onClose}
+            aria-label="Close"
+            data-testid="add-rate-modal-close-button"
+          >
             &times;
           </button>
         </header>
 
         <form onSubmit={handleSubmit}>
-          {(error || apiError) && (
-            <div className="form-error">
-              {error || apiError}
-            </div>
-          )}
+          {(error || apiError) && <div className="form-error">{error || apiError}</div>}
 
           <div className="form-group">
             <label htmlFor="hourlyRate">Hourly Rate ($) *</label>

@@ -28,6 +28,7 @@ The Vercel deployment fails during the build step. The frontend (React + Vite) c
 ```
 
 **Workspaces** (from root package.json):
+
 ```json
 "workspaces": ["packages/*", "shared/*"]
 ```
@@ -53,21 +54,21 @@ Vercel install step reports only **~315 packages** installed (vs 770 locally), i
 
 ### 1. Install Command Variations
 
-| Command | Result |
-|---------|--------|
-| `npm install` | 315 packages, missing vite |
-| `npm install --include=dev` | 315 packages, missing vite |
-| `npm ci` | 315 packages, missing vite |
-| `npm ci --include=dev` | 315 packages, missing vite |
-| `NODE_ENV=development npm install` | Still failed |
+| Command                            | Result                     |
+| ---------------------------------- | -------------------------- |
+| `npm install`                      | 315 packages, missing vite |
+| `npm install --include=dev`        | 315 packages, missing vite |
+| `npm ci`                           | 315 packages, missing vite |
+| `npm ci --include=dev`             | 315 packages, missing vite |
+| `NODE_ENV=development npm install` | Still failed               |
 
 ### 2. Build Command Variations
 
-| Command | Result |
-|---------|--------|
-| `npm run build -w @renewal/frontend` | Exit 127 (tsc not found) or Exit 1 (vite not found) |
-| `cd packages/frontend && npm install && npm run build` | Failed |
-| `npm install && npm run build -w @renewal/frontend` | Failed |
+| Command                                                | Result                                              |
+| ------------------------------------------------------ | --------------------------------------------------- |
+| `npm run build -w @renewal/frontend`                   | Exit 127 (tsc not found) or Exit 1 (vite not found) |
+| `cd packages/frontend && npm install && npm run build` | Failed                                              |
+| `npm install && npm run build -w @renewal/frontend`    | Failed                                              |
 
 ### 3. Package.json Modifications
 
@@ -80,6 +81,7 @@ Vercel install step reports only **~315 packages** installed (vs 770 locally), i
 ### 4. Configuration Files
 
 **.npmrc** (created):
+
 ```
 legacy-peer-deps=true
 ```
@@ -87,6 +89,7 @@ legacy-peer-deps=true
 Tried `omit=` but npm rejected it as invalid.
 
 **vercel.json** (current):
+
 ```json
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
@@ -94,12 +97,8 @@ Tried `omit=` but npm rejected it as invalid.
   "outputDirectory": "packages/frontend/dist",
   "installCommand": "npm install --include=dev",
   "framework": "vite",
-  "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/:path*" }
-  ],
-  "crons": [
-    { "path": "/api/crons/check-alerts", "schedule": "0 13 * * *" }
-  ]
+  "rewrites": [{ "source": "/api/:path*", "destination": "/api/:path*" }],
+  "crons": [{ "path": "/api/crons/check-alerts", "schedule": "0 13 * * *" }]
 }
 ```
 
@@ -119,6 +118,7 @@ From Vercel documentation and community forums:
 4. **Exit code 1** = general error - the command ran but failed
 
 Common solutions from community:
+
 - Move build tools to regular dependencies (workaround)
 - Use `npx` prefix for commands (didn't work - `npx tsc` installs wrong package)
 - Set root directory to the specific package (Option B - not tried)
@@ -183,6 +183,7 @@ Multiple sources confirm this is a widespread issue:
 Most commonly successful approach per community reports.
 
 **Steps:**
+
 1. Install pnpm: `npm install -g pnpm`
 2. Create `pnpm-workspace.yaml`:
    ```yaml
@@ -209,11 +210,13 @@ Most commonly successful approach per community reports.
 Build in controlled environment, deploy prebuilt artifacts.
 
 **Steps:**
+
 1. Create `.github/workflows/deploy.yml`
 2. Build locally with full control over NODE_ENV
 3. Use `vercel deploy --prebuilt` to skip Vercel's build
 
 **Example workflow:**
+
 ```yaml
 jobs:
   deploy:
@@ -238,6 +241,7 @@ jobs:
 Confirmed working by multiple Reddit users.
 
 **Steps:**
+
 1. Remove `package-lock.json`
 2. Run `yarn install` to generate `yarn.lock`
 3. Update `vercel.json`:
@@ -257,6 +261,7 @@ Confirmed working by multiple Reddit users.
 Already partially implemented. Quick fix but not ideal.
 
 **Steps:**
+
 1. Move `vite`, `@vitejs/plugin-react` to `dependencies` in frontend/package.json
 2. Run `npm install` locally to update package-lock.json
 3. Deploy
@@ -269,6 +274,7 @@ Already partially implemented. Quick fix but not ideal.
 Create dedicated Vercel project for frontend with root set to `packages/frontend`.
 
 **Steps:**
+
 1. In Vercel Dashboard, create new project
 2. Set Root Directory to `packages/frontend`
 3. Vercel will run install/build from that directory context
@@ -282,6 +288,7 @@ Create dedicated Vercel project for frontend with root set to `packages/frontend
 Official Vercel recommendation for monorepos.
 
 **Steps:**
+
 1. Install turbo: `npm install turbo -D`
 2. Create `turbo.json` configuration
 3. Restructure scripts to use turbo
@@ -297,6 +304,7 @@ Official Vercel recommendation for monorepos.
 ### Attempt 1: Option 4 - Move build deps to regular dependencies (2026-01-28)
 
 **What was done:**
+
 1. Moved `vite` and `@vitejs/plugin-react` from devDependencies to dependencies in `packages/frontend/package.json`
 2. Ran `npm install` locally to sync package-lock.json
 3. Deployed with `vercel --prod`
@@ -320,6 +328,7 @@ Building: Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@vitejs/plugin-reac
 **Status:** SUCCESS
 
 **What was done:**
+
 1. Installed pnpm globally: `npm install -g pnpm` (v10.28.2)
 2. Created `pnpm-workspace.yaml` with workspace configuration
 3. Removed `package-lock.json`
@@ -354,6 +363,7 @@ Aliased: https://renewal-timesheet.vercel.app [51s]
 **Frontend deployment URL:** https://renewal-timesheet.vercel.app
 
 **Note:** There are TypeScript errors in the backend serverless functions (api/ folder) that need to be fixed separately. These relate to:
+
 - Missing @types/node in api/crons files
 - Drizzle schema type issues in backend services
 - Module resolution issues (.js extensions needed for Node16 moduleResolution)
@@ -374,6 +384,7 @@ These errors don't prevent the frontend from deploying but would need to be fixe
 - **Build**: SUCCESS
 
 ### Environment Variables Configured (via CLI)
+
 - JWT_SECRET (generated)
 - JWT_EXPIRES_IN (7d)
 - NODE_ENV (production)
@@ -384,6 +395,7 @@ These errors don't prevent the frontend from deploying but would need to be fixe
 - POSTMARK_API_KEY (configured)
 
 ### Still Needed (via Vercel Dashboard)
+
 1. **Database**: Connect Neon integration to add DATABASE_URL and related vars
    - Go to: https://vercel.com/jeff-takles-projects/renewal-timesheet/stores
    - Add Neon integration and connect existing database
@@ -396,24 +408,30 @@ These errors don't prevent the frontend from deploying but would need to be fixe
 ## Backend API Debugging (2026-01-28 to 2026-01-29)
 
 ### Problem
+
 After frontend deployment succeeded, backend API requests to `/api/auth/*` and other Express routes were timing out (FUNCTION_INVOCATION_FAILED or 504 Gateway Timeout).
 
 ### Root Cause Found
+
 **`EMAIL_FROM` environment variable is set to an invalid email format**, causing Zod validation to fail in `env.ts`. The env validation throws an error at module load time, which causes the Express app import to hang/fail.
 
 ### Key Discovery: Vercel File-Based Routing
+
 The `/api` directory contains multiple files:
+
 - `api/health.ts` - Direct Vercel function (works, bypasses Express)
 - `api/test.ts` - Direct Vercel function (works, bypasses Express)
 - `api/index.ts` - Express app handler (times out)
 - `api/crons/` - Cron job handlers
 
 **Vercel routes requests like this:**
+
 1. `/api/health` → matches `api/health.ts` directly (works)
 2. `/api/test` → matches `api/test.ts` directly (works)
 3. `/api/anything-else` → rewrite rule sends to `api/index.ts` (times out)
 
 The rewrite in `vercel.json`:
+
 ```json
 "rewrites": [{ "source": "/api/(.*)", "destination": "/api" }]
 ```
@@ -433,6 +451,7 @@ This means any `/api/*` request that doesn't match a specific file goes to `api/
 ### Diagnostic Approach That Worked
 
 Created step-by-step diagnostic in `api/index.ts`:
+
 ```typescript
 export default async function handler(req, res) {
   try {
@@ -451,17 +470,20 @@ export default async function handler(req, res) {
 ```
 
 This revealed:
+
 ```json
 {
   "step": "importing_env",
   "error": "Invalid environment variables",
   "validationErrors": {
-    "issues": [{
-      "validation": "email",
-      "code": "invalid_string",
-      "message": "Invalid email",
-      "path": ["EMAIL_FROM"]
-    }]
+    "issues": [
+      {
+        "validation": "email",
+        "code": "invalid_string",
+        "message": "Invalid email",
+        "path": ["EMAIL_FROM"]
+      }
+    ]
   }
 }
 ```
@@ -471,12 +493,14 @@ This revealed:
 **Root Cause:** `EMAIL_FROM` had a trailing newline character (`noreply@renewalinitiatives.org\n`) which caused Zod email validation to fail.
 
 **Fix:** Removed and re-added the env var using `echo -n` to avoid trailing newline:
+
 ```bash
 vercel env rm EMAIL_FROM production -y
 echo -n "noreply@renewalinitiatives.org" | vercel env add EMAIL_FROM production
 ```
 
 **Result:** Backend API fully working as of 2026-01-29:
+
 - `/api/health` - ✅ Returns health status
 - `/api/auth/me` - ✅ Returns "Unauthorized" (correct for no token)
 - `/api/csrf-token` - ✅ Returns CSRF token

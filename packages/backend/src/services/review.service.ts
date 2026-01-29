@@ -1,4 +1,4 @@
-import { eq, and, desc, asc, sql } from 'drizzle-orm';
+import { eq, and, asc, sql } from 'drizzle-orm';
 import { db, schema } from '../db/index.js';
 import type {
   Timesheet,
@@ -9,10 +9,10 @@ import type {
   EmployeePublic,
   PayrollRecord,
 } from '@renewal/types';
-import { getTimesheetWithEntries, TimesheetWithEntries } from './timesheet.service.js';
+import { getTimesheetWithEntries } from './timesheet.service.js';
 import { calculatePayrollForTimesheet } from './payroll.service.js';
 
-const { timesheets, timesheetEntries, employees, complianceCheckLogs } = schema;
+const { timesheets, employees, complianceCheckLogs } = schema;
 
 type TimesheetRow = typeof timesheets.$inferSelect;
 
@@ -70,9 +70,9 @@ function isValidSunday(dateStr: string): boolean {
 /**
  * Get all timesheets awaiting review (status = 'submitted').
  */
-export async function getReviewQueue(
-  options?: { employeeId?: string }
-): Promise<{ items: ReviewQueueItem[]; total: number }> {
+export async function getReviewQueue(options?: {
+  employeeId?: string;
+}): Promise<{ items: ReviewQueueItem[]; total: number }> {
   const conditions = [eq(timesheets.status, 'submitted')];
 
   if (options?.employeeId) {
@@ -169,9 +169,7 @@ export async function getTimesheetForReview(
 /**
  * Get compliance check logs for a timesheet.
  */
-export async function getComplianceLogs(
-  timesheetId: string
-): Promise<ComplianceCheckLog[]> {
+export async function getComplianceLogs(timesheetId: string): Promise<ComplianceCheckLog[]> {
   const logs = await db.query.complianceCheckLogs.findMany({
     where: eq(complianceCheckLogs.timesheetId, timesheetId),
     orderBy: [asc(complianceCheckLogs.ruleId)],
@@ -331,10 +329,7 @@ export async function unlockWeek(
 
   // Check for existing timesheet
   const existing = await db.query.timesheets.findFirst({
-    where: and(
-      eq(timesheets.employeeId, employeeId),
-      eq(timesheets.weekStartDate, weekStartDate)
-    ),
+    where: and(eq(timesheets.employeeId, employeeId), eq(timesheets.weekStartDate, weekStartDate)),
   });
 
   const now = new Date();

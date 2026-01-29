@@ -4,9 +4,7 @@ test.describe('Smoke Tests', () => {
   test('login page loads and displays heading', async ({ page }) => {
     await page.goto('/login');
 
-    await expect(page.getByRole('heading', { level: 1 })).toContainText(
-      'Renewal Initiatives'
-    );
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Renewal Initiatives');
     await expect(page.getByText('Timesheet Management System')).toBeVisible();
   });
 

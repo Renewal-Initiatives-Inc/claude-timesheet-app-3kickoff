@@ -98,9 +98,7 @@ export function createContextLogger(context: Record<string, unknown>) {
  * Scrub sensitive data from an object for logging.
  * This is a manual alternative when redaction isn't enough.
  */
-export function scrubSensitiveData<T extends Record<string, unknown>>(
-  obj: T
-): T {
+export function scrubSensitiveData<T extends Record<string, unknown>>(obj: T): T {
   if (!obj || typeof obj !== 'object') {
     return obj;
   }
@@ -143,12 +141,13 @@ export function formatError(error: Error): Record<string, unknown> {
     name: error.name,
     message: error.message,
     ...(isProduction ? {} : { stack: error.stack }),
-    ...(('code' in error && typeof error.code === 'string') ? { code: error.code } : {}),
+    ...('code' in error && typeof error.code === 'string' ? { code: error.code } : {}),
   };
 }
 
 // Extend Express Request type to include requestId
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       requestId?: string;
@@ -161,11 +160,7 @@ declare global {
  * Express middleware to add request logging.
  * Adds requestId to each request for tracing.
  */
-export function requestLogger(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
+export function requestLogger(req: Request, res: Response, next: NextFunction): void {
   // Skip logging in test environment
   if (process.env['NODE_ENV'] === 'test') {
     return next();
@@ -195,10 +190,7 @@ export function requestLogger(
   res.on('finish', () => {
     const duration = Date.now() - startTime;
 
-    const logLevel =
-      res.statusCode >= 500 ? 'error' :
-      res.statusCode >= 400 ? 'warn' :
-      'info';
+    const logLevel = res.statusCode >= 500 ? 'error' : res.statusCode >= 400 ? 'warn' : 'info';
 
     req.log?.[logLevel]({
       type: 'response',
@@ -215,26 +207,19 @@ export function requestLogger(
 
 // Convenience methods for common logging patterns
 export const log = {
-  info: (message: string, data?: Record<string, unknown>) =>
-    logger.info(data, message),
+  info: (message: string, data?: Record<string, unknown>) => logger.info(data, message),
 
-  warn: (message: string, data?: Record<string, unknown>) =>
-    logger.warn(data, message),
+  warn: (message: string, data?: Record<string, unknown>) => logger.warn(data, message),
 
   error: (message: string, error?: Error, data?: Record<string, unknown>) =>
     logger.error({ ...data, error: error ? formatError(error) : undefined }, message),
 
-  debug: (message: string, data?: Record<string, unknown>) =>
-    logger.debug(data, message),
+  debug: (message: string, data?: Record<string, unknown>) => logger.debug(data, message),
 
   /**
    * Log an audit event (important action taken by a user).
    */
-  audit: (
-    action: string,
-    userId: string | undefined,
-    data?: Record<string, unknown>
-  ) =>
+  audit: (action: string, userId: string | undefined, data?: Record<string, unknown>) =>
     logger.info(
       {
         type: 'audit',
@@ -248,10 +233,7 @@ export const log = {
   /**
    * Log a security-related event.
    */
-  security: (
-    event: string,
-    data?: Record<string, unknown>
-  ) =>
+  security: (event: string, data?: Record<string, unknown>) =>
     logger.warn(
       {
         type: 'security',

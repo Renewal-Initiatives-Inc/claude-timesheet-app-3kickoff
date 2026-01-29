@@ -1,10 +1,10 @@
-import { eq, and, gte, lte, desc } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { db, schema } from '../db/index.js';
 import type { TimesheetEntry } from '@renewal/types';
 import { isDefaultSchoolDay, timeToMinutes } from '../utils/timezone.js';
-import { getWeekDates, getTimesheetById, isTimesheetEditable, TimesheetError } from './timesheet.service.js';
+import { getWeekDates } from './timesheet.service.js';
 
-const { timesheetEntries, timesheets, taskCodes, taskCodeRates } = schema;
+const { timesheetEntries, timesheets, taskCodes } = schema;
 
 type TimesheetEntryRow = typeof timesheetEntries.$inferSelect;
 
@@ -62,10 +62,7 @@ export function calculateHours(startTime: string, endTime: string): number {
   const endMinutes = timeToMinutes(endTime);
 
   if (endMinutes <= startMinutes) {
-    throw new TimesheetEntryError(
-      'End time must be after start time',
-      'INVALID_TIME_RANGE'
-    );
+    throw new TimesheetEntryError('End time must be after start time', 'INVALID_TIME_RANGE');
   }
 
   const totalMinutes = endMinutes - startMinutes;
@@ -230,8 +227,10 @@ export async function updateEntry(
 
   if (input.taskCodeId !== undefined) updates.taskCodeId = input.taskCodeId;
   if (input.isSchoolDay !== undefined) updates.isSchoolDay = input.isSchoolDay;
-  if (input.schoolDayOverrideNote !== undefined) updates.schoolDayOverrideNote = input.schoolDayOverrideNote;
-  if (input.supervisorPresentName !== undefined) updates.supervisorPresentName = input.supervisorPresentName;
+  if (input.schoolDayOverrideNote !== undefined)
+    updates.schoolDayOverrideNote = input.schoolDayOverrideNote;
+  if (input.supervisorPresentName !== undefined)
+    updates.supervisorPresentName = input.supervisorPresentName;
   if (input.mealBreakConfirmed !== undefined) updates.mealBreakConfirmed = input.mealBreakConfirmed;
 
   const [updated] = await db
@@ -287,9 +286,7 @@ export async function getEntryById(entryId: string): Promise<TimesheetEntry | nu
 /**
  * Get daily totals for a timesheet.
  */
-export async function getDailyTotals(
-  timesheetId: string
-): Promise<Record<string, number>> {
+export async function getDailyTotals(timesheetId: string): Promise<Record<string, number>> {
   const entries = await db.query.timesheetEntries.findMany({
     where: eq(timesheetEntries.timesheetId, timesheetId),
   });

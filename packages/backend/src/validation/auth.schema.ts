@@ -5,10 +5,7 @@ import { Request, Response, NextFunction } from 'express';
  * Schema for employee registration (supervisor only).
  */
 export const registerSchema = z.object({
-  name: z
-    .string()
-    .min(1, 'Name is required')
-    .max(255, 'Name must be less than 255 characters'),
+  name: z.string().min(1, 'Name is required').max(255, 'Name must be less than 255 characters'),
   email: z
     .string()
     .email('Invalid email address')
@@ -17,9 +14,7 @@ export const registerSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date of birth must be in YYYY-MM-DD format'),
   isSupervisor: z.boolean().optional(),
-  tempPassword: z
-    .string()
-    .min(8, 'Password must be at least 8 characters'),
+  tempPassword: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
 /**

@@ -27,41 +27,50 @@ const router: Router = Router();
  * Query params: isAgricultural, isHazardous, forAge, includeInactive, search
  */
 router.get('/', requireAuth, async (req: Request, res: Response) => {
-  try {
-    const queryResult = taskCodeListQuerySchema.safeParse(req.query);
-    if (!queryResult.success) {
-      res.status(400).json({
-        error: 'Validation Error',
-        message: 'Invalid query parameters',
-        details: queryResult.error.errors,
-      });
-      return;
-    }
-
-    const { isAgricultural, isHazardous, forAge, includeInactive, search } = queryResult.data;
-
-    const result = await listTaskCodes({
-      isAgricultural: isAgricultural === 'true' ? true : isAgricultural === 'false' ? false : undefined,
-      isHazardous: isHazardous === 'true' ? true : isHazardous === 'false' ? false : undefined,
-      forAge,
-      includeInactive: includeInactive === 'true',
-      search,
+  const queryResult = taskCodeListQuerySchema.safeParse(req.query);
+  if (!queryResult.success) {
+    res.status(400).json({
+      error: 'Validation Error',
+      message: 'Invalid query parameters',
+      details: queryResult.error.errors,
     });
-
-    res.json(result);
-  } catch (error) {
-    throw error;
+    return;
   }
+
+  const { isAgricultural, isHazardous, forAge, includeInactive, search } = queryResult.data;
+
+  const result = await listTaskCodes({
+    isAgricultural:
+      isAgricultural === 'true' ? true : isAgricultural === 'false' ? false : undefined,
+    isHazardous: isHazardous === 'true' ? true : isHazardous === 'false' ? false : undefined,
+    forAge,
+    includeInactive: includeInactive === 'true',
+    search,
+  });
+
+  res.json(result);
 });
 
 /**
  * GET /api/task-codes/for-employee/:employeeId
  * Get task codes filtered by employee's age.
+ * Query params: workDate (optional, YYYY-MM-DD format) - date to calculate age as of
  */
 router.get('/for-employee/:employeeId', requireAuth, async (req: Request, res: Response) => {
   try {
     const employeeId = req.params['employeeId'] as string;
-    const result = await getTaskCodesForEmployee(employeeId);
+    const workDate = req.query['workDate'] as string | undefined;
+
+    // Validate workDate format if provided
+    if (workDate && !/^\d{4}-\d{2}-\d{2}$/.test(workDate)) {
+      res.status(400).json({
+        error: 'INVALID_DATE_FORMAT',
+        message: 'workDate must be in YYYY-MM-DD format',
+      });
+      return;
+    }
+
+    const result = await getTaskCodesForEmployee(employeeId, workDate);
 
     res.json(result);
   } catch (error) {
@@ -82,22 +91,18 @@ router.get('/for-employee/:employeeId', requireAuth, async (req: Request, res: R
  * Get a task code by its code string.
  */
 router.get('/by-code/:code', requireAuth, async (req: Request, res: Response) => {
-  try {
-    const code = req.params['code'] as string;
-    const taskCode = await getTaskCodeByCode(code);
+  const code = req.params['code'] as string;
+  const taskCode = await getTaskCodeByCode(code);
 
-    if (!taskCode) {
-      res.status(404).json({
-        error: 'TASK_CODE_NOT_FOUND',
-        message: 'Task code not found',
-      });
-      return;
-    }
-
-    res.json({ taskCode });
-  } catch (error) {
-    throw error;
+  if (!taskCode) {
+    res.status(404).json({
+      error: 'TASK_CODE_NOT_FOUND',
+      message: 'Task code not found',
+    });
+    return;
   }
+
+  res.json({ taskCode });
 });
 
 /**
@@ -105,22 +110,18 @@ router.get('/by-code/:code', requireAuth, async (req: Request, res: Response) =>
  * Get a single task code with rate history.
  */
 router.get('/:id', requireAuth, async (req: Request, res: Response) => {
-  try {
-    const id = req.params['id'] as string;
-    const taskCode = await getTaskCodeById(id);
+  const id = req.params['id'] as string;
+  const taskCode = await getTaskCodeById(id);
 
-    if (!taskCode) {
-      res.status(404).json({
-        error: 'TASK_CODE_NOT_FOUND',
-        message: 'Task code not found',
-      });
-      return;
-    }
-
-    res.json({ taskCode });
-  } catch (error) {
-    throw error;
+  if (!taskCode) {
+    res.status(404).json({
+      error: 'TASK_CODE_NOT_FOUND',
+      message: 'Task code not found',
+    });
+    return;
   }
+
+  res.json({ taskCode });
 });
 
 /**
@@ -141,9 +142,7 @@ router.post(
     } catch (error) {
       if (error instanceof TaskCodeError) {
         const statusCode =
-          error.code === 'CODE_ALREADY_EXISTS' ? 409 :
-          error.code === 'INVALID_MIN_AGE' ? 400 :
-          400;
+          error.code === 'CODE_ALREADY_EXISTS' ? 409 : error.code === 'INVALID_MIN_AGE' ? 400 : 400;
         res.status(statusCode).json({
           error: error.code,
           message: error.message,
@@ -174,10 +173,13 @@ router.patch(
     } catch (error) {
       if (error instanceof TaskCodeError) {
         const statusCode =
-          error.code === 'TASK_CODE_NOT_FOUND' ? 404 :
-          error.code === 'INVALID_MIN_AGE' ? 400 :
-          error.code === 'CODE_IMMUTABLE' ? 400 :
-          400;
+          error.code === 'TASK_CODE_NOT_FOUND'
+            ? 404
+            : error.code === 'INVALID_MIN_AGE'
+              ? 400
+              : error.code === 'CODE_IMMUTABLE'
+                ? 400
+                : 400;
         res.status(statusCode).json({
           error: error.code,
           message: error.message,
@@ -208,9 +210,11 @@ router.post(
     } catch (error) {
       if (error instanceof TaskCodeError) {
         const statusCode =
-          error.code === 'TASK_CODE_NOT_FOUND' ? 404 :
-          error.code === 'INVALID_EFFECTIVE_DATE' ? 400 :
-          400;
+          error.code === 'TASK_CODE_NOT_FOUND'
+            ? 404
+            : error.code === 'INVALID_EFFECTIVE_DATE'
+              ? 400
+              : 400;
         res.status(statusCode).json({
           error: error.code,
           message: error.message,

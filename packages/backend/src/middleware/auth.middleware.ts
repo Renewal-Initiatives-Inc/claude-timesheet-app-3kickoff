@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import { verifyToken, TokenPayload } from '../utils/jwt.js';
+import { verifyToken } from '../utils/jwt.js';
 import { getActiveSession } from '../services/session.service.js';
 import { getEmployeeById, EmployeePublic } from '../services/auth.service.js';
 
 // Extend Express Request to include employee
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       employee?: EmployeePublic;
@@ -29,11 +30,7 @@ function extractToken(req: Request): string | null {
  * Attaches employee to req.employee on success.
  * Returns 401 if token is invalid or session doesn't exist.
  */
-export async function requireAuth(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
   const token = extractToken(req);
 
   if (!token) {
@@ -123,11 +120,7 @@ export async function requireSupervisor(
  * Does not fail if no token is present.
  * Useful for endpoints that behave differently for authenticated users.
  */
-export async function optionalAuth(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export async function optionalAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
   const token = extractToken(req);
 
   if (!token) {

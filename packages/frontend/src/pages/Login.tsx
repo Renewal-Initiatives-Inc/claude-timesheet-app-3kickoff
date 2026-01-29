@@ -32,7 +32,12 @@ export function Login() {
           {error && (
             <div className="login-error">
               {error}
-              <button type="button" onClick={clearError} className="login-error-close" data-testid="login-error-close-button">
+              <button
+                type="button"
+                onClick={clearError}
+                className="login-error-close"
+                data-testid="login-error-close-button"
+              >
                 ×
               </button>
             </div>
@@ -66,13 +71,20 @@ export function Login() {
             />
           </div>
 
-          <button type="submit" disabled={loading} className="login-button" data-testid="login-submit-button">
+          <button
+            type="submit"
+            disabled={loading}
+            className="login-button"
+            data-testid="login-submit-button"
+          >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
         <div className="login-footer">
-          <a href="/password-reset" data-testid="login-forgot-password-link">Forgot password?</a>
+          <a href="/password-reset" data-testid="login-forgot-password-link">
+            Forgot password?
+          </a>
         </div>
       </div>
     </div>

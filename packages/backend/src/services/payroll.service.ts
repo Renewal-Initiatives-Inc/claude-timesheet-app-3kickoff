@@ -7,14 +7,7 @@ import { getAgeBand, type AgeBand } from '../utils/age.js';
 // Type alias for Decimal instances
 type DecimalValue = InstanceType<typeof Decimal>;
 
-const {
-  payrollRecords,
-  timesheets,
-  timesheetEntries,
-  taskCodes,
-  taskCodeRates,
-  employees,
-} = schema;
+const { payrollRecords, timesheets, taskCodeRates } = schema;
 
 type PayrollRecordRow = typeof payrollRecords.$inferSelect;
 
@@ -146,9 +139,7 @@ function validateMinimumWage(
  * - Overtime hours and earnings (non-agricultural only)
  * - Total earnings
  */
-export async function calculatePayrollForTimesheet(
-  timesheetId: string
-): Promise<PayrollRecord> {
+export async function calculatePayrollForTimesheet(timesheetId: string): Promise<PayrollRecord> {
   // Get timesheet with entries and task codes
   const timesheet = await db.query.timesheets.findFirst({
     where: eq(timesheets.id, timesheetId),
@@ -239,9 +230,7 @@ export async function calculatePayrollForTimesheet(
   }
 
   // Calculate total earnings
-  const totalEarnings = agriculturalEarnings
-    .plus(nonAgriculturalEarnings)
-    .plus(overtimeEarnings);
+  const totalEarnings = agriculturalEarnings.plus(nonAgriculturalEarnings).plus(overtimeEarnings);
 
   // Log warnings if any
   if (warnings.length > 0) {
@@ -272,9 +261,7 @@ export async function calculatePayrollForTimesheet(
 /**
  * Get payroll record for a specific timesheet.
  */
-export async function getPayrollRecord(
-  timesheetId: string
-): Promise<PayrollRecord | null> {
+export async function getPayrollRecord(timesheetId: string): Promise<PayrollRecord | null> {
   const record = await db.query.payrollRecords.findFirst({
     where: eq(payrollRecords.timesheetId, timesheetId),
   });
@@ -285,9 +272,7 @@ export async function getPayrollRecord(
 /**
  * Get payroll record by ID.
  */
-export async function getPayrollRecordById(
-  id: string
-): Promise<PayrollRecord | null> {
+export async function getPayrollRecordById(id: string): Promise<PayrollRecord | null> {
   const record = await db.query.payrollRecords.findFirst({
     where: eq(payrollRecords.id, id),
   });
@@ -327,10 +312,7 @@ export async function listPayrollRecords(
 ): Promise<PayrollRecordWithDetails[]> {
   // Validate date range
   if (filters.startDate > filters.endDate) {
-    throw new PayrollError(
-      'Start date must be before or equal to end date',
-      'INVALID_DATE_RANGE'
-    );
+    throw new PayrollError('Start date must be before or equal to end date', 'INVALID_DATE_RANGE');
   }
 
   // Build conditions
@@ -404,9 +386,7 @@ export async function listPayrollRecords(
  * Recalculate payroll for an approved timesheet.
  * Deletes existing record and creates a new one.
  */
-export async function recalculatePayroll(
-  timesheetId: string
-): Promise<PayrollRecord> {
+export async function recalculatePayroll(timesheetId: string): Promise<PayrollRecord> {
   // Get timesheet to verify it's approved
   const timesheet = await db.query.timesheets.findFirst({
     where: eq(timesheets.id, timesheetId),
@@ -424,9 +404,7 @@ export async function recalculatePayroll(
   }
 
   // Delete existing payroll record if exists
-  await db
-    .delete(payrollRecords)
-    .where(eq(payrollRecords.timesheetId, timesheetId));
+  await db.delete(payrollRecords).where(eq(payrollRecords.timesheetId, timesheetId));
 
   // Calculate fresh
   return calculatePayrollForTimesheet(timesheetId);
@@ -436,9 +414,7 @@ export async function recalculatePayroll(
  * Mark payroll records as exported.
  * Updates the exportedAt timestamp.
  */
-export async function markPayrollExported(
-  payrollIds: string[]
-): Promise<void> {
+export async function markPayrollExported(payrollIds: string[]): Promise<void> {
   if (payrollIds.length === 0) return;
 
   const now = new Date();
@@ -447,6 +423,9 @@ export async function markPayrollExported(
     .update(payrollRecords)
     .set({ exportedAt: now })
     .where(
-      sql`${payrollRecords.id} IN (${sql.join(payrollIds.map(id => sql`${id}`), sql`, `)})`
+      sql`${payrollRecords.id} IN (${sql.join(
+        payrollIds.map((id) => sql`${id}`),
+        sql`, `
+      )})`
     );
 }

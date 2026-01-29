@@ -11,8 +11,8 @@
 
 import { eq } from 'drizzle-orm';
 import { db, schema } from '../../db/index.js';
-import { getTimesheetWithEntries, type TimesheetWithEntries, type TimesheetEntryWithTaskCode } from '../timesheet.service.js';
-import { calculateAge, getAgeBand, getWeeklyAges, type AgeBand } from '../../utils/age.js';
+import { getTimesheetWithEntries, type TimesheetEntryWithTaskCode } from '../timesheet.service.js';
+import { getAgeBand, getWeeklyAges, type AgeBand } from '../../utils/age.js';
 import { getTodayET } from '../../utils/timezone.js';
 import type {
   ComplianceContext,
@@ -295,7 +295,8 @@ export async function runComplianceCheck(
           ruleDescription: rule.name,
           message: `Rule evaluation error: ${error instanceof Error ? error.message : 'Unknown error'}`,
         },
-        errorMessage: 'An error occurred while checking compliance. Please contact your supervisor.',
+        errorMessage:
+          'An error occurred while checking compliance. Please contact your supervisor.',
         remediationGuidance: 'This may be a system issue. Please try again or contact support.',
       };
       results.push(errorResult);

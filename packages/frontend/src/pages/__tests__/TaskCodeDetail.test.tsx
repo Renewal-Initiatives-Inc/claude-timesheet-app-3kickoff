@@ -70,7 +70,9 @@ describe('TaskCodeDetail', () => {
   it('should render the task code header', () => {
     renderComponent();
 
-    expect(screen.getByRole('heading', { name: /F1.*Field Harvesting - Light/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: /F1.*Field Harvesting - Light/i })
+    ).toBeInTheDocument();
   });
 
   it('should render navigation links', () => {

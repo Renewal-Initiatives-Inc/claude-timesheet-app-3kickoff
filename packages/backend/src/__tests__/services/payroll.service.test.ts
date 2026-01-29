@@ -164,10 +164,7 @@ describe('Payroll Service Logic', () => {
       // OT hours = 5
       // Weighted rate = $15
       // OT premium = 5 × ($15 × 0.5) = 5 × $7.50 = $37.50
-      const result = calculateOvertime(
-        new Decimal('45'),
-        new Decimal('675')
-      );
+      const result = calculateOvertime(new Decimal('45'), new Decimal('675'));
       expect(result.overtimeHours.toFixed(2)).toBe('5.00');
       expect(result.overtimeEarnings.toFixed(2)).toBe('37.50');
     });
@@ -179,10 +176,7 @@ describe('Payroll Service Logic', () => {
       // Weighted rate = $800 / 45 = $17.78 (approx)
       // OT hours = 5
       // OT premium = 5 × ($17.78 × 0.5) ≈ $44.44
-      const result = calculateOvertime(
-        new Decimal('45'),
-        new Decimal('800')
-      );
+      const result = calculateOvertime(new Decimal('45'), new Decimal('800'));
       expect(result.overtimeHours.toFixed(2)).toBe('5.00');
       // $800/45 = 17.777... × 0.5 = 8.888... × 5 = 44.444...
       expect(parseFloat(result.overtimeEarnings.toFixed(2))).toBeCloseTo(44.44, 1);
@@ -201,7 +195,7 @@ describe('Payroll Service Logic', () => {
   describe('Agricultural overtime exemption', () => {
     it('should exempt agricultural hours from overtime calculation', () => {
       // 50 agricultural hours should not trigger overtime
-      const agHours = new Decimal('50');
+      const _agHours = new Decimal('50');
       const nonAgHours = new Decimal('0');
 
       // OT only applies to non-agricultural hours
@@ -315,9 +309,7 @@ describe('Payroll Service Logic', () => {
 
     function getEffectiveRate(rates: Rate[], workDate: string): Rate | null {
       // Sort by effective date descending
-      const sorted = [...rates].sort(
-        (a, b) => b.effectiveDate.localeCompare(a.effectiveDate)
-      );
+      const sorted = [...rates].sort((a, b) => b.effectiveDate.localeCompare(a.effectiveDate));
 
       // Find first rate where effective date <= work date
       return sorted.find((r) => r.effectiveDate <= workDate) ?? null;
@@ -386,7 +378,7 @@ describe('Payroll Service Logic', () => {
     });
 
     it('should handle all agricultural hours (no overtime regardless of total)', () => {
-      const agHours = new Decimal('60');
+      const _agHours = new Decimal('60');
       const nonAgHours = new Decimal('0');
 
       // OT only calculated on non-ag hours

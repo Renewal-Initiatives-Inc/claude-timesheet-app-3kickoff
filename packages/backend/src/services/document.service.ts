@@ -1,6 +1,6 @@
 import { eq, and } from 'drizzle-orm';
 import { db, schema } from '../db/index.js';
-import { uploadDocument, deleteDocument, getDownloadUrl } from './storage.service.js';
+import { uploadDocument, getDownloadUrl } from './storage.service.js';
 import type { DocumentType, EmployeeDocument } from '@renewal/types';
 
 const { employees, employeeDocuments } = schema;
@@ -51,10 +51,7 @@ export async function createDocument(
 
   // Work permits require expiration date
   if (type === 'work_permit' && !expiresAt) {
-    throw new DocumentError(
-      'Work permits require an expiration date',
-      'EXPIRATION_REQUIRED'
-    );
+    throw new DocumentError('Work permits require an expiration date', 'EXPIRATION_REQUIRED');
   }
 
   // Upload to storage
@@ -90,9 +87,7 @@ export async function createDocument(
  * @param documentId - Document UUID
  * @returns Document record or null if not found
  */
-export async function getDocumentById(
-  documentId: string
-): Promise<EmployeeDocument | null> {
+export async function getDocumentById(documentId: string): Promise<EmployeeDocument | null> {
   const document = await db.query.employeeDocuments.findFirst({
     where: eq(employeeDocuments.id, documentId),
   });
@@ -150,10 +145,7 @@ export async function invalidateDocument(documentId: string): Promise<void> {
   }
 
   if (document.invalidatedAt) {
-    throw new DocumentError(
-      'Document is already invalidated',
-      'ALREADY_INVALIDATED'
-    );
+    throw new DocumentError('Document is already invalidated', 'ALREADY_INVALIDATED');
   }
 
   await db
@@ -176,10 +168,7 @@ export async function getDocumentsByType(
   type: DocumentType
 ): Promise<EmployeeDocument[]> {
   const docs = await db.query.employeeDocuments.findMany({
-    where: and(
-      eq(employeeDocuments.employeeId, employeeId),
-      eq(employeeDocuments.type, type)
-    ),
+    where: and(eq(employeeDocuments.employeeId, employeeId), eq(employeeDocuments.type, type)),
     orderBy: (docs, { desc }) => [desc(docs.uploadedAt)],
   });
 

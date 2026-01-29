@@ -35,7 +35,9 @@ export function Dashboard() {
       <div className="dashboard">
         <div className="dashboard-error">
           <p>Error loading dashboard: {error}</p>
-          <button onClick={refetch} data-testid="dashboard-retry-button">Retry</button>
+          <button onClick={refetch} data-testid="dashboard-retry-button">
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -48,7 +50,11 @@ export function Dashboard() {
           <h1>Dashboard</h1>
           <p>Welcome back, {user?.name}</p>
         </div>
-        <Link to="/employees/add" className="dashboard-add-button" data-testid="dashboard-add-employee-button">
+        <Link
+          to="/employees/add"
+          className="dashboard-add-button"
+          data-testid="dashboard-add-employee-button"
+        >
           + Add Employee
         </Link>
       </header>
@@ -87,7 +93,11 @@ export function Dashboard() {
       <section className="dashboard-section">
         <div className="section-header">
           <h2>Employees</h2>
-          <Link to="/employees" className="section-link" data-testid="dashboard-view-all-employees-link">
+          <Link
+            to="/employees"
+            className="section-link"
+            data-testid="dashboard-view-all-employees-link"
+          >
             View All
           </Link>
         </div>
@@ -95,7 +105,9 @@ export function Dashboard() {
         {employees.length === 0 ? (
           <div className="dashboard-empty">
             <p>No employees found.</p>
-            <Link to="/employees/add" data-testid="dashboard-add-first-employee-link">Add your first employee</Link>
+            <Link to="/employees/add" data-testid="dashboard-add-first-employee-link">
+              Add your first employee
+            </Link>
           </div>
         ) : (
           <div className="dashboard-employees">
@@ -120,7 +132,9 @@ export function Dashboard() {
                     </td>
                     <td>{employee.age}</td>
                     <td>
-                      <span className={`age-band age-band-${employee.ageBand.replace('+', 'plus')}`}>
+                      <span
+                        className={`age-band age-band-${employee.ageBand.replace('+', 'plus')}`}
+                      >
                         {employee.ageBand}
                       </span>
                     </td>

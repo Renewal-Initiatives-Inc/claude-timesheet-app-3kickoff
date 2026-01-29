@@ -30,24 +30,20 @@ router.use(requireSupervisor);
  * Query params: employeeId (optional filter)
  */
 router.get('/review-queue', async (req: Request, res: Response) => {
-  try {
-    const queryResult = reviewQueueQuerySchema.safeParse(req.query);
-    if (!queryResult.success) {
-      res.status(400).json({
-        error: 'Validation Error',
-        message: 'Invalid query parameters',
-        details: queryResult.error.errors,
-      });
-      return;
-    }
-
-    const { employeeId } = queryResult.data;
-    const result = await getReviewQueue({ employeeId });
-
-    res.json(result);
-  } catch (error) {
-    throw error;
+  const queryResult = reviewQueueQuerySchema.safeParse(req.query);
+  if (!queryResult.success) {
+    res.status(400).json({
+      error: 'Validation Error',
+      message: 'Invalid query parameters',
+      details: queryResult.error.errors,
+    });
+    return;
   }
+
+  const { employeeId } = queryResult.data;
+  const result = await getReviewQueue({ employeeId });
+
+  res.json(result);
 });
 
 /**
@@ -55,12 +51,8 @@ router.get('/review-queue', async (req: Request, res: Response) => {
  * Get count of timesheets pending review.
  */
 router.get('/review-count', async (req: Request, res: Response) => {
-  try {
-    const count = await getPendingReviewCount();
-    res.json({ count });
-  } catch (error) {
-    throw error;
-  }
+  const count = await getPendingReviewCount();
+  res.json({ count });
 });
 
 /**
@@ -99,14 +91,10 @@ router.get('/review/:id', async (req: Request, res: Response) => {
  * Get compliance logs for a timesheet.
  */
 router.get('/review/:id/compliance', async (req: Request, res: Response) => {
-  try {
-    const id = req.params['id'] as string;
-    const logs = await getComplianceLogs(id);
+  const id = req.params['id'] as string;
+  const logs = await getComplianceLogs(id);
 
-    res.json({ logs });
-  } catch (error) {
-    throw error;
-  }
+  res.json({ logs });
 });
 
 /**
@@ -183,33 +171,29 @@ router.post(
  * POST /api/supervisor/unlock-week
  * Unlock a historical week for an employee.
  */
-router.post(
-  '/unlock-week',
-  validate(unlockWeekSchema),
-  async (req: Request, res: Response) => {
-    try {
-      const { employeeId, weekStartDate } = req.body;
+router.post('/unlock-week', validate(unlockWeekSchema), async (req: Request, res: Response) => {
+  try {
+    const { employeeId, weekStartDate } = req.body;
 
-      const timesheet = await unlockWeek(employeeId, weekStartDate, req.employee!.id);
+    const timesheet = await unlockWeek(employeeId, weekStartDate, req.employee!.id);
 
-      res.json({
-        success: true,
-        timesheet,
-        message: 'Week unlocked successfully',
+    res.json({
+      success: true,
+      timesheet,
+      message: 'Week unlocked successfully',
+    });
+  } catch (error) {
+    if (error instanceof ReviewError) {
+      const statusCode = getStatusCodeForError(error.code);
+      res.status(statusCode).json({
+        error: error.code,
+        message: error.message,
       });
-    } catch (error) {
-      if (error instanceof ReviewError) {
-        const statusCode = getStatusCodeForError(error.code);
-        res.status(statusCode).json({
-          error: error.code,
-          message: error.message,
-        });
-        return;
-      }
-      throw error;
+      return;
     }
+    throw error;
   }
-);
+});
 
 /**
  * Map error codes to HTTP status codes.

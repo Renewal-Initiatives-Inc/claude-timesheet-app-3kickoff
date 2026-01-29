@@ -18,9 +18,9 @@ data-testid="error-{context}"              // error-form, error-field-email
 ```typescript
 interface ModalProps {
   isOpen: boolean;
-  onClose: () => void;      // NOT onCancel, onDismiss
-  onSubmit?: () => void;    // NOT onConfirm
-  onSuccess?: () => void;   // optional, after submit succeeds
+  onClose: () => void; // NOT onCancel, onDismiss
+  onSubmit?: () => void; // NOT onConfirm
+  onSuccess?: () => void; // optional, after submit succeeds
 }
 ```
 
@@ -34,24 +34,24 @@ const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
 ## Naming Patterns
 
-| Context | Pattern | Example |
-|---------|---------|---------|
-| Components | PascalCase | TimesheetGrid.tsx |
-| Hooks | use + PascalCase | useTimesheet |
-| Internal handlers | handle + Action | handleSubmit |
-| Callback props | on + Action | onSubmit, onClose |
-| Boolean state | is + State | isLoading, isOpen |
-| Date-only fields | *Date | workDate, effectiveDate |
-| Timestamp fields | *At | createdAt, submittedAt |
+| Context           | Pattern          | Example                 |
+| ----------------- | ---------------- | ----------------------- |
+| Components        | PascalCase       | TimesheetGrid.tsx       |
+| Hooks             | use + PascalCase | useTimesheet            |
+| Internal handlers | handle + Action  | handleSubmit            |
+| Callback props    | on + Action      | onSubmit, onClose       |
+| Boolean state     | is + State       | isLoading, isOpen       |
+| Date-only fields  | \*Date           | workDate, effectiveDate |
+| Timestamp fields  | \*At             | createdAt, submittedAt  |
 
 ## Toolset-Enforced (No Action Needed)
 
-| Layer | Convention | Enforcer |
-|-------|------------|----------|
-| DB columns | snake_case | Drizzle ORM |
-| TS properties | camelCase | Drizzle auto-convert |
-| API fields | camelCase | Zod validation |
-| Error codes | SCREAMING_SNAKE | Custom pattern |
+| Layer         | Convention      | Enforcer             |
+| ------------- | --------------- | -------------------- |
+| DB columns    | snake_case      | Drizzle ORM          |
+| TS properties | camelCase       | Drizzle auto-convert |
+| API fields    | camelCase       | Zod validation       |
+| Error codes   | SCREAMING_SNAKE | Custom pattern       |
 
 ## CSS Classes
 

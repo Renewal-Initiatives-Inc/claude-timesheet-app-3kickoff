@@ -16,11 +16,13 @@ Renewal Initiatives Timesheet Application - A compliance-focused timesheet syste
 ## Naming Conventions
 
 Read CONVENTIONS.md before generating:
+
 - UI components (.tsx files)
 - API routes
 - Test files
 
 Key requirements:
+
 - All interactive elements need data-testid
 - Modals use onClose/onSubmit callbacks
 - Error state uses error/fieldErrors variables

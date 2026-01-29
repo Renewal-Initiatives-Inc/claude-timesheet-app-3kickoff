@@ -4,24 +4,41 @@
 
 This checklist guides you through deploying the Renewal Initiatives Timesheet Application to production. Complete each section in order.
 
+## Current Status (Updated 2026-01-28)
+
+### Blockers Before Deployment
+
+1. ~~**ESLint errors**: 89 errors (mostly unused vars) - run `npm run lint -- --fix` or manually fix~~ ✅
+2. ~~**Code formatting**: 37 files need formatting - run `npm run format`~~ ✅
+3. ~~**1 failing unit test**: `task-codes.test.ts` timeout on 404 test~~ ✅
+
+### Completed Development Items
+
+- ✅ TypeScript compiles cleanly
+- ✅ All code committed to main branch
+- ✅ vercel.json configured with build settings and cron jobs
+- ✅ Database scripts ready (seed-production, create-admin, migrate)
+- ✅ Documentation complete (API.md, BACKUP.md, DEPLOYMENT.md)
+- ✅ Task codes and rates defined in seed script
+
 ---
 
 ## Pre-Deployment Verification
 
 ### Code Quality
 
-- [ ] All TypeScript type checks pass (`npm run typecheck`)
-- [ ] All unit tests pass (`npm run test:run`)
-- [ ] All E2E tests pass locally (`npm run test:e2e`)
-- [ ] No ESLint errors (`npm run lint`)
-- [ ] Code formatted (`npm run format:check`)
+- [x] All TypeScript type checks pass (`npm run typecheck`)
+- [x] All unit tests pass (`npm run test:run`)
+- [x] All E2E tests pass locally (`npm run test:e2e`)
+- [x] No ESLint errors (`npm run lint`)
+- [x] Code formatted (`npm run format:check`)
 
 ### Repository
 
-- [ ] All changes committed to main branch
-- [ ] No merge conflicts
-- [ ] Version number updated (if applicable)
-- [ ] CHANGELOG updated (if applicable)
+- [x] All changes committed to main branch
+- [x] No merge conflicts
+- [x] Version number updated (if applicable) - N/A, keeping 0.0.1
+- [x] CHANGELOG updated (if applicable) - N/A
 
 ---
 
@@ -29,26 +46,26 @@ This checklist guides you through deploying the Renewal Initiatives Timesheet Ap
 
 ### Vercel Project
 
-- [ ] Vercel project created and connected to GitHub
-- [ ] Build settings configured correctly
+- [x] Vercel project created and connected to GitHub
+- [x] Build settings configured correctly (in vercel.json)
   - Framework: Vite
-  - Build Command: `npm run build`
+  - Build Command: `pnpm run build -w @renewal/backend && cd packages/frontend && pnpm run build`
   - Output Directory: `packages/frontend/dist`
-  - Install Command: `npm install`
+  - Install Command: `pnpm install`
 
 ### Database (Vercel Postgres)
 
-- [ ] Production database created in Vercel Storage
-- [ ] DATABASE_URL copied from Vercel dashboard
-- [ ] Connection uses pooler endpoint (`-pooler.vercel-storage.com`)
-- [ ] Migrations run successfully (`npm run db:migrate`)
-- [ ] All tables created (verify via Vercel dashboard)
+- [x] Production database created in Vercel Storage
+- [x] DATABASE_URL copied from Vercel dashboard
+- [x] Connection uses pooler endpoint (`-pooler.vercel-storage.com`)
+- [x] Migrations run successfully (`npm run db:migrate`)
+- [x] All tables created (verify via Vercel dashboard)
 
 ### Blob Storage (Vercel Blob)
 
-- [ ] Vercel Blob storage created
-- [ ] BLOB_READ_WRITE_TOKEN configured
-- [ ] Storage quota sufficient for expected documents
+- [x] Vercel Blob storage created
+- [x] BLOB_READ_WRITE_TOKEN configured
+- [x] Storage quota sufficient for expected documents
 
 ---
 
@@ -58,33 +75,33 @@ Configure all variables in Vercel Dashboard → Project Settings → Environment
 
 ### Required Variables
 
-| Variable | Set? | Notes |
-|----------|------|-------|
-| `DATABASE_URL` | [ ] | From Vercel Postgres |
-| `JWT_SECRET` | [ ] | Generate: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"` |
-| `JWT_EXPIRES_IN` | [ ] | Recommended: `7d` |
-| `POSTMARK_API_KEY` | [ ] | From Postmark dashboard |
-| `EMAIL_FROM` | [ ] | e.g., `noreply@renewal.org` |
-| `FRONTEND_URL` | [ ] | e.g., `https://app.vercel.app` |
-| `APP_URL` | [ ] | Same as FRONTEND_URL |
-| `NODE_ENV` | [ ] | Set to `production` |
-| `CRON_SECRET` | [ ] | Generate: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
+| Variable           | Set? | Notes                                                                                |
+| ------------------ | ---- | ------------------------------------------------------------------------------------ |
+| `DATABASE_URL`     | [x]  | From Vercel Postgres                                                                 |
+| `JWT_SECRET`       | [x]  | Generate: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"` |
+| `JWT_EXPIRES_IN`   | [x]  | Recommended: `7d`                                                                    |
+| `POSTMARK_API_KEY` | [x]  | From Postmark dashboard                                                              |
+| `EMAIL_FROM`       | [x]  | e.g., `noreply@renewal.org`                                                          |
+| `FRONTEND_URL`     | [x]  | e.g., `https://app.vercel.app`                                                       |
+| `APP_URL`          | [x]  | Same as FRONTEND_URL                                                                 |
+| `NODE_ENV`         | [x]  | Set to `production`                                                                  |
+| `CRON_SECRET`      | [x]  | Generate: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
 
 ### Optional Variables
 
-| Variable | Set? | Default | Notes |
-|----------|------|---------|-------|
-| `PASSWORD_RESET_EXPIRES_HOURS` | [ ] | 24 | Password reset token lifetime |
-| `MAX_LOGIN_ATTEMPTS` | [ ] | 5 | Before account lockout |
-| `LOCKOUT_DURATION_MINUTES` | [ ] | 30 | Lockout period |
-| `LOG_LEVEL` | [ ] | info | debug, info, warn, error |
+| Variable                       | Set? | Default | Notes                         |
+| ------------------------------ | ---- | ------- | ----------------------------- |
+| `PASSWORD_RESET_EXPIRES_HOURS` | [ ]  | 24      | Password reset token lifetime |
+| `MAX_LOGIN_ATTEMPTS`           | [ ]  | 5       | Before account lockout        |
+| `LOCKOUT_DURATION_MINUTES`     | [ ]  | 30      | Lockout period                |
+| `LOG_LEVEL`                    | [ ]  | info    | debug, info, warn, error      |
 
 ### Verification
 
-- [ ] All required variables set for Production environment
-- [ ] No development secrets used (generate new ones!)
-- [ ] JWT_SECRET is 64+ characters
-- [ ] CRON_SECRET is 32+ characters
+- [x] All required variables set for Production environment
+- [x] No development secrets used (generate new ones!)
+- [x] JWT_SECRET is 64+ characters
+- [x] CRON_SECRET is 32+ characters
 
 ---
 
@@ -92,28 +109,30 @@ Configure all variables in Vercel Dashboard → Project Settings → Environment
 
 ### Task Codes
 
-- [ ] Task codes verified with organization (see phase13_plan.md for list)
-- [ ] Rates confirmed accurate
+- [x] Task codes defined in seed script (see `packages/backend/src/db/seed-production.ts`)
+- [x] Rates configured in seed script
   - Agricultural: $8.00/hr
   - Non-Agricultural: $15.00/hr
-- [ ] Production seed run:
+- [x] Task codes verified with organization
+- [x] Production seed run:
   ```bash
-  npm run db:seed:production -- --confirm
+  npm run db:seed:production -w @renewal/backend -- --confirm
   ```
-- [ ] Task codes visible in application
+- [x] Task codes visible in application
 
 ### Initial Supervisor
 
-- [ ] Supervisor name and email obtained from organization
-- [ ] Admin account created:
+- [x] Admin creation script exists (`packages/backend/src/db/create-admin.ts`)
+- [x] Supervisor name and email obtained from organization
+- [x] Admin account created:
   ```bash
-  npm run db:create-admin -- \
+  npm run db:create-admin -w @renewal/backend -- \
     --name "Supervisor Name" \
     --email "supervisor@renewal.org" \
     --password "TempPassword123!"
   ```
-- [ ] Supervisor can log in
-- [ ] Supervisor password changed after first login
+- [x] Supervisor can log in
+- [x] Supervisor password changed after first login
 
 ---
 
@@ -121,17 +140,17 @@ Configure all variables in Vercel Dashboard → Project Settings → Environment
 
 ### Deploy to Production
 
-- [ ] Push to main branch: `git push origin main`
-- [ ] Or use Vercel CLI: `vercel --prod`
-- [ ] Build completes successfully (check Vercel dashboard)
-- [ ] No build errors in logs
+- [x] Push to main branch: `git push origin main`
+- [x] Or use Vercel CLI: `vercel --prod`
+- [x] Build completes successfully (check Vercel dashboard)
+- [x] No build errors in logs
 
 ### Verify Deployment
 
-- [ ] Production URL accessible
-- [ ] Health check returns 200: `GET /api/health`
-- [ ] Login page loads
-- [ ] No JavaScript console errors
+- [x] Production URL accessible
+- [x] Health check returns 200: `GET /api/health`
+- [x] Login page loads
+- [x] No JavaScript console errors
 
 ---
 
@@ -139,53 +158,53 @@ Configure all variables in Vercel Dashboard → Project Settings → Environment
 
 ### Authentication
 
-- [ ] Supervisor login works
-- [ ] Logout works
-- [ ] Invalid credentials rejected
-- [ ] Account lockout after 5 failed attempts
-- [ ] Password reset request sends email
-- [ ] Password reset completes successfully
+- [x] Supervisor login works
+- [x] Logout works
+- [x] Invalid credentials rejected
+- [x] Account lockout after 5 failed attempts
+- [x] Password reset request sends email
+- [x] Password reset completes successfully
 
 ### Employee Management
 
-- [ ] Create adult employee
-- [ ] Create minor employee (age 14-17)
-- [ ] Upload parental consent document
-- [ ] Upload work permit document (for 14+)
-- [ ] Employee receives credentials email
-- [ ] Employee can log in
+- [x] Create adult employee
+- [x] Create minor employee (age 14-17)
+- [x] Upload parental consent document
+- [x] Upload work permit document (for 14+)
+- [x] Employee receives credentials email
+- [x] Employee can log in
 
 ### Timesheet Flow
 
-- [ ] Create timesheet for current week
-- [ ] Add time entries
-- [ ] Task dropdown filtered by age
-- [ ] School day tracking works
-- [ ] Compliance warnings display correctly
-- [ ] Submit compliant timesheet → success
-- [ ] Submit non-compliant timesheet → error with guidance
+- [x] Create timesheet for current week
+- [x] Add time entries
+- [x] Task dropdown filtered by age
+- [x] School day tracking works
+- [x] Compliance warnings display correctly
+- [x] Submit compliant timesheet → success
+- [x] Submit non-compliant timesheet → error with guidance
 
 ### Supervisor Review
 
-- [ ] Pending timesheets appear in queue
-- [ ] Review timesheet (read-only)
-- [ ] Approve timesheet
-- [ ] Reject timesheet with notes
-- [ ] Employee sees rejection notes
+- [x] Pending timesheets appear in queue
+- [x] Review timesheet (read-only)
+- [x] Approve timesheet
+- [x] Reject timesheet with notes
+- [x] Employee sees rejection notes
 
 ### Payroll
 
-- [ ] Calculate payroll for approved timesheet
-- [ ] Payroll record created
-- [ ] Export CSV downloads correctly
-- [ ] CSV contains correct data
+- [x] Calculate payroll for approved timesheet
+- [x] Payroll record created
+- [x] Export CSV downloads correctly
+- [x] CSV contains correct data
 
 ### Alerts & Reports
 
-- [ ] Dashboard shows pending counts
-- [ ] Compliance audit report generates
-- [ ] Timesheet history report generates
-- [ ] Report filters work correctly
+- [x] Dashboard shows pending counts
+- [x] Compliance audit report generates
+- [x] Timesheet history report generates
+- [x] Report filters work correctly
 
 ---
 
@@ -193,20 +212,26 @@ Configure all variables in Vercel Dashboard → Project Settings → Environment
 
 ### Configuration
 
-- [ ] Postmark production server created
-- [ ] API key added to environment variables
-- [ ] Sender domain verified (or using shared domain)
+- [x] Postmark production server created
+- [x] API key added to environment variables
+- [x] Sender domain verified (or using shared domain)
 
 ### Test Emails
 
-- [ ] Password reset email delivered
-- [ ] New employee credentials email delivered
-- [ ] Emails not going to spam
-- [ ] Postmark activity feed shows sent emails
+- [x] Password reset email delivered
+- [x] New employee credentials email delivered
+- [x] Emails not going to spam
+- [x] Postmark activity feed shows sent emails
 
 ---
 
 ## Cron Job Verification
+
+### Configuration
+
+- [x] Cron job configured in `vercel.json`
+- [x] Schedule set: `0 13 * * *` (daily at 1 PM UTC / 8 AM ET)
+- [x] Endpoint: `/api/crons/check-alerts`
 
 ### Manual Test
 
@@ -218,7 +243,6 @@ curl -X GET "https://your-app.vercel.app/api/crons/check-alerts" \
 - [ ] Returns 200 with success response
 - [ ] Unauthorized requests return 401
 - [ ] Cron visible in Vercel project settings
-- [ ] Schedule correct (daily at 1 PM UTC / 8 AM ET)
 
 ---
 
@@ -258,6 +282,8 @@ curl -X GET "https://your-app.vercel.app/api/crons/check-alerts" \
 
 ## Backup Verification
 
+- [x] BACKUP.md created (`docs/BACKUP.md`)
+- [x] DEPLOYMENT.md created (`docs/DEPLOYMENT.md`)
 - [ ] Read BACKUP.md procedures
 - [ ] Test database export:
   ```bash
@@ -354,9 +380,9 @@ curl -X GET "https://your-app.vercel.app/api/crons/check-alerts" \
 
 ### Documents Accessible
 
-- [ ] BACKUP.md location known
-- [ ] DEPLOYMENT.md rollback section known
-- [ ] API.md available for debugging
+- [x] BACKUP.md location known (`docs/BACKUP.md`)
+- [x] DEPLOYMENT.md rollback section known (`docs/DEPLOYMENT.md`)
+- [x] API.md available for debugging (`docs/API.md`)
 
 ---
 
@@ -375,11 +401,11 @@ After successful launch:
 
 ## Sign-Off
 
-| Role | Name | Date | Signature |
-|------|------|------|-----------|
-| Technical Lead | | | |
-| Organization Admin | | | |
-| Primary Supervisor | | | |
+| Role               | Name | Date | Signature |
+| ------------------ | ---- | ---- | --------- |
+| Technical Lead     |      |      |           |
+| Organization Admin |      |      |           |
+| Primary Supervisor |      |      |           |
 
 ---
 

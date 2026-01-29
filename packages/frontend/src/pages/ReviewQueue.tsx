@@ -51,7 +51,9 @@ export function ReviewQueue() {
       <div className="review-queue">
         <div className="review-queue-error" data-testid="error-review-queue">
           <p>Error loading review queue: {error}</p>
-          <button onClick={refresh} data-testid="review-queue-retry-button">Retry</button>
+          <button onClick={refresh} data-testid="review-queue-retry-button">
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -98,9 +100,7 @@ export function ReviewQueue() {
                   <td>{formatWeekRange(item.weekStartDate)}</td>
                   <td className="review-queue-hours">{item.totalHours.toFixed(1)}</td>
                   <td>{item.entryCount}</td>
-                  <td className="review-queue-submitted">
-                    {formatRelativeTime(item.submittedAt)}
-                  </td>
+                  <td className="review-queue-submitted">{formatRelativeTime(item.submittedAt)}</td>
                   <td>
                     <Link
                       to={`/review/${item.id}`}

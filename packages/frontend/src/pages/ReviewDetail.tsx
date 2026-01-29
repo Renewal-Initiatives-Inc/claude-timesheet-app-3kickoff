@@ -54,16 +54,8 @@ function getStatusBadgeClass(status: string): string {
 export function ReviewDetail() {
   const { timesheetId } = useParams<{ timesheetId: string }>();
   const navigate = useNavigate();
-  const {
-    reviewData,
-    loading,
-    error,
-    approving,
-    rejecting,
-    approve,
-    reject,
-    refresh,
-  } = useReviewDetail(timesheetId);
+  const { reviewData, loading, error, approving, rejecting, approve, reject, refresh } =
+    useReviewDetail(timesheetId);
 
   const handleApprove = async (notes?: string): Promise<boolean> => {
     const success = await approve(notes);
@@ -94,7 +86,9 @@ export function ReviewDetail() {
       <div className="review-detail">
         <div className="review-detail-error" data-testid="error-review-detail">
           <p>{error || 'Timesheet not found'}</p>
-          <button onClick={refresh} data-testid="review-detail-retry-button">Retry</button>
+          <button onClick={refresh} data-testid="review-detail-retry-button">
+            Retry
+          </button>
         </div>
       </div>
     );

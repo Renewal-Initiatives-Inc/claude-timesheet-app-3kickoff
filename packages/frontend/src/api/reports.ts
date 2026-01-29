@@ -12,10 +12,7 @@ function getAuthToken(): string | null {
 /**
  * Make an authenticated API request
  */
-async function apiRequest<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
+async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = getAuthToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -27,7 +24,7 @@ async function apiRequest<T>(
 
   const response = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
-    headers: { ...headers, ...options.headers as Record<string, string> },
+    headers: { ...headers, ...(options.headers as Record<string, string>) },
   });
 
   if (!response.ok) {
@@ -36,11 +33,7 @@ async function apiRequest<T>(
       message: response.statusText,
     }));
 
-    throw new ApiRequestError(
-      error.message || 'Request failed',
-      response.status,
-      error.error
-    );
+    throw new ApiRequestError(error.message || 'Request failed', response.status, error.error);
   }
 
   if (response.status === 204) {
@@ -165,9 +158,7 @@ export async function getComplianceAuditReport(
  * Export compliance audit report as CSV.
  * Returns the CSV content as a Blob for download.
  */
-export async function exportComplianceAuditCSV(
-  filters: ComplianceAuditFilters
-): Promise<Blob> {
+export async function exportComplianceAuditCSV(filters: ComplianceAuditFilters): Promise<Blob> {
   const token = getAuthToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -189,11 +180,7 @@ export async function exportComplianceAuditCSV(
       message: response.statusText,
     }));
 
-    throw new ApiRequestError(
-      error.message || 'Export failed',
-      response.status,
-      error.error
-    );
+    throw new ApiRequestError(error.message || 'Export failed', response.status, error.error);
   }
 
   return response.blob();

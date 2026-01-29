@@ -51,7 +51,9 @@ export function EmployeeList() {
       {error && (
         <div className="error-message">
           <p>Error: {error}</p>
-          <button onClick={refetch} data-testid="employee-list-retry-button">Retry</button>
+          <button onClick={refetch} data-testid="employee-list-retry-button">
+            Retry
+          </button>
         </div>
       )}
 
@@ -77,14 +79,15 @@ export function EmployeeList() {
           </thead>
           <tbody>
             {employees.map((employee) => (
-              <tr key={employee.id} className={employee.status === 'archived' ? 'archived-row' : ''}>
+              <tr
+                key={employee.id}
+                className={employee.status === 'archived' ? 'archived-row' : ''}
+              >
                 <td>
                   <Link to={`/employees/${employee.id}`} className="employee-name">
                     {employee.name}
                   </Link>
-                  {employee.isSupervisor && (
-                    <span className="supervisor-badge">Supervisor</span>
-                  )}
+                  {employee.isSupervisor && <span className="supervisor-badge">Supervisor</span>}
                 </td>
                 <td className="email-cell">{employee.email}</td>
                 <td>{employee.age}</td>

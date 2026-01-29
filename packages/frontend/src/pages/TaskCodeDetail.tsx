@@ -35,7 +35,9 @@ export function TaskCodeDetail() {
       <div className="task-code-detail-page">
         <div className="error-message">
           <p>Error: {error || 'Task code not found'}</p>
-          <Link to="/task-codes" className="back-link">Back to Task Codes</Link>
+          <Link to="/task-codes" className="back-link">
+            Back to Task Codes
+          </Link>
         </div>
       </div>
     );
@@ -45,14 +47,20 @@ export function TaskCodeDetail() {
     <div className="task-code-detail-page">
       <header className="page-header">
         <div className="header-left">
-          <Link to="/task-codes" className="back-link">&larr; Back to Task Codes</Link>
+          <Link to="/task-codes" className="back-link">
+            &larr; Back to Task Codes
+          </Link>
           <h1>
             <span className="task-code-badge">{taskCode.code}</span>
             {taskCode.name}
           </h1>
         </div>
         <div className="header-actions">
-          <Link to={`/task-codes/${id}/edit`} className="edit-button" data-testid="task-code-edit-button">
+          <Link
+            to={`/task-codes/${id}/edit`}
+            className="edit-button"
+            data-testid="task-code-edit-button"
+          >
             Edit
           </Link>
           {taskCode.isActive && (
@@ -68,11 +76,7 @@ export function TaskCodeDetail() {
         </div>
       </header>
 
-      {actionError && (
-        <div className="action-error">
-          Error: {actionError}
-        </div>
-      )}
+      {actionError && <div className="action-error">Error: {actionError}</div>}
 
       <div className="content-grid">
         <section className="info-section">
@@ -92,7 +96,9 @@ export function TaskCodeDetail() {
             </div>
             <div className="info-item">
               <label>Type</label>
-              <span className={`type-badge ${taskCode.isAgricultural ? 'type-agricultural' : 'type-non-agricultural'}`}>
+              <span
+                className={`type-badge ${taskCode.isAgricultural ? 'type-agricultural' : 'type-non-agricultural'}`}
+              >
                 {taskCode.isAgricultural ? 'Agricultural' : 'Non-Agricultural'}
               </span>
             </div>
@@ -122,11 +128,16 @@ export function TaskCodeDetail() {
                 {taskCode.isHazardous ? 'Yes' : 'No'}
               </span>
             </div>
-            <div className={`compliance-item ${taskCode.supervisorRequired !== 'none' ? 'active' : ''}`}>
+            <div
+              className={`compliance-item ${taskCode.supervisorRequired !== 'none' ? 'active' : ''}`}
+            >
               <span className="compliance-label">Supervisor Required</span>
               <span className="compliance-value">
-                {taskCode.supervisorRequired === 'none' ? 'None' :
-                 taskCode.supervisorRequired === 'for_minors' ? 'For Minors' : 'Always'}
+                {taskCode.supervisorRequired === 'none'
+                  ? 'None'
+                  : taskCode.supervisorRequired === 'for_minors'
+                    ? 'For Minors'
+                    : 'Always'}
               </span>
             </div>
             <div className={`compliance-item ${taskCode.soloCashHandling ? 'active' : ''}`}>
@@ -202,8 +213,8 @@ export function TaskCodeDetail() {
           <div className="confirm-modal">
             <h3>Archive Task Code</h3>
             <p>
-              Are you sure you want to archive task code <strong>{taskCode.code}</strong>?
-              This will hide it from the default task code list.
+              Are you sure you want to archive task code <strong>{taskCode.code}</strong>? This will
+              hide it from the default task code list.
             </p>
             <div className="modal-actions">
               <button

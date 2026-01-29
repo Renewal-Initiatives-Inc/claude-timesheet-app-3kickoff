@@ -120,10 +120,7 @@ describe.skipIf(shouldSkip)('Database Schema Integration', () => {
     });
 
     it('reads employee by id', async () => {
-      const [found] = await db
-        .select()
-        .from(employees)
-        .where(eq(employees.id, employeeId));
+      const [found] = await db.select().from(employees).where(eq(employees.id, employeeId));
 
       expect(found).toBeDefined();
       expect(found!.name).toBe('Test Minor');

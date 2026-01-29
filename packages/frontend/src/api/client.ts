@@ -3,7 +3,6 @@ import type {
   LoginResponse,
   RegisterRequest,
   EmployeePublic,
-  EmployeeWithDocStatus,
   EmployeeDetailResponse,
   EmployeeListResponse,
   UpdateEmployeeRequest,
@@ -20,7 +19,6 @@ import type {
   AddRateRequest,
   TaskCodeListParams,
   TaskCodeRate,
-  Timesheet,
   TimesheetWithEntries,
   TimesheetListResponse,
   TimesheetListParams,
@@ -61,7 +59,9 @@ export class ApiRequestError extends Error {
       `Time: ${this.timestamp}`,
       code ? `Code: ${code}` : null,
       this.isTimeout ? 'Type: SERVERLESS_TIMEOUT' : null,
-    ].filter(Boolean).join(' | ');
+    ]
+      .filter(Boolean)
+      .join(' | ');
   }
 
   /**
@@ -81,7 +81,9 @@ export class ApiRequestError extends Error {
     console.error(`[API Error] ${this.diagnosticInfo}`);
     console.error(`[API Error] Message: ${this.message}`);
     if (this.isTimeout) {
-      console.error('[API Error] This is a serverless function timeout (10s limit on Vercel Hobby)');
+      console.error(
+        '[API Error] This is a serverless function timeout (10s limit on Vercel Hobby)'
+      );
       console.error('[API Error] Consider: retry the request, or check Vercel function logs');
     }
   }
@@ -166,10 +168,7 @@ export async function initializeCsrfToken(): Promise<void> {
 /**
  * Make an authenticated API request
  */
-async function apiRequest<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
+async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = getAuthToken();
   const headers: Record<string, string> = {};
 
@@ -204,14 +203,9 @@ async function apiRequest<T>(
       headers,
       credentials: 'include', // Include cookies for CSRF
     });
-  } catch (fetchError) {
+  } catch {
     // Network-level errors (offline, DNS, CORS, etc.)
-    const apiError = new ApiRequestError(
-      'Failed to fetch',
-      0,
-      'NETWORK_ERROR',
-      endpoint
-    );
+    const apiError = new ApiRequestError('Failed to fetch', 0, 'NETWORK_ERROR', endpoint);
     apiError.logDiagnostics();
     throw apiError;
   }
@@ -220,7 +214,7 @@ async function apiRequest<T>(
     // Try to parse error response, but handle timeout specially
     let errorBody: ApiError;
     try {
-      errorBody = await response.json() as ApiError;
+      errorBody = (await response.json()) as ApiError;
     } catch {
       // For 504 timeouts, Vercel returns plain text, not JSON
       if (response.status === 504) {
@@ -325,9 +319,7 @@ export async function archiveEmployee(id: string): Promise<{ message: string }> 
   return apiRequest(`/employees/${id}`, { method: 'DELETE' });
 }
 
-export async function getEmployeeDocuments(
-  id: string
-): Promise<{ documents: EmployeeDocument[] }> {
+export async function getEmployeeDocuments(id: string): Promise<{ documents: EmployeeDocument[] }> {
   return apiRequest(`/employees/${id}/documents`);
 }
 
@@ -417,9 +409,7 @@ export async function getDashboardStats(): Promise<{
 // Task Code API
 // ============================================================================
 
-export async function getTaskCodes(
-  params?: TaskCodeListParams
-): Promise<TaskCodeListResponse> {
+export async function getTaskCodes(params?: TaskCodeListParams): Promise<TaskCodeListResponse> {
   const searchParams = new URLSearchParams();
   if (params?.isAgricultural) searchParams.set('isAgricultural', params.isAgricultural);
   if (params?.isHazardous) searchParams.set('isHazardous', params.isHazardous);
@@ -470,16 +460,16 @@ export async function addTaskCodeRate(
   });
 }
 
-export async function getTaskCodeRates(
-  id: string
-): Promise<{ rates: TaskCodeRate[] }> {
+export async function getTaskCodeRates(id: string): Promise<{ rates: TaskCodeRate[] }> {
   return apiRequest(`/task-codes/${id}/rates`);
 }
 
 export async function getTaskCodesForEmployee(
-  employeeId: string
+  employeeId: string,
+  workDate?: string
 ): Promise<TaskCodeListResponse> {
-  return apiRequest(`/task-codes/for-employee/${employeeId}`);
+  const params = workDate ? `?workDate=${workDate}` : '';
+  return apiRequest(`/task-codes/for-employee/${employeeId}${params}`);
 }
 
 // ============================================================================
@@ -489,9 +479,7 @@ export async function getTaskCodesForEmployee(
 /**
  * Get list of employee's timesheets.
  */
-export async function getTimesheets(
-  params?: TimesheetListParams
-): Promise<TimesheetListResponse> {
+export async function getTimesheets(params?: TimesheetListParams): Promise<TimesheetListResponse> {
   const searchParams = new URLSearchParams();
   if (params?.status) searchParams.set('status', params.status);
   if (params?.limit !== undefined) searchParams.set('limit', params.limit.toString());
@@ -552,10 +540,7 @@ export async function updateTimesheetEntry(
 /**
  * Delete an entry from a timesheet.
  */
-export async function deleteTimesheetEntry(
-  timesheetId: string,
-  entryId: string
-): Promise<void> {
+export async function deleteTimesheetEntry(timesheetId: string, entryId: string): Promise<void> {
   return apiRequest(`/timesheets/${timesheetId}/entries/${entryId}`, {
     method: 'DELETE',
   });
@@ -564,18 +549,14 @@ export async function deleteTimesheetEntry(
 /**
  * Get totals for a timesheet.
  */
-export async function getTimesheetTotals(
-  timesheetId: string
-): Promise<TimesheetTotals> {
+export async function getTimesheetTotals(timesheetId: string): Promise<TimesheetTotals> {
   return apiRequest(`/timesheets/${timesheetId}/totals`);
 }
 
 /**
  * Get week information for a timesheet.
  */
-export async function getTimesheetWeekInfo(
-  timesheetId: string
-): Promise<WeekInfo> {
+export async function getTimesheetWeekInfo(timesheetId: string): Promise<WeekInfo> {
   return apiRequest(`/timesheets/${timesheetId}/week-info`);
 }
 
@@ -623,9 +604,7 @@ export interface ValidateTimesheetResult {
 /**
  * Submit a timesheet for compliance check and review.
  */
-export async function submitTimesheet(
-  timesheetId: string
-): Promise<SubmitTimesheetResult> {
+export async function submitTimesheet(timesheetId: string): Promise<SubmitTimesheetResult> {
   try {
     return await apiRequest(`/timesheets/${timesheetId}/submit`, {
       method: 'POST',
@@ -644,9 +623,7 @@ export async function submitTimesheet(
 /**
  * Validate a timesheet without submitting.
  */
-export async function validateTimesheet(
-  timesheetId: string
-): Promise<ValidateTimesheetResult> {
+export async function validateTimesheet(timesheetId: string): Promise<ValidateTimesheetResult> {
   return apiRequest(`/timesheets/${timesheetId}/validate`, {
     method: 'POST',
   });
@@ -696,9 +673,7 @@ export async function getPendingReviewCount(): Promise<{ count: number }> {
 /**
  * Get a timesheet for supervisor review with full details.
  */
-export async function getTimesheetForReview(
-  timesheetId: string
-): Promise<TimesheetReviewData> {
+export async function getTimesheetForReview(timesheetId: string): Promise<TimesheetReviewData> {
   return apiRequest(`/supervisor/review/${timesheetId}`);
 }
 
@@ -755,8 +730,6 @@ export async function unlockWeek(
 // ============================================================================
 
 import type {
-  PayrollRecord,
-  PayrollRecordWithDetails,
   PayrollReportResponse,
   PayrollRecordResponse,
   PayrollRecalculateResponse,
@@ -766,9 +739,7 @@ import type {
 /**
  * Get payroll record for a specific timesheet.
  */
-export async function getPayrollRecord(
-  timesheetId: string
-): Promise<PayrollRecordResponse> {
+export async function getPayrollRecord(timesheetId: string): Promise<PayrollRecordResponse> {
   return apiRequest(`/payroll/timesheet/${timesheetId}`);
 }
 
@@ -827,16 +798,12 @@ export async function exportPayrollCSV(params: {
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({
+    const error = (await response.json().catch(() => ({
       error: 'Unknown error',
       message: response.statusText,
-    })) as ApiError;
+    }))) as ApiError;
 
-    throw new ApiRequestError(
-      error.message || 'Export failed',
-      response.status,
-      error.error
-    );
+    throw new ApiRequestError(error.message || 'Export failed', response.status, error.error);
   }
 
   return response.blob();
@@ -845,9 +812,7 @@ export async function exportPayrollCSV(params: {
 /**
  * Recalculate payroll for an approved timesheet.
  */
-export async function recalculatePayroll(
-  timesheetId: string
-): Promise<PayrollRecalculateResponse> {
+export async function recalculatePayroll(timesheetId: string): Promise<PayrollRecalculateResponse> {
   return apiRequest(`/payroll/recalculate/${timesheetId}`, {
     method: 'POST',
   });

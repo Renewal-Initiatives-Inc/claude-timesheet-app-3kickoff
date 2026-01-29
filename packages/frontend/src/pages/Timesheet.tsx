@@ -6,9 +6,17 @@ import { WeekSelector } from '../components/WeekSelector.js';
 import { TimesheetGrid } from '../components/TimesheetGrid.js';
 import { EntryFormModal } from '../components/EntryFormModal.js';
 import { HourLimitsDisplay } from '../components/HourLimitsDisplay.js';
-import { ComplianceErrorDisplay, type ComplianceViolation } from '../components/ComplianceErrorDisplay.js';
+import {
+  ComplianceErrorDisplay,
+  type ComplianceViolation,
+} from '../components/ComplianceErrorDisplay.js';
 import { submitTimesheet, ApiRequestError } from '../api/client.js';
-import type { CreateEntryRequest, UpdateEntryRequest, AgeBand, TimesheetEntryWithTaskCode } from '@renewal/types';
+import type {
+  CreateEntryRequest,
+  UpdateEntryRequest,
+  AgeBand,
+  TimesheetEntryWithTaskCode,
+} from '@renewal/types';
 import './Timesheet.css';
 
 /**
@@ -66,17 +74,8 @@ export function Timesheet() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const {
-    timesheet,
-    totals,
-    loading,
-    error,
-    saving,
-    addEntry,
-    updateEntry,
-    deleteEntry,
-    refresh,
-  } = useTimesheet({ weekStartDate });
+  const { timesheet, totals, loading, error, saving, addEntry, updateEntry, deleteEntry, refresh } =
+    useTimesheet({ weekStartDate });
 
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [editingEntry, setEditingEntry] = useState<TimesheetEntryWithTaskCode | null>(null);
@@ -137,30 +136,36 @@ export function Timesheet() {
           if (errorResponse.violations) {
             setComplianceErrors(errorResponse.violations);
           } else {
-            setComplianceErrors([{
-              ruleId: 'ERROR',
-              ruleName: 'Submission Error',
-              message: err.message,
-              remediation: 'Please try again or contact your supervisor.',
-            }]);
+            setComplianceErrors([
+              {
+                ruleId: 'ERROR',
+                ruleName: 'Submission Error',
+                message: err.message,
+                remediation: 'Please try again or contact your supervisor.',
+              },
+            ]);
           }
         } catch {
           // Fetch the actual error response from the API
           // The error message might contain the compliance failures
-          setComplianceErrors([{
-            ruleId: 'ERROR',
-            ruleName: 'Submission Error',
-            message: err.message,
-            remediation: 'Please try again or contact your supervisor.',
-          }]);
+          setComplianceErrors([
+            {
+              ruleId: 'ERROR',
+              ruleName: 'Submission Error',
+              message: err.message,
+              remediation: 'Please try again or contact your supervisor.',
+            },
+          ]);
         }
       } else {
-        setComplianceErrors([{
-          ruleId: 'ERROR',
-          ruleName: 'Submission Error',
-          message: 'An unexpected error occurred.',
-          remediation: 'Please try again or contact your supervisor.',
-        }]);
+        setComplianceErrors([
+          {
+            ruleId: 'ERROR',
+            ruleName: 'Submission Error',
+            message: 'An unexpected error occurred.',
+            remediation: 'Please try again or contact your supervisor.',
+          },
+        ]);
       }
     } finally {
       setSubmitting(false);
@@ -205,9 +210,7 @@ export function Timesheet() {
     );
   }
 
-  const employeeAge = user
-    ? calculateAge(user.dateOfBirth, timesheet.weekStartDate)
-    : 18;
+  const employeeAge = user ? calculateAge(user.dateOfBirth, timesheet.weekStartDate) : 18;
   const ageBand = getAgeBand(employeeAge);
   const isEditable = timesheet.status === 'open';
 
@@ -215,10 +218,7 @@ export function Timesheet() {
     <div className="timesheet-page">
       <header className="page-header">
         <h1>My Timesheet</h1>
-        <WeekSelector
-          selectedWeek={timesheet.weekStartDate}
-          onWeekChange={handleWeekChange}
-        />
+        <WeekSelector selectedWeek={timesheet.weekStartDate} onWeekChange={handleWeekChange} />
         {saving && <span className="saving-indicator">Saving...</span>}
       </header>
 
@@ -248,7 +248,8 @@ export function Timesheet() {
             <p>This timesheet is awaiting supervisor approval and cannot be edited.</p>
             {timesheet.submittedAt && (
               <p className="status-timestamp">
-                Submitted on {new Date(timesheet.submittedAt).toLocaleDateString('en-US', {
+                Submitted on{' '}
+                {new Date(timesheet.submittedAt).toLocaleDateString('en-US', {
                   month: 'long',
                   day: 'numeric',
                   year: 'numeric',
@@ -269,7 +270,8 @@ export function Timesheet() {
             <p>This timesheet has been approved by your supervisor.</p>
             {timesheet.reviewedAt && (
               <p className="status-timestamp">
-                Approved on {new Date(timesheet.reviewedAt).toLocaleDateString('en-US', {
+                Approved on{' '}
+                {new Date(timesheet.reviewedAt).toLocaleDateString('en-US', {
                   month: 'long',
                   day: 'numeric',
                   year: 'numeric',
@@ -290,10 +292,14 @@ export function Timesheet() {
           <span className="status-icon">&#9888;</span>
           <div className="status-message">
             <strong>Returned for Revision</strong>
-            <p>Your supervisor has returned this timesheet with feedback. Please review the notes below, make any necessary corrections, and resubmit.</p>
+            <p>
+              Your supervisor has returned this timesheet with feedback. Please review the notes
+              below, make any necessary corrections, and resubmit.
+            </p>
             {timesheet.reviewedAt && (
               <p className="status-timestamp">
-                Returned on {new Date(timesheet.reviewedAt).toLocaleDateString('en-US', {
+                Returned on{' '}
+                {new Date(timesheet.reviewedAt).toLocaleDateString('en-US', {
                   month: 'long',
                   day: 'numeric',
                   year: 'numeric',

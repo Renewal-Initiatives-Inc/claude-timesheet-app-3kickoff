@@ -8,7 +8,7 @@ async function globalSetup(config: FullConfig) {
   try {
     execSync('npm run test:clean', {
       stdio: 'inherit',
-      cwd: process.cwd()
+      cwd: process.cwd(),
     });
   } catch (e) {
     // Cleanup script may not exist yet or may fail - that's ok

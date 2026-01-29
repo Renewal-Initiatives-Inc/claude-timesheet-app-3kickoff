@@ -1,9 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  calculateAge,
-  getAgeBand,
-  checkBirthdayInWeek,
-} from '../utils/age.js';
+import { calculateAge, getAgeBand, checkBirthdayInWeek } from '../utils/age.js';
 
 describe('Age Utilities', () => {
   describe('calculateAge', () => {

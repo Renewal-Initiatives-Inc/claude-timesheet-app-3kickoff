@@ -141,9 +141,7 @@ export function DocumentUpload({
         {file ? (
           <div className="doc-upload-selected">
             <span className="doc-upload-filename">{file.name}</span>
-            <span className="doc-upload-size">
-              ({(file.size / 1024).toFixed(1)} KB)
-            </span>
+            <span className="doc-upload-size">({(file.size / 1024).toFixed(1)} KB)</span>
           </div>
         ) : (
           <div className="doc-upload-placeholder">

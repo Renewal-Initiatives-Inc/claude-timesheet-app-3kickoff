@@ -75,8 +75,8 @@ export function ComplianceSummary({ logs }: ComplianceSummaryProps) {
 
       {failed > 0 && (
         <div className="compliance-warning">
-          This timesheet has {failed} compliance violation{failed !== 1 ? 's' : ''}.
-          It should not have been submittable with violations.
+          This timesheet has {failed} compliance violation{failed !== 1 ? 's' : ''}. It should not
+          have been submittable with violations.
         </div>
       )}
 

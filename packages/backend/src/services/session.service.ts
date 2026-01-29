@@ -68,10 +68,7 @@ export async function getActiveSession(token: string): Promise<Session | null> {
  * Revoke a session by token.
  */
 export async function revokeSession(token: string): Promise<void> {
-  await db
-    .update(sessions)
-    .set({ revokedAt: new Date() })
-    .where(eq(sessions.token, token));
+  await db.update(sessions).set({ revokedAt: new Date() }).where(eq(sessions.token, token));
 }
 
 /**
@@ -91,10 +88,7 @@ export async function revokeAllSessions(employeeId: string): Promise<void> {
  * Can be called by a scheduled job.
  */
 export async function cleanupExpiredSessions(): Promise<number> {
-  const result = await db
-    .delete(sessions)
-    .where(lt(sessions.expiresAt, new Date()))
-    .returning();
+  const result = await db.delete(sessions).where(lt(sessions.expiresAt, new Date())).returning();
 
   return result.length;
 }

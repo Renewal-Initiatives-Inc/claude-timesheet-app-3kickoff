@@ -14,28 +14,32 @@ import { timesheetStatusEnum } from './enums.js';
 import { employees } from './employee.js';
 import { taskCodes } from './task-code.js';
 
-export const timesheets = pgTable('timesheets', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  employeeId: uuid('employee_id')
-    .notNull()
-    .references(() => employees.id, { onDelete: 'restrict' }),
-  weekStartDate: date('week_start_date').notNull(), // Sunday
-  status: timesheetStatusEnum('status').notNull().default('open'),
-  submittedAt: timestamp('submitted_at', { withTimezone: true }),
-  reviewedBy: uuid('reviewed_by').references(() => employees.id, { onDelete: 'restrict' }),
-  reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
-  supervisorNotes: text('supervisor_notes'),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-}, (table) => ({
-  // Composite index for efficient employee timesheet lookups
-  employeeWeekIdx: index('idx_timesheets_employee_week').on(
-    table.employeeId,
-    table.weekStartDate
-  ),
-  // Index for pending review queue queries
-  statusIdx: index('idx_timesheets_status').on(table.status),
-}));
+export const timesheets = pgTable(
+  'timesheets',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    employeeId: uuid('employee_id')
+      .notNull()
+      .references(() => employees.id, { onDelete: 'restrict' }),
+    weekStartDate: date('week_start_date').notNull(), // Sunday
+    status: timesheetStatusEnum('status').notNull().default('open'),
+    submittedAt: timestamp('submitted_at', { withTimezone: true }),
+    reviewedBy: uuid('reviewed_by').references(() => employees.id, { onDelete: 'restrict' }),
+    reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
+    supervisorNotes: text('supervisor_notes'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    // Composite index for efficient employee timesheet lookups
+    employeeWeekIdx: index('idx_timesheets_employee_week').on(
+      table.employeeId,
+      table.weekStartDate
+    ),
+    // Index for pending review queue queries
+    statusIdx: index('idx_timesheets_status').on(table.status),
+  })
+);
 
 export const timesheetEntries = pgTable('timesheet_entries', {
   id: uuid('id').defaultRandom().primaryKey(),

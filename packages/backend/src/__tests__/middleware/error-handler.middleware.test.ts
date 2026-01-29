@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Request, Response } from 'express';
 import request from 'supertest';
 import { ZodError, z } from 'zod';
 import {
@@ -222,7 +222,7 @@ describe('Error Handler Middleware', () => {
       const app = express();
       app.get(
         '/async',
-        asyncHandler(async (req: Request, res: Response) => {
+        asyncHandler(async (_req: Request, _res: Response) => {
           throw new AppError('ASYNC_ERROR', 'Async error occurred');
         })
       );

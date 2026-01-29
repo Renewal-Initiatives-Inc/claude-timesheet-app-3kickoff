@@ -10,10 +10,7 @@ import {
   EmployeeError,
 } from '../services/employee.service.js';
 import { getDocumentationStatus } from '../services/documentation-status.service.js';
-import {
-  updateEmployeeSchema,
-  employeeListQuerySchema,
-} from '../validation/employee.schema.js';
+import { updateEmployeeSchema, employeeListQuerySchema } from '../validation/employee.schema.js';
 import { validate } from '../validation/auth.schema.js';
 
 const router: Router = Router();
@@ -24,23 +21,19 @@ const router: Router = Router();
  * Query params: status (active/archived/all), search (name/email)
  */
 router.get('/', requireAuth, requireSupervisor, async (req: Request, res: Response) => {
-  try {
-    const queryResult = employeeListQuerySchema.safeParse(req.query);
-    if (!queryResult.success) {
-      res.status(400).json({
-        error: 'Validation Error',
-        message: 'Invalid query parameters',
-        details: queryResult.error.errors,
-      });
-      return;
-    }
-
-    const employees = await listEmployees(queryResult.data);
-
-    res.json({ employees });
-  } catch (error) {
-    throw error;
+  const queryResult = employeeListQuerySchema.safeParse(req.query);
+  if (!queryResult.success) {
+    res.status(400).json({
+      error: 'Validation Error',
+      message: 'Invalid query parameters',
+      details: queryResult.error.errors,
+    });
+    return;
   }
+
+  const employees = await listEmployees(queryResult.data);
+
+  res.json({ employees });
 });
 
 /**
@@ -103,9 +96,7 @@ router.patch(
     } catch (error) {
       if (error instanceof EmployeeError) {
         const statusCode =
-          error.code === 'EMPLOYEE_NOT_FOUND' ? 404 :
-          error.code === 'EMAIL_EXISTS' ? 409 :
-          400;
+          error.code === 'EMPLOYEE_NOT_FOUND' ? 404 : error.code === 'EMAIL_EXISTS' ? 409 : 400;
         res.status(statusCode).json({
           error: error.code,
           message: error.message,
@@ -131,10 +122,13 @@ router.delete('/:id', requireAuth, requireSupervisor, async (req: Request, res: 
   } catch (error) {
     if (error instanceof EmployeeError) {
       const statusCode =
-        error.code === 'EMPLOYEE_NOT_FOUND' ? 404 :
-        error.code === 'CANNOT_ARCHIVE_SELF' ? 400 :
-        error.code === 'INVALID_STATUS' ? 400 :
-        400;
+        error.code === 'EMPLOYEE_NOT_FOUND'
+          ? 404
+          : error.code === 'CANNOT_ARCHIVE_SELF'
+            ? 400
+            : error.code === 'INVALID_STATUS'
+              ? 400
+              : 400;
       res.status(statusCode).json({
         error: error.code,
         message: error.message,
@@ -149,24 +143,29 @@ router.delete('/:id', requireAuth, requireSupervisor, async (req: Request, res: 
  * GET /api/employees/:id/documents
  * List all documents for an employee.
  */
-router.get('/:id/documents', requireAuth, requireSupervisor, async (req: Request, res: Response) => {
-  try {
-    const id = req.params['id'] as string;
-    const documents = await getEmployeeDocuments(id);
+router.get(
+  '/:id/documents',
+  requireAuth,
+  requireSupervisor,
+  async (req: Request, res: Response) => {
+    try {
+      const id = req.params['id'] as string;
+      const documents = await getEmployeeDocuments(id);
 
-    res.json({ documents });
-  } catch (error) {
-    if (error instanceof EmployeeError) {
-      const statusCode = error.code === 'EMPLOYEE_NOT_FOUND' ? 404 : 400;
-      res.status(statusCode).json({
-        error: error.code,
-        message: error.message,
-      });
-      return;
+      res.json({ documents });
+    } catch (error) {
+      if (error instanceof EmployeeError) {
+        const statusCode = error.code === 'EMPLOYEE_NOT_FOUND' ? 404 : 400;
+        res.status(statusCode).json({
+          error: error.code,
+          message: error.message,
+        });
+        return;
+      }
+      throw error;
     }
-    throw error;
   }
-});
+);
 
 /**
  * GET /api/employees/:id/documentation-status

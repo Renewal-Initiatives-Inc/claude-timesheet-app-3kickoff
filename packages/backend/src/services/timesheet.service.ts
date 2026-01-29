@@ -1,12 +1,10 @@
-import { eq, and, desc, asc, inArray, gte, lte } from 'drizzle-orm';
+import { eq, and, desc, asc, inArray } from 'drizzle-orm';
 import { db, schema } from '../db/index.js';
 import type { Timesheet, TimesheetStatus } from '@renewal/types';
-import { getTodayET, getWeekStartDate } from '../utils/timezone.js';
 
-const { timesheets, timesheetEntries, employees, taskCodes, taskCodeRates } = schema;
+const { timesheets, timesheetEntries, employees, taskCodeRates } = schema;
 
 type TimesheetRow = typeof timesheets.$inferSelect;
-type TimesheetEntryRow = typeof timesheetEntries.$inferSelect;
 
 /**
  * Error codes for timesheet operations.
@@ -82,10 +80,7 @@ export async function getOrCreateTimesheet(
 ): Promise<Timesheet> {
   // Validate week start date is a Sunday
   if (!isValidSunday(weekStartDate)) {
-    throw new TimesheetError(
-      'Week start date must be a Sunday',
-      'INVALID_WEEK_START_DATE'
-    );
+    throw new TimesheetError('Week start date must be a Sunday', 'INVALID_WEEK_START_DATE');
   }
 
   // Verify employee exists
@@ -99,10 +94,7 @@ export async function getOrCreateTimesheet(
 
   // Check for existing timesheet
   const existing = await db.query.timesheets.findFirst({
-    where: and(
-      eq(timesheets.employeeId, employeeId),
-      eq(timesheets.weekStartDate, weekStartDate)
-    ),
+    where: and(eq(timesheets.employeeId, employeeId), eq(timesheets.weekStartDate, weekStartDate)),
   });
 
   if (existing) {
@@ -163,12 +155,13 @@ export async function getTimesheetWithEntries(
   const uniqueTaskCodeIds = [...new Set(timesheet.entries.map((e) => e.taskCodeId))];
 
   // Fetch all rates for these task codes
-  const allRates = uniqueTaskCodeIds.length > 0
-    ? await db.query.taskCodeRates.findMany({
-        where: inArray(taskCodeRates.taskCodeId, uniqueTaskCodeIds),
-        orderBy: [desc(taskCodeRates.effectiveDate)],
-      })
-    : [];
+  const allRates =
+    uniqueTaskCodeIds.length > 0
+      ? await db.query.taskCodeRates.findMany({
+          where: inArray(taskCodeRates.taskCodeId, uniqueTaskCodeIds),
+          orderBy: [desc(taskCodeRates.effectiveDate)],
+        })
+      : [];
 
   // Build lookup: taskCodeId -> array of rates (sorted by effectiveDate desc)
   const ratesByTaskCode = new Map<string, typeof allRates>();

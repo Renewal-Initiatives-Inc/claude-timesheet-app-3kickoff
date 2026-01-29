@@ -3,13 +3,7 @@ import { db, schema } from '../db/index.js';
 import { getAgeBand, type AgeBand } from '../utils/age.js';
 import type { ComplianceDetails } from '../db/schema/compliance.js';
 
-const {
-  complianceCheckLogs,
-  timesheets,
-  timesheetEntries,
-  employees,
-  payrollRecords,
-} = schema;
+const { complianceCheckLogs, timesheets, employees, payrollRecords } = schema;
 
 /**
  * Error codes for report operations.
@@ -136,10 +130,7 @@ export async function getComplianceAuditReport(
 ): Promise<ComplianceAuditResponse> {
   // Validate date range
   if (filters.startDate > filters.endDate) {
-    throw new ReportError(
-      'Start date must be before or equal to end date',
-      'INVALID_DATE_RANGE'
-    );
+    throw new ReportError('Start date must be before or equal to end date', 'INVALID_DATE_RANGE');
   }
 
   // Build the query with joins
@@ -206,10 +197,7 @@ export async function getTimesheetHistoryReport(
 ): Promise<TimesheetHistoryResponse> {
   // Validate date range
   if (filters.startDate > filters.endDate) {
-    throw new ReportError(
-      'Start date must be before or equal to end date',
-      'INVALID_DATE_RANGE'
-    );
+    throw new ReportError('Start date must be before or equal to end date', 'INVALID_DATE_RANGE');
   }
 
   // Build conditions
@@ -238,7 +226,7 @@ export async function getTimesheetHistoryReport(
 
   // Get compliance check counts for these timesheets
   const timesheetIds = timesheetResults.map((t) => t.id);
-  let complianceCounts: Record<string, { total: number; failed: number }> = {};
+  const complianceCounts: Record<string, { total: number; failed: number }> = {};
 
   if (timesheetIds.length > 0) {
     const complianceResults = await db
@@ -266,7 +254,7 @@ export async function getTimesheetHistoryReport(
   const approvedTimesheetIds = timesheetResults
     .filter((t) => t.status === 'approved')
     .map((t) => t.id);
-  let payrollMap: Record<string, string> = {};
+  const payrollMap: Record<string, string> = {};
 
   if (approvedTimesheetIds.length > 0) {
     const payrollResults = await db.query.payrollRecords.findMany({
@@ -280,10 +268,7 @@ export async function getTimesheetHistoryReport(
 
   // Build records
   let records: TimesheetHistoryRecord[] = timesheetResults.map((t) => {
-    const totalHours = t.entries.reduce(
-      (sum, entry) => sum + parseFloat(entry.hours),
-      0
-    );
+    const totalHours = t.entries.reduce((sum, entry) => sum + parseFloat(entry.hours), 0);
 
     return {
       id: t.id,
@@ -315,7 +300,9 @@ export async function getTimesheetHistoryReport(
 
   // Remove dateOfBirth from final output
   const cleanRecords = records.map(({ ...r }) => {
-    const { dateOfBirth, ...clean } = r as TimesheetHistoryRecord & { dateOfBirth?: string };
+    const { dateOfBirth: _dateOfBirth, ...clean } = r as TimesheetHistoryRecord & {
+      dateOfBirth?: string;
+    };
     return clean as TimesheetHistoryRecord;
   });
 
@@ -354,9 +341,7 @@ function getAgeBandSafe(age: number): AgeBand {
 /**
  * Calculate compliance audit summary statistics.
  */
-function calculateComplianceAuditSummary(
-  records: ComplianceAuditRecord[]
-): ComplianceAuditSummary {
+function calculateComplianceAuditSummary(records: ComplianceAuditRecord[]): ComplianceAuditSummary {
   const ruleMap = new Map<string, { passCount: number; failCount: number }>();
   const timesheetSet = new Set<string>();
   const employeeSet = new Set<string>();
@@ -403,7 +388,7 @@ function calculateComplianceAuditSummary(
  */
 function calculateTimesheetHistorySummary(
   records: TimesheetHistoryRecord[],
-  rawTimesheets: { employee: { id: string; name: string } }[]
+  _rawTimesheets: { employee: { id: string; name: string } }[]
 ): TimesheetHistorySummary {
   const statusMap = new Map<string, number>();
   const employeeMap = new Map<string, { name: string; count: number }>();
@@ -434,13 +419,11 @@ function calculateTimesheetHistorySummary(
     count,
   }));
 
-  const employeeBreakdown = Array.from(employeeMap.entries()).map(
-    ([employeeId, data]) => ({
-      employeeId,
-      name: data.name,
-      count: data.count,
-    })
-  );
+  const employeeBreakdown = Array.from(employeeMap.entries()).map(([employeeId, data]) => ({
+    employeeId,
+    name: data.name,
+    count: data.count,
+  }));
 
   return {
     totalTimesheets: records.length,

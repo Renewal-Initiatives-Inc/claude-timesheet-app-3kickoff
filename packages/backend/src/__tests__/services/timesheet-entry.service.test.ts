@@ -52,7 +52,7 @@ vi.mock('../../utils/timezone.js', () => ({
 }));
 
 vi.mock('../../services/timesheet.service.js', async (importOriginal) => {
-  const actual = await importOriginal() as object;
+  const actual = (await importOriginal()) as object;
   return {
     ...actual,
     getWeekDates: (weekStartDate: string) => {
@@ -317,9 +317,9 @@ describe('Timesheet Entry Service', () => {
     it('should throw error for non-existent entry', async () => {
       vi.mocked(db.query.timesheetEntries.findFirst).mockResolvedValueOnce(null as never);
 
-      await expect(
-        updateEntry('non-existent', { startTime: '08:00' })
-      ).rejects.toThrow('Entry not found');
+      await expect(updateEntry('non-existent', { startTime: '08:00' })).rejects.toThrow(
+        'Entry not found'
+      );
     });
 
     it('should throw error for non-editable timesheet', async () => {
@@ -333,9 +333,9 @@ describe('Timesheet Entry Service', () => {
 
       vi.mocked(db.query.timesheetEntries.findFirst).mockResolvedValueOnce(existingEntry as never);
 
-      await expect(
-        updateEntry('entry-1', { startTime: '08:00' })
-      ).rejects.toThrow('Cannot update entries on timesheet with status: approved');
+      await expect(updateEntry('entry-1', { startTime: '08:00' })).rejects.toThrow(
+        'Cannot update entries on timesheet with status: approved'
+      );
     });
   });
 
@@ -435,11 +435,7 @@ describe('Timesheet Entry Service', () => {
 
   describe('getWeeklyTotal', () => {
     it('should sum all entry hours', async () => {
-      const mockEntries = [
-        { hours: '8.00' },
-        { hours: '8.00' },
-        { hours: '4.50' },
-      ];
+      const mockEntries = [{ hours: '8.00' }, { hours: '8.00' }, { hours: '4.50' }];
 
       vi.mocked(db.query.timesheetEntries.findMany).mockResolvedValueOnce(mockEntries as never);
 

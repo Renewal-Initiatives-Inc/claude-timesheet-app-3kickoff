@@ -12,7 +12,13 @@ export function EmployeeDetail() {
   const navigate = useNavigate();
   const { employee: data, loading, error, refetch } = useEmployee(id);
   const { archiveEmployee, loading: actionLoading } = useEmployeeActions();
-  const { uploadDocument, markSafetyTrainingComplete, invalidateDocument, downloadDocument, loading: docLoading } = useDocumentActions();
+  const {
+    uploadDocument,
+    markSafetyTrainingComplete,
+    invalidateDocument,
+    downloadDocument,
+    loading: docLoading,
+  } = useDocumentActions();
 
   const [showUpload, setShowUpload] = useState<DocumentType | null>(null);
   const [confirmArchive, setConfirmArchive] = useState(false);
@@ -64,7 +70,9 @@ export function EmployeeDetail() {
   };
 
   const handleInvalidate = async (docId: string) => {
-    if (confirm('Are you sure you want to invalidate this document? This action cannot be undone.')) {
+    if (
+      confirm('Are you sure you want to invalidate this document? This action cannot be undone.')
+    ) {
       await invalidateDocument(docId);
       refetch();
     }
@@ -118,8 +126,18 @@ export function EmployeeDetail() {
               This will prevent them from logging in and submitting timesheets.
             </p>
             <div className="confirm-actions">
-              <button onClick={() => setConfirmArchive(false)} data-testid="employee-archive-cancel-button">Cancel</button>
-              <button onClick={handleArchive} className="confirm-button" disabled={actionLoading} data-testid="employee-archive-confirm-button">
+              <button
+                onClick={() => setConfirmArchive(false)}
+                data-testid="employee-archive-cancel-button"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleArchive}
+                className="confirm-button"
+                disabled={actionLoading}
+                data-testid="employee-archive-confirm-button"
+              >
                 {actionLoading ? 'Archiving...' : 'Archive'}
               </button>
             </div>
@@ -141,9 +159,7 @@ export function EmployeeDetail() {
             </dd>
             <dt>Status</dt>
             <dd>
-              <span className={`status-badge status-${employee.status}`}>
-                {employee.status}
-              </span>
+              <span className={`status-badge status-${employee.status}`}>{employee.status}</span>
             </dd>
             <dt>Role</dt>
             <dd>{employee.isSupervisor ? 'Supervisor' : 'Employee'}</dd>
@@ -176,7 +192,11 @@ export function EmployeeDetail() {
                   <span className="doc-status valid">✓ Uploaded</span>
                   <span className="doc-date">Uploaded {formatDate(doc.uploadedAt)}</span>
                   <div className="doc-actions">
-                    <button onClick={() => handleDownload(doc.id)} disabled={docLoading} data-testid={`doc-download-button-${doc.id}`}>
+                    <button
+                      onClick={() => handleDownload(doc.id)}
+                      disabled={docLoading}
+                      data-testid={`doc-download-button-${doc.id}`}
+                    >
                       Download
                     </button>
                     <button
@@ -193,7 +213,10 @@ export function EmployeeDetail() {
               {getDocumentsOfType('parental_consent').length === 0 && (
                 <div className="document-missing">
                   <span>Not uploaded</span>
-                  <button onClick={() => setShowUpload('parental_consent')} data-testid="doc-upload-parental-consent-button">
+                  <button
+                    onClick={() => setShowUpload('parental_consent')}
+                    data-testid="doc-upload-parental-consent-button"
+                  >
                     Upload Document
                   </button>
                 </div>
@@ -208,7 +231,11 @@ export function EmployeeDetail() {
                   onSuccess={() => setShowUpload(null)}
                   disabled={docLoading}
                 />
-                <button onClick={() => setShowUpload(null)} className="cancel-upload" data-testid="doc-upload-cancel-button">
+                <button
+                  onClick={() => setShowUpload(null)}
+                  className="cancel-upload"
+                  data-testid="doc-upload-cancel-button"
+                >
                   Cancel
                 </button>
               </div>
@@ -229,7 +256,11 @@ export function EmployeeDetail() {
                     {doc.expiresAt && ` · Expires ${formatDate(doc.expiresAt)}`}
                   </span>
                   <div className="doc-actions">
-                    <button onClick={() => handleDownload(doc.id)} disabled={docLoading} data-testid={`doc-download-button-${doc.id}`}>
+                    <button
+                      onClick={() => handleDownload(doc.id)}
+                      disabled={docLoading}
+                      data-testid={`doc-download-button-${doc.id}`}
+                    >
                       Download
                     </button>
                     <button
@@ -246,7 +277,10 @@ export function EmployeeDetail() {
               {getDocumentsOfType('work_permit').length === 0 && (
                 <div className="document-missing">
                   <span>Not uploaded</span>
-                  <button onClick={() => setShowUpload('work_permit')} data-testid="doc-upload-work-permit-button">
+                  <button
+                    onClick={() => setShowUpload('work_permit')}
+                    data-testid="doc-upload-work-permit-button"
+                  >
                     Upload Document
                   </button>
                 </div>
@@ -262,7 +296,11 @@ export function EmployeeDetail() {
                   onSuccess={() => setShowUpload(null)}
                   disabled={docLoading}
                 />
-                <button onClick={() => setShowUpload(null)} className="cancel-upload" data-testid="doc-upload-work-permit-cancel-button">
+                <button
+                  onClick={() => setShowUpload(null)}
+                  className="cancel-upload"
+                  data-testid="doc-upload-work-permit-cancel-button"
+                >
                   Cancel
                 </button>
               </div>
@@ -294,7 +332,11 @@ export function EmployeeDetail() {
               {getDocumentsOfType('safety_training').length === 0 && (
                 <div className="document-missing">
                   <span>Not completed</span>
-                  <button onClick={handleSafetyTraining} disabled={docLoading} data-testid="doc-safety-training-complete-button">
+                  <button
+                    onClick={handleSafetyTraining}
+                    disabled={docLoading}
+                    data-testid="doc-safety-training-complete-button"
+                  >
                     Mark as Complete
                   </button>
                 </div>

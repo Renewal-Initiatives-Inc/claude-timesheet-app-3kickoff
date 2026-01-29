@@ -36,9 +36,7 @@ test.describe.skip('Authentication Flow', () => {
       await page.click('button[type="submit"]');
 
       await expect(page.locator('[data-testid="error-message"]')).toBeVisible();
-      await expect(page.locator('[data-testid="error-message"]')).toContainText(
-        /invalid/i
-      );
+      await expect(page.locator('[data-testid="error-message"]')).toContainText(/invalid/i);
     });
 
     test('should login successfully with valid credentials', async ({ page }) => {
@@ -59,14 +57,10 @@ test.describe.skip('Authentication Flow', () => {
       await page.fill('input[name="password"]', 'TestPass123!');
       await page.click('button[type="submit"]');
 
-      await expect(page.locator('[data-testid="user-name"]')).toContainText(
-        'Sarah Supervisor'
-      );
+      await expect(page.locator('[data-testid="user-name"]')).toContainText('Sarah Supervisor');
     });
 
-    test('should show account locked message after too many failed attempts', async ({
-      page,
-    }) => {
+    test('should show account locked message after too many failed attempts', async ({ page }) => {
       await page.goto('/login');
 
       // Attempt login 5 times with wrong password
@@ -82,9 +76,7 @@ test.describe.skip('Authentication Flow', () => {
       await page.fill('input[name="password"]', 'wrongpassword');
       await page.click('button[type="submit"]');
 
-      await expect(page.locator('[data-testid="error-message"]')).toContainText(
-        /locked/i
-      );
+      await expect(page.locator('[data-testid="error-message"]')).toContainText(/locked/i);
     });
   });
 
@@ -125,9 +117,7 @@ test.describe.skip('Authentication Flow', () => {
       await expect(page).toHaveURL(/login/);
     });
 
-    test('should redirect to login when accessing timesheets unauthenticated', async ({
-      page,
-    }) => {
+    test('should redirect to login when accessing timesheets unauthenticated', async ({ page }) => {
       await page.goto('/timesheets');
       await expect(page).toHaveURL(/login/);
     });
@@ -143,9 +133,7 @@ test.describe.skip('Authentication Flow', () => {
       await expect(page.locator('[data-testid="nav-employees"]')).toBeVisible();
     });
 
-    test('should hide supervisor-only features for regular employees', async ({
-      page,
-    }) => {
+    test('should hide supervisor-only features for regular employees', async ({ page }) => {
       // Login as regular employee
       await page.goto('/login');
       await page.fill('input[name="email"]', 'alex.age12@renewal.org');
@@ -171,9 +159,7 @@ test.describe.skip('Authentication Flow', () => {
       await page.click('button[type="submit"]');
 
       await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
-      await expect(page.locator('[data-testid="success-message"]')).toContainText(
-        /reset link/i
-      );
+      await expect(page.locator('[data-testid="success-message"]')).toContainText(/reset link/i);
     });
 
     // Note: Full password reset flow requires email delivery testing
@@ -268,18 +254,13 @@ test.describe('Auth API E2E', () => {
     expect(meResponse.status()).toBe(401);
   });
 
-  test('POST /api/auth/password-reset/request - always succeeds', async ({
-    request,
-  }) => {
+  test('POST /api/auth/password-reset/request - always succeeds', async ({ request }) => {
     // Test with non-existent email (should still return 200 for security)
-    const response = await request.post(
-      `${API_URL}/api/auth/password-reset/request`,
-      {
-        data: {
-          email: 'nonexistent@example.com',
-        },
-      }
-    );
+    const response = await request.post(`${API_URL}/api/auth/password-reset/request`, {
+      data: {
+        email: 'nonexistent@example.com',
+      },
+    });
 
     expect(response.ok()).toBeTruthy();
   });

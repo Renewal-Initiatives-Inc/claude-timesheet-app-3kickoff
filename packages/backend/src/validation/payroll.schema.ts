@@ -9,12 +9,8 @@ export const ageBandEnum = z.enum(['12-13', '14-15', '16-17', '18+']);
  * Schema for payroll report query parameters.
  */
 export const payrollReportQuerySchema = z.object({
-  startDate: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
-  endDate: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
   employeeId: z.string().uuid('Invalid employee ID').optional(),
   ageBand: ageBandEnum.optional(),
 });
@@ -23,12 +19,8 @@ export const payrollReportQuerySchema = z.object({
  * Schema for payroll export request body.
  */
 export const payrollExportSchema = z.object({
-  startDate: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
-  endDate: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
   employeeId: z.string().uuid('Invalid employee ID').optional(),
   ageBand: ageBandEnum.optional(),
 });

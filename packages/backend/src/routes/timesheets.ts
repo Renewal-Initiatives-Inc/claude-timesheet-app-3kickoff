@@ -7,14 +7,10 @@ import {
   getTimesheetWithEntries,
   getEmployeeTimesheets,
   validateTimesheetAccess,
-  isTimesheetEditable,
   getWeekDates,
   TimesheetError,
 } from '../services/timesheet.service.js';
-import {
-  checkCompliance,
-  ComplianceError,
-} from '../services/compliance/index.js';
+import { checkCompliance, ComplianceError } from '../services/compliance/index.js';
 import {
   createEntry,
   updateEntry,
@@ -23,7 +19,6 @@ import {
   getDailyTotals,
   getWeeklyTotal,
   getHourLimitsForAge,
-  getAgeBand,
   TimesheetEntryError,
 } from '../services/timesheet-entry.service.js';
 import {
@@ -48,35 +43,31 @@ router.use(requireAuth);
  * Query params: status, limit, offset
  */
 router.get('/', async (req: Request, res: Response) => {
-  try {
-    const queryResult = listTimesheetsQuerySchema.safeParse(req.query);
-    if (!queryResult.success) {
-      res.status(400).json({
-        error: 'Validation Error',
-        message: 'Invalid query parameters',
-        details: queryResult.error.errors,
-      });
-      return;
-    }
-
-    const { status, limit, offset } = queryResult.data;
-
-    // Convert 'all' status to undefined (no filter)
-    let statusFilter: TimesheetStatus[] | undefined;
-    if (status && status !== 'all') {
-      statusFilter = [status as TimesheetStatus];
-    }
-
-    const result = await getEmployeeTimesheets(req.employee!.id, {
-      status: statusFilter,
-      limit,
-      offset,
+  const queryResult = listTimesheetsQuerySchema.safeParse(req.query);
+  if (!queryResult.success) {
+    res.status(400).json({
+      error: 'Validation Error',
+      message: 'Invalid query parameters',
+      details: queryResult.error.errors,
     });
-
-    res.json(result);
-  } catch (error) {
-    throw error;
+    return;
   }
+
+  const { status, limit, offset } = queryResult.data;
+
+  // Convert 'all' status to undefined (no filter)
+  let statusFilter: TimesheetStatus[] | undefined;
+  if (status && status !== 'all') {
+    statusFilter = [status as TimesheetStatus];
+  }
+
+  const result = await getEmployeeTimesheets(req.employee!.id, {
+    status: statusFilter,
+    limit,
+    offset,
+  });
+
+  res.json(result);
 });
 
 /**
@@ -108,9 +99,10 @@ router.get('/current', async (req: Request, res: Response) => {
       warnings.push(`Approaching weekly limit of ${limits.weeklyLimit} hours`);
     }
     for (const [date, hours] of Object.entries(withEntries.totals.daily)) {
-      const dailyLimit = limits.dailyLimitSchoolDay && isDefaultSchoolDay(date)
-        ? limits.dailyLimitSchoolDay
-        : limits.dailyLimit;
+      const dailyLimit =
+        limits.dailyLimitSchoolDay && isDefaultSchoolDay(date)
+          ? limits.dailyLimitSchoolDay
+          : limits.dailyLimit;
       if (hours >= dailyLimit * 0.8) {
         warnings.push(`Approaching daily limit on ${date}`);
       }
@@ -182,9 +174,10 @@ router.get('/week/:weekStartDate', async (req: Request, res: Response) => {
       warnings.push(`Approaching weekly limit of ${limits.weeklyLimit} hours`);
     }
     for (const [date, hours] of Object.entries(withEntries.totals.daily)) {
-      const dailyLimit = limits.dailyLimitSchoolDay && isDefaultSchoolDay(date)
-        ? limits.dailyLimitSchoolDay
-        : limits.dailyLimit;
+      const dailyLimit =
+        limits.dailyLimitSchoolDay && isDefaultSchoolDay(date)
+          ? limits.dailyLimitSchoolDay
+          : limits.dailyLimit;
       if (hours >= dailyLimit * 0.8) {
         warnings.push(`Approaching daily limit on ${date}`);
       }
@@ -207,9 +200,11 @@ router.get('/week/:weekStartDate', async (req: Request, res: Response) => {
   } catch (error) {
     if (error instanceof TimesheetError) {
       const statusCode =
-        error.code === 'EMPLOYEE_NOT_FOUND' ? 404 :
-        error.code === 'INVALID_WEEK_START_DATE' ? 400 :
-        400;
+        error.code === 'EMPLOYEE_NOT_FOUND'
+          ? 404
+          : error.code === 'INVALID_WEEK_START_DATE'
+            ? 400
+            : 400;
       res.status(statusCode).json({
         error: error.code,
         message: error.message,
@@ -259,9 +254,10 @@ router.get('/:id', async (req: Request, res: Response) => {
       warnings.push(`Approaching weekly limit of ${limits.weeklyLimit} hours`);
     }
     for (const [date, hours] of Object.entries(withEntries.totals.daily)) {
-      const dailyLimit = limits.dailyLimitSchoolDay && isDefaultSchoolDay(date)
-        ? limits.dailyLimitSchoolDay
-        : limits.dailyLimit;
+      const dailyLimit =
+        limits.dailyLimitSchoolDay && isDefaultSchoolDay(date)
+          ? limits.dailyLimitSchoolDay
+          : limits.dailyLimit;
       if (hours >= dailyLimit * 0.8) {
         warnings.push(`Approaching daily limit on ${date}`);
       }
@@ -298,44 +294,44 @@ router.get('/:id', async (req: Request, res: Response) => {
  * POST /api/timesheets/:id/entries
  * Add entry to timesheet.
  */
-router.post(
-  '/:id/entries',
-  validate(createEntrySchema),
-  async (req: Request, res: Response) => {
-    try {
-      const timesheetId = req.params['id'] as string;
+router.post('/:id/entries', validate(createEntrySchema), async (req: Request, res: Response) => {
+  try {
+    const timesheetId = req.params['id'] as string;
 
-      // Verify access
-      const hasAccess = await validateTimesheetAccess(timesheetId, req.employee!.id);
-      if (!hasAccess) {
-        res.status(403).json({
-          error: 'TIMESHEET_ACCESS_DENIED',
-          message: 'You do not have access to this timesheet',
-        });
-        return;
-      }
-
-      const entry = await createEntry(timesheetId, req.body);
-
-      res.status(201).json({ entry });
-    } catch (error) {
-      if (error instanceof TimesheetError || error instanceof TimesheetEntryError) {
-        const statusCode =
-          error.code === 'TIMESHEET_NOT_FOUND' ? 404 :
-          error.code === 'ENTRY_NOT_FOUND' ? 404 :
-          error.code === 'TASK_CODE_NOT_FOUND' ? 404 :
-          error.code === 'TIMESHEET_NOT_EDITABLE' ? 400 :
-          400;
-        res.status(statusCode).json({
-          error: error.code,
-          message: error.message,
-        });
-        return;
-      }
-      throw error;
+    // Verify access
+    const hasAccess = await validateTimesheetAccess(timesheetId, req.employee!.id);
+    if (!hasAccess) {
+      res.status(403).json({
+        error: 'TIMESHEET_ACCESS_DENIED',
+        message: 'You do not have access to this timesheet',
+      });
+      return;
     }
+
+    const entry = await createEntry(timesheetId, req.body);
+
+    res.status(201).json({ entry });
+  } catch (error) {
+    if (error instanceof TimesheetError || error instanceof TimesheetEntryError) {
+      const statusCode =
+        error.code === 'TIMESHEET_NOT_FOUND'
+          ? 404
+          : error.code === 'ENTRY_NOT_FOUND'
+            ? 404
+            : error.code === 'TASK_CODE_NOT_FOUND'
+              ? 404
+              : error.code === 'TIMESHEET_NOT_EDITABLE'
+                ? 400
+                : 400;
+      res.status(statusCode).json({
+        error: error.code,
+        message: error.message,
+      });
+      return;
+    }
+    throw error;
   }
-);
+});
 
 /**
  * PATCH /api/timesheets/:id/entries/:entryId
@@ -375,11 +371,15 @@ router.patch(
     } catch (error) {
       if (error instanceof TimesheetError || error instanceof TimesheetEntryError) {
         const statusCode =
-          error.code === 'TIMESHEET_NOT_FOUND' ? 404 :
-          error.code === 'ENTRY_NOT_FOUND' ? 404 :
-          error.code === 'TASK_CODE_NOT_FOUND' ? 404 :
-          error.code === 'TIMESHEET_NOT_EDITABLE' ? 400 :
-          400;
+          error.code === 'TIMESHEET_NOT_FOUND'
+            ? 404
+            : error.code === 'ENTRY_NOT_FOUND'
+              ? 404
+              : error.code === 'TASK_CODE_NOT_FOUND'
+                ? 404
+                : error.code === 'TIMESHEET_NOT_EDITABLE'
+                  ? 400
+                  : 400;
         res.status(statusCode).json({
           error: error.code,
           message: error.message,
@@ -426,10 +426,13 @@ router.delete('/:id/entries/:entryId', async (req: Request, res: Response) => {
   } catch (error) {
     if (error instanceof TimesheetError || error instanceof TimesheetEntryError) {
       const statusCode =
-        error.code === 'TIMESHEET_NOT_FOUND' ? 404 :
-        error.code === 'ENTRY_NOT_FOUND' ? 404 :
-        error.code === 'TIMESHEET_NOT_EDITABLE' ? 400 :
-        400;
+        error.code === 'TIMESHEET_NOT_FOUND'
+          ? 404
+          : error.code === 'ENTRY_NOT_FOUND'
+            ? 404
+            : error.code === 'TIMESHEET_NOT_EDITABLE'
+              ? 400
+              : 400;
       res.status(statusCode).json({
         error: error.code,
         message: error.message,
@@ -480,9 +483,10 @@ router.get('/:id/totals', async (req: Request, res: Response) => {
       warnings.push(`Approaching weekly limit of ${limits.weeklyLimit} hours`);
     }
     for (const [date, hours] of Object.entries(daily)) {
-      const dailyLimit = limits.dailyLimitSchoolDay && isDefaultSchoolDay(date)
-        ? limits.dailyLimitSchoolDay
-        : limits.dailyLimit;
+      const dailyLimit =
+        limits.dailyLimitSchoolDay && isDefaultSchoolDay(date)
+          ? limits.dailyLimitSchoolDay
+          : limits.dailyLimit;
       if (hours >= dailyLimit * 0.8) {
         warnings.push(`Approaching daily limit on ${date}`);
       }

@@ -71,7 +71,6 @@ vi.mock('../../utils/jwt.js', () => ({
 
 import app from '../../app.js';
 import { db } from '../../db/index.js';
-import { verifyToken } from '../../utils/jwt.js';
 import bcrypt from 'bcryptjs';
 
 describe('Auth Routes', () => {

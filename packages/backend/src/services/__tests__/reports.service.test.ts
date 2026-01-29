@@ -418,22 +418,44 @@ describe('Reports Service Logic', () => {
         })),
         totalHours: Math.round(totalHours * 100) / 100,
         totalEarnings: Math.round(totalEarnings * 100) / 100,
-        employeeBreakdown: Array.from(employeeMap.entries()).map(
-          ([employeeId, data]) => ({
-            employeeId,
-            name: data.name,
-            count: data.count,
-          })
-        ),
+        employeeBreakdown: Array.from(employeeMap.entries()).map(([employeeId, data]) => ({
+          employeeId,
+          name: data.name,
+          count: data.count,
+        })),
       };
     }
 
     it('should calculate status breakdown correctly', () => {
       const records: TimesheetRecord[] = [
-        { status: 'approved', employeeId: 'e1', employeeName: 'John', totalHours: 40, totalEarnings: 600 },
-        { status: 'approved', employeeId: 'e2', employeeName: 'Jane', totalHours: 35, totalEarnings: 525 },
-        { status: 'rejected', employeeId: 'e1', employeeName: 'John', totalHours: 38, totalEarnings: null },
-        { status: 'submitted', employeeId: 'e3', employeeName: 'Bob', totalHours: 40, totalEarnings: null },
+        {
+          status: 'approved',
+          employeeId: 'e1',
+          employeeName: 'John',
+          totalHours: 40,
+          totalEarnings: 600,
+        },
+        {
+          status: 'approved',
+          employeeId: 'e2',
+          employeeName: 'Jane',
+          totalHours: 35,
+          totalEarnings: 525,
+        },
+        {
+          status: 'rejected',
+          employeeId: 'e1',
+          employeeName: 'John',
+          totalHours: 38,
+          totalEarnings: null,
+        },
+        {
+          status: 'submitted',
+          employeeId: 'e3',
+          employeeName: 'Bob',
+          totalHours: 40,
+          totalEarnings: null,
+        },
       ];
 
       const summary = calculateTimesheetSummary(records);
@@ -444,8 +466,20 @@ describe('Reports Service Logic', () => {
 
     it('should calculate total hours correctly', () => {
       const records: TimesheetRecord[] = [
-        { status: 'approved', employeeId: 'e1', employeeName: 'John', totalHours: 40.5, totalEarnings: 600 },
-        { status: 'approved', employeeId: 'e2', employeeName: 'Jane', totalHours: 35.25, totalEarnings: 525 },
+        {
+          status: 'approved',
+          employeeId: 'e1',
+          employeeName: 'John',
+          totalHours: 40.5,
+          totalEarnings: 600,
+        },
+        {
+          status: 'approved',
+          employeeId: 'e2',
+          employeeName: 'Jane',
+          totalHours: 35.25,
+          totalEarnings: 525,
+        },
       ];
 
       const summary = calculateTimesheetSummary(records);
@@ -454,8 +488,20 @@ describe('Reports Service Logic', () => {
 
     it('should only count earnings for approved timesheets', () => {
       const records: TimesheetRecord[] = [
-        { status: 'approved', employeeId: 'e1', employeeName: 'John', totalHours: 40, totalEarnings: 600 },
-        { status: 'rejected', employeeId: 'e2', employeeName: 'Jane', totalHours: 35, totalEarnings: null },
+        {
+          status: 'approved',
+          employeeId: 'e1',
+          employeeName: 'John',
+          totalHours: 40,
+          totalEarnings: 600,
+        },
+        {
+          status: 'rejected',
+          employeeId: 'e2',
+          employeeName: 'Jane',
+          totalHours: 35,
+          totalEarnings: null,
+        },
       ];
 
       const summary = calculateTimesheetSummary(records);
@@ -464,9 +510,27 @@ describe('Reports Service Logic', () => {
 
     it('should count timesheets per employee', () => {
       const records: TimesheetRecord[] = [
-        { status: 'approved', employeeId: 'e1', employeeName: 'John', totalHours: 40, totalEarnings: 600 },
-        { status: 'approved', employeeId: 'e1', employeeName: 'John', totalHours: 38, totalEarnings: 570 },
-        { status: 'approved', employeeId: 'e2', employeeName: 'Jane', totalHours: 35, totalEarnings: 525 },
+        {
+          status: 'approved',
+          employeeId: 'e1',
+          employeeName: 'John',
+          totalHours: 40,
+          totalEarnings: 600,
+        },
+        {
+          status: 'approved',
+          employeeId: 'e1',
+          employeeName: 'John',
+          totalHours: 38,
+          totalEarnings: 570,
+        },
+        {
+          status: 'approved',
+          employeeId: 'e2',
+          employeeName: 'Jane',
+          totalHours: 35,
+          totalEarnings: 525,
+        },
       ];
 
       const summary = calculateTimesheetSummary(records);

@@ -50,15 +50,11 @@ describe('Sanitization Utilities', () => {
   describe('stripHtmlTags', () => {
     it('should remove HTML tags', () => {
       expect(stripHtmlTags('<p>Hello</p>')).toBe('Hello');
-      expect(stripHtmlTags('<b>Bold</b> and <i>italic</i>')).toBe(
-        'Bold and italic'
-      );
+      expect(stripHtmlTags('<b>Bold</b> and <i>italic</i>')).toBe('Bold and italic');
     });
 
     it('should remove script tags', () => {
-      expect(stripHtmlTags('<script>alert("xss")</script>')).toBe(
-        'alert("xss")'
-      );
+      expect(stripHtmlTags('<script>alert("xss")</script>')).toBe('alert("xss")');
     });
 
     it('should remove self-closing tags', () => {
@@ -137,15 +133,9 @@ describe('Sanitization Utilities', () => {
   describe('containsSuspiciousContent', () => {
     describe('XSS attack patterns', () => {
       it('should detect script tags', () => {
-        expect(containsSuspiciousContent('<script>alert(1)</script>')).toBe(
-          true
-        );
-        expect(containsSuspiciousContent('<SCRIPT>alert(1)</SCRIPT>')).toBe(
-          true
-        );
-        expect(containsSuspiciousContent('<ScRiPt>alert(1)</ScRiPt>')).toBe(
-          true
-        );
+        expect(containsSuspiciousContent('<script>alert(1)</script>')).toBe(true);
+        expect(containsSuspiciousContent('<SCRIPT>alert(1)</SCRIPT>')).toBe(true);
+        expect(containsSuspiciousContent('<ScRiPt>alert(1)</ScRiPt>')).toBe(true);
       });
 
       it('should detect javascript: protocol', () => {
@@ -161,9 +151,7 @@ describe('Sanitization Utilities', () => {
       });
 
       it('should detect data: protocol', () => {
-        expect(
-          containsSuspiciousContent('data:text/html,<script>alert(1)</script>')
-        ).toBe(true);
+        expect(containsSuspiciousContent('data:text/html,<script>alert(1)</script>')).toBe(true);
       });
 
       it('should detect vbscript: protocol', () => {
@@ -171,9 +159,7 @@ describe('Sanitization Utilities', () => {
       });
 
       it('should detect iframe tags', () => {
-        expect(
-          containsSuspiciousContent('<iframe src="evil.html"></iframe>')
-        ).toBe(true);
+        expect(containsSuspiciousContent('<iframe src="evil.html"></iframe>')).toBe(true);
       });
 
       it('should detect embed tags', () => {
@@ -181,9 +167,7 @@ describe('Sanitization Utilities', () => {
       });
 
       it('should detect object tags', () => {
-        expect(
-          containsSuspiciousContent('<object data="evil.swf"></object>')
-        ).toBe(true);
+        expect(containsSuspiciousContent('<object data="evil.swf"></object>')).toBe(true);
       });
 
       it('should detect SVG onload', () => {
@@ -191,9 +175,7 @@ describe('Sanitization Utilities', () => {
       });
 
       it('should detect CSS expression', () => {
-        expect(
-          containsSuspiciousContent('background: expression(alert(1))')
-        ).toBe(true);
+        expect(containsSuspiciousContent('background: expression(alert(1))')).toBe(true);
       });
     });
 
@@ -211,9 +193,7 @@ describe('Sanitization Utilities', () => {
       });
 
       it('should allow special characters in context', () => {
-        expect(containsSuspiciousContent("Tom & Jerry's Adventure")).toBe(
-          false
-        );
+        expect(containsSuspiciousContent("Tom & Jerry's Adventure")).toBe(false);
       });
 
       it('should handle empty string', () => {
@@ -221,12 +201,8 @@ describe('Sanitization Utilities', () => {
       });
 
       it('should handle null/undefined', () => {
-        expect(containsSuspiciousContent(null as unknown as string)).toBe(
-          false
-        );
-        expect(containsSuspiciousContent(undefined as unknown as string)).toBe(
-          false
-        );
+        expect(containsSuspiciousContent(null as unknown as string)).toBe(false);
+        expect(containsSuspiciousContent(undefined as unknown as string)).toBe(false);
       });
     });
   });
@@ -296,12 +272,8 @@ describe('Sanitization Utilities', () => {
     });
 
     it('should handle null/undefined', () => {
-      expect(sanitizeObject(null as unknown as Record<string, unknown>)).toBe(
-        null
-      );
-      expect(
-        sanitizeObject(undefined as unknown as Record<string, unknown>)
-      ).toBe(undefined);
+      expect(sanitizeObject(null as unknown as Record<string, unknown>)).toBe(null);
+      expect(sanitizeObject(undefined as unknown as Record<string, unknown>)).toBe(undefined);
     });
   });
 
@@ -309,11 +281,19 @@ describe('Sanitization Utilities', () => {
     describe('HTML tag-based attacks (stripped by sanitizeString)', () => {
       const tagBasedAttacks = [
         // Employee name injection
-        { input: 'John<script>alert(document.cookie)</script>', field: 'name', expectedSanitized: 'Johnalert(document.cookie)' },
+        {
+          input: 'John<script>alert(document.cookie)</script>',
+          field: 'name',
+          expectedSanitized: 'Johnalert(document.cookie)',
+        },
         // Notes injection
         { input: '"><img src=x onerror=alert(1)>', field: 'notes', expectedSanitized: '">' },
         // SVG-based attack
-        { input: '<svg><animate onbegin=alert(1) attributeName=x dur=1s>', field: 'notes', expectedSanitized: '' },
+        {
+          input: '<svg><animate onbegin=alert(1) attributeName=x dur=1s>',
+          field: 'notes',
+          expectedSanitized: '',
+        },
         // Script tag with escaped character
         { input: '<script>alert(1)</script>', field: 'comment', expectedSanitized: 'alert(1)' },
       ];

@@ -24,7 +24,6 @@
  */
 
 import { db, schema } from './index.js';
-import { eq } from 'drizzle-orm';
 
 const { taskCodes, taskCodeRates } = schema;
 
@@ -277,14 +276,9 @@ async function seedProduction() {
   // Create task codes
   console.log('Creating task codes...');
 
-  const taskCodeInserts = TASK_CODE_DATA.map(
-    ({ rate: _rate, ...taskCode }) => taskCode
-  );
+  const taskCodeInserts = TASK_CODE_DATA.map(({ rate: _rate, ...taskCode }) => taskCode);
 
-  const insertedTaskCodes = await db
-    .insert(taskCodes)
-    .values(taskCodeInserts)
-    .returning();
+  const insertedTaskCodes = await db.insert(taskCodes).values(taskCodeInserts).returning();
 
   console.log(`Created ${insertedTaskCodes.length} task codes`);
 
@@ -317,7 +311,9 @@ async function seedProduction() {
   console.log('Task codes created:');
   for (const tc of insertedTaskCodes) {
     const rate = TASK_CODE_DATA.find((t) => t.code === tc.code)?.rate;
-    console.log(`  ${tc.code}: ${tc.name} - $${rate}/hr (${tc.isAgricultural ? 'Agricultural' : 'Non-Agricultural'})`);
+    console.log(
+      `  ${tc.code}: ${tc.name} - $${rate}/hr (${tc.isAgricultural ? 'Agricultural' : 'Non-Agricultural'})`
+    );
   }
   console.log('');
   console.log('Next steps:');

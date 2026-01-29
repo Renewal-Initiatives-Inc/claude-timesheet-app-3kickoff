@@ -10,19 +10,43 @@ import { Dashboard } from './pages/Dashboard.js';
 import { Timesheet } from './pages/Timesheet.js';
 
 // Lazy loaded pages (supervisor features, loaded on demand)
-const EmployeeList = lazy(() => import('./pages/EmployeeList.js').then(m => ({ default: m.EmployeeList })));
-const EmployeeDetail = lazy(() => import('./pages/EmployeeDetail.js').then(m => ({ default: m.EmployeeDetail })));
-const AddEmployee = lazy(() => import('./pages/AddEmployee.js').then(m => ({ default: m.AddEmployee })));
-const TaskCodeList = lazy(() => import('./pages/TaskCodeList.js').then(m => ({ default: m.TaskCodeList })));
-const TaskCodeDetail = lazy(() => import('./pages/TaskCodeDetail.js').then(m => ({ default: m.TaskCodeDetail })));
-const TaskCodeForm = lazy(() => import('./components/TaskCodeForm.js').then(m => ({ default: m.TaskCodeForm })));
-const ReviewQueue = lazy(() => import('./pages/ReviewQueue.js').then(m => ({ default: m.ReviewQueue })));
-const ReviewDetail = lazy(() => import('./pages/ReviewDetail.js').then(m => ({ default: m.ReviewDetail })));
-const PayrollReportPage = lazy(() => import('./pages/PayrollReportPage.js').then(m => ({ default: m.PayrollReportPage })));
-const Alerts = lazy(() => import('./pages/Alerts.js').then(m => ({ default: m.Alerts })));
-const ReportsDashboard = lazy(() => import('./pages/ReportsDashboard.js').then(m => ({ default: m.ReportsDashboard })));
-const ComplianceAuditReport = lazy(() => import('./pages/ComplianceAuditReport.js').then(m => ({ default: m.ComplianceAuditReport })));
-const TimesheetHistoryReport = lazy(() => import('./pages/TimesheetHistoryReport.js').then(m => ({ default: m.TimesheetHistoryReport })));
+const EmployeeList = lazy(() =>
+  import('./pages/EmployeeList.js').then((m) => ({ default: m.EmployeeList }))
+);
+const EmployeeDetail = lazy(() =>
+  import('./pages/EmployeeDetail.js').then((m) => ({ default: m.EmployeeDetail }))
+);
+const AddEmployee = lazy(() =>
+  import('./pages/AddEmployee.js').then((m) => ({ default: m.AddEmployee }))
+);
+const TaskCodeList = lazy(() =>
+  import('./pages/TaskCodeList.js').then((m) => ({ default: m.TaskCodeList }))
+);
+const TaskCodeDetail = lazy(() =>
+  import('./pages/TaskCodeDetail.js').then((m) => ({ default: m.TaskCodeDetail }))
+);
+const TaskCodeForm = lazy(() =>
+  import('./components/TaskCodeForm.js').then((m) => ({ default: m.TaskCodeForm }))
+);
+const ReviewQueue = lazy(() =>
+  import('./pages/ReviewQueue.js').then((m) => ({ default: m.ReviewQueue }))
+);
+const ReviewDetail = lazy(() =>
+  import('./pages/ReviewDetail.js').then((m) => ({ default: m.ReviewDetail }))
+);
+const PayrollReportPage = lazy(() =>
+  import('./pages/PayrollReportPage.js').then((m) => ({ default: m.PayrollReportPage }))
+);
+const Alerts = lazy(() => import('./pages/Alerts.js').then((m) => ({ default: m.Alerts })));
+const ReportsDashboard = lazy(() =>
+  import('./pages/ReportsDashboard.js').then((m) => ({ default: m.ReportsDashboard }))
+);
+const ComplianceAuditReport = lazy(() =>
+  import('./pages/ComplianceAuditReport.js').then((m) => ({ default: m.ComplianceAuditReport }))
+);
+const TimesheetHistoryReport = lazy(() =>
+  import('./pages/TimesheetHistoryReport.js').then((m) => ({ default: m.TimesheetHistoryReport }))
+);
 
 /**
  * Loading fallback for lazy-loaded routes
@@ -51,14 +75,29 @@ function AppLayout() {
       </a>
       <nav className="app-nav" aria-label="Main navigation">
         <div className="nav-brand">
-          <a href="/dashboard" aria-label="Renewal Initiatives Home">Renewal Initiatives</a>
+          <a href="/dashboard" aria-label="Renewal Initiatives Home">
+            Renewal Initiatives
+          </a>
         </div>
         <div className="nav-links" role="menubar">
-          <a href="/timesheet" role="menuitem">My Timesheet</a>
+          <a href="/timesheet" role="menuitem">
+            My Timesheet
+          </a>
           {isSupervisor && (
             <>
-              <a href="/dashboard" role="menuitem">Dashboard</a>
-              <a href="/review" className="nav-link-with-badge" role="menuitem" aria-label={pendingReviewCount > 0 ? `Review Queue (${pendingReviewCount} pending)` : 'Review Queue'}>
+              <a href="/dashboard" role="menuitem">
+                Dashboard
+              </a>
+              <a
+                href="/review"
+                className="nav-link-with-badge"
+                role="menuitem"
+                aria-label={
+                  pendingReviewCount > 0
+                    ? `Review Queue (${pendingReviewCount} pending)`
+                    : 'Review Queue'
+                }
+              >
                 Review Queue
                 {pendingReviewCount > 0 && (
                   <span className="nav-badge" data-testid="review-queue-badge" aria-hidden="true">
@@ -66,15 +105,28 @@ function AppLayout() {
                   </span>
                 )}
               </a>
-              <a href="/employees" role="menuitem">Employees</a>
-              <a href="/task-codes" role="menuitem">Task Codes</a>
-              <a href="/reports" role="menuitem">Reports</a>
+              <a href="/employees" role="menuitem">
+                Employees
+              </a>
+              <a href="/task-codes" role="menuitem">
+                Task Codes
+              </a>
+              <a href="/reports" role="menuitem">
+                Reports
+              </a>
             </>
           )}
         </div>
         <div className="nav-user">
-          <span className="user-name" aria-label={`Logged in as ${user?.name}`}>{user?.name}</span>
-          <button onClick={logout} className="logout-button" data-testid="auth-logout-button" aria-label="Sign out of your account">
+          <span className="user-name" aria-label={`Logged in as ${user?.name}`}>
+            {user?.name}
+          </span>
+          <button
+            onClick={logout}
+            className="logout-button"
+            data-testid="auth-logout-button"
+            aria-label="Sign out of your account"
+          >
             Sign Out
           </button>
         </div>
@@ -93,7 +145,11 @@ function ProtectedRoute({ requireSupervisor = false }: { requireSupervisor?: boo
   const { isAuthenticated, isSupervisor, loading } = useAuth();
 
   if (loading) {
-    return <div className="loading-screen" role="status" aria-live="polite">Loading...</div>;
+    return (
+      <div className="loading-screen" role="status" aria-live="polite">
+        Loading...
+      </div>
+    );
   }
 
   if (!isAuthenticated) {

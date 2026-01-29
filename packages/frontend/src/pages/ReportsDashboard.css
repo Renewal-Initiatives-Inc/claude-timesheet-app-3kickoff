@@ -80,7 +80,9 @@
   border-radius: 8px;
   text-decoration: none;
   color: inherit;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
   border: 1px solid transparent;
 }
 
@@ -119,7 +121,9 @@
   font-size: 1.25rem;
   color: var(--color-text-secondary);
   flex-shrink: 0;
-  transition: transform 0.15s ease, color 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    color 0.15s ease;
 }
 
 .report-card:hover .report-card-arrow {

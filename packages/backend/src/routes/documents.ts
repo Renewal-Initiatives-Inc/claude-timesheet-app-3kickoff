@@ -76,9 +76,11 @@ router.post(
     } catch (error) {
       if (error instanceof DocumentError || error instanceof EmployeeError) {
         const statusCode =
-          error.code === 'EMPLOYEE_NOT_FOUND' ? 404 :
-          error.code === 'DOCUMENT_NOT_FOUND' ? 404 :
-          400;
+          error.code === 'EMPLOYEE_NOT_FOUND'
+            ? 404
+            : error.code === 'DOCUMENT_NOT_FOUND'
+              ? 404
+              : 400;
         res.status(statusCode).json({
           error: error.code,
           message: error.message,
@@ -135,51 +137,42 @@ router.post(
  * Get document details.
  */
 router.get('/:id', requireAuth, requireSupervisor, async (req: Request, res: Response) => {
-  try {
-    const id = req.params['id'] as string;
-    const document = await getDocumentById(id);
+  const id = req.params['id'] as string;
+  const document = await getDocumentById(id);
 
-    if (!document) {
-      res.status(404).json({
-        error: 'DOCUMENT_NOT_FOUND',
-        message: 'Document not found',
-      });
-      return;
-    }
-
-    res.json({ document });
-  } catch (error) {
-    throw error;
+  if (!document) {
+    res.status(404).json({
+      error: 'DOCUMENT_NOT_FOUND',
+      message: 'Document not found',
+    });
+    return;
   }
+
+  res.json({ document });
 });
 
 /**
  * GET /api/documents/:id/download
  * Get a signed download URL for a document.
  */
-router.get(
-  '/:id/download',
-  requireAuth,
-  requireSupervisor,
-  async (req: Request, res: Response) => {
-    try {
-      const id = req.params['id'] as string;
-      const { url, expiresAt } = await getDocumentDownloadUrl(id);
+router.get('/:id/download', requireAuth, requireSupervisor, async (req: Request, res: Response) => {
+  try {
+    const id = req.params['id'] as string;
+    const { url, expiresAt } = await getDocumentDownloadUrl(id);
 
-      res.json({ url, expiresAt });
-    } catch (error) {
-      if (error instanceof DocumentError) {
-        const statusCode = error.code === 'DOCUMENT_NOT_FOUND' ? 404 : 400;
-        res.status(statusCode).json({
-          error: error.code,
-          message: error.message,
-        });
-        return;
-      }
-      throw error;
+    res.json({ url, expiresAt });
+  } catch (error) {
+    if (error instanceof DocumentError) {
+      const statusCode = error.code === 'DOCUMENT_NOT_FOUND' ? 404 : 400;
+      res.status(statusCode).json({
+        error: error.code,
+        message: error.message,
+      });
+      return;
     }
+    throw error;
   }
-);
+});
 
 /**
  * DELETE /api/documents/:id
@@ -195,9 +188,11 @@ router.delete('/:id', requireAuth, requireSupervisor, async (req: Request, res: 
   } catch (error) {
     if (error instanceof DocumentError) {
       const statusCode =
-        error.code === 'DOCUMENT_NOT_FOUND' ? 404 :
-        error.code === 'ALREADY_INVALIDATED' ? 400 :
-        400;
+        error.code === 'DOCUMENT_NOT_FOUND'
+          ? 404
+          : error.code === 'ALREADY_INVALIDATED'
+            ? 400
+            : 400;
       res.status(statusCode).json({
         error: error.code,
         message: error.message,

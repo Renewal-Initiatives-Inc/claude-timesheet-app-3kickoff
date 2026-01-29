@@ -70,13 +70,56 @@ function formatTime(hours: number, minutes: number): string {
 
 // Names for generating employees
 const firstNames = [
-  'Alex', 'Blake', 'Casey', 'Dana', 'Ellis', 'Finley', 'Gray', 'Harper',
-  'Indigo', 'Jordan', 'Kelly', 'Logan', 'Morgan', 'Noah', 'Oakley', 'Parker',
-  'Quinn', 'Riley', 'Sage', 'Taylor', 'Uma', 'Val', 'Winter', 'Xander',
-  'Yuki', 'Zephyr', 'Arden', 'Bailey', 'Cameron', 'Drew', 'Emerson', 'Flynn',
-  'Greer', 'Hayden', 'Ivory', 'Jesse', 'Kai', 'Lane', 'Max', 'Nico',
-  'Ollie', 'Peyton', 'Rain', 'Skylar', 'Toby', 'Uriel', 'Vic', 'Wren',
-  'Xena', 'Yara',
+  'Alex',
+  'Blake',
+  'Casey',
+  'Dana',
+  'Ellis',
+  'Finley',
+  'Gray',
+  'Harper',
+  'Indigo',
+  'Jordan',
+  'Kelly',
+  'Logan',
+  'Morgan',
+  'Noah',
+  'Oakley',
+  'Parker',
+  'Quinn',
+  'Riley',
+  'Sage',
+  'Taylor',
+  'Uma',
+  'Val',
+  'Winter',
+  'Xander',
+  'Yuki',
+  'Zephyr',
+  'Arden',
+  'Bailey',
+  'Cameron',
+  'Drew',
+  'Emerson',
+  'Flynn',
+  'Greer',
+  'Hayden',
+  'Ivory',
+  'Jesse',
+  'Kai',
+  'Lane',
+  'Max',
+  'Nico',
+  'Ollie',
+  'Peyton',
+  'Rain',
+  'Skylar',
+  'Toby',
+  'Uriel',
+  'Vic',
+  'Wren',
+  'Xena',
+  'Yara',
 ];
 
 async function loadTestSeed() {
@@ -117,7 +160,7 @@ async function loadTestSeed() {
   const supervisorId = supervisor[0]!.id;
 
   // Filter task codes by age
-  const taskCodesByMinAge = existingTaskCodes.reduce(
+  const _taskCodesByMinAge = existingTaskCodes.reduce(
     (acc, tc) => {
       const minAge = tc.minAgeAllowed;
       if (!acc[minAge]) acc[minAge] = [];
@@ -231,7 +274,8 @@ async function loadTestSeed() {
             endTime: formatTime(endHour, 0),
             hours,
             isSchoolDay: dayOffset >= 1 && dayOffset <= 5 && Math.random() > 0.3,
-            supervisorPresentName: taskCode.supervisorRequired !== 'none' ? 'Sarah Supervisor' : null,
+            supervisorPresentName:
+              taskCode.supervisorRequired !== 'none' ? 'Sarah Supervisor' : null,
             mealBreakConfirmed: duration >= 5 ? true : null,
           });
 
@@ -265,7 +309,9 @@ async function loadTestSeed() {
 
     // Progress indicator
     if (insertedEmployees.indexOf(employee) % 10 === 0) {
-      console.log(`  Progress: ${insertedEmployees.indexOf(employee) + 1}/${insertedEmployees.length} employees`);
+      console.log(
+        `  Progress: ${insertedEmployees.indexOf(employee) + 1}/${insertedEmployees.length} employees`
+      );
     }
   }
 
@@ -275,11 +321,7 @@ async function loadTestSeed() {
 
   // Generate some alert notification logs
   console.log('Creating alert notification logs...');
-  const alertTypes = [
-    'missing_document',
-    'expiring_document',
-    'age_transition',
-  ] as const;
+  const alertTypes = ['missing_document', 'expiring_document', 'age_transition'] as const;
 
   const alertData = insertedEmployees.slice(0, 20).map((employee, i) => ({
     alertType: alertTypes[i % alertTypes.length]!,

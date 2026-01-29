@@ -55,17 +55,12 @@ export function AlertsList({ alerts, loading = false }: AlertsListProps) {
                 </span>
               </td>
               <td>
-                <Link
-                  to={`/employees/${alert.employeeId}`}
-                  className="alert-employee-link"
-                >
+                <Link to={`/employees/${alert.employeeId}`} className="alert-employee-link">
                   {alert.employeeName}
                 </Link>
               </td>
               <td className="alert-message-cell">{alert.message}</td>
-              <td className="alert-date-cell">
-                {alert.dueDate ? formatDate(alert.dueDate) : '-'}
-              </td>
+              <td className="alert-date-cell">{alert.dueDate ? formatDate(alert.dueDate) : '-'}</td>
               <td>
                 <Link
                   to={`/employees/${alert.employeeId}`}

@@ -23,9 +23,7 @@ export function Alerts() {
     // Filter by employee name
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      result = result.filter((alert) =>
-        alert.employeeName.toLowerCase().includes(query)
-      );
+      result = result.filter((alert) => alert.employeeName.toLowerCase().includes(query));
     }
 
     return result;
@@ -81,9 +79,7 @@ export function Alerts() {
             <option value="expiring_document">
               Expiring Documents ({alertCounts.expiring_document})
             </option>
-            <option value="age_transition">
-              Age Transitions ({alertCounts.age_transition})
-            </option>
+            <option value="age_transition">Age Transitions ({alertCounts.age_transition})</option>
           </select>
         </div>
 

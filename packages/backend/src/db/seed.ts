@@ -144,9 +144,7 @@ async function seed() {
 
   // Create parental consent documents for minors
   console.log('Creating employee documents...');
-  const minors = insertedEmployees.filter(
-    (e) => !e.isSupervisor && e.name !== 'Gray Adult'
-  );
+  const minors = insertedEmployees.filter((e) => !e.isSupervisor && e.name !== 'Gray Adult');
 
   const documents = minors.map((minor) => ({
     employeeId: minor.id,
@@ -371,7 +369,9 @@ async function seed() {
 
   console.log('\nSeed completed successfully!');
   console.log('\nSummary:');
-  console.log(`- ${insertedEmployees.length} employees (1 supervisor, ${minors.length} minors, 1 adult)`);
+  console.log(
+    `- ${insertedEmployees.length} employees (1 supervisor, ${minors.length} minors, 1 adult)`
+  );
   console.log(`- ${insertedDocs.length} documents (parental consent for minors)`);
   console.log(`- ${insertedTaskCodes.length} task codes`);
   console.log(`- ${insertedRates.length} task code rates`);

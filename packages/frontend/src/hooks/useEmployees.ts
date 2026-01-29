@@ -1,9 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import type {
-  EmployeeWithDocStatus,
-  EmployeeDetailResponse,
-  DashboardAlert,
-} from '@renewal/types';
+import type { EmployeeWithDocStatus, EmployeeDetailResponse, DashboardAlert } from '@renewal/types';
 import {
   getEmployees,
   getEmployee,
@@ -50,6 +46,7 @@ export function useEmployees(options: UseEmployeesOptions = {}): UseEmployeesRes
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [options.status, options.search]);
 
   useEffect(() => {

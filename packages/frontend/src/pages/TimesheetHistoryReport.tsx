@@ -11,7 +11,7 @@ import './TimesheetHistoryReport.css';
 /**
  * Format a date string as MM/DD/YYYY for display.
  */
-function formatDate(dateStr: string): string {
+function _formatDate(dateStr: string): string {
   const date = new Date(dateStr + 'T00:00:00');
   return date.toLocaleDateString('en-US', {
     month: '2-digit',
@@ -274,9 +274,7 @@ export function TimesheetHistoryReport() {
 
       {/* Loading State */}
       {loading && (
-        <div className="timesheet-history-report-loading">
-          Loading timesheet history...
-        </div>
+        <div className="timesheet-history-report-loading">Loading timesheet history...</div>
       )}
 
       {/* Results */}
@@ -289,11 +287,17 @@ export function TimesheetHistoryReport() {
                 <span className="summary-label">Total</span>
                 <span className="summary-value">{summary.totalTimesheets}</span>
               </div>
-              <div className="summary-card approved" data-testid="timesheet-history-summary-approved">
+              <div
+                className="summary-card approved"
+                data-testid="timesheet-history-summary-approved"
+              >
                 <span className="summary-label">Approved</span>
                 <span className="summary-value">{getStatusCount('approved')}</span>
               </div>
-              <div className="summary-card rejected" data-testid="timesheet-history-summary-rejected">
+              <div
+                className="summary-card rejected"
+                data-testid="timesheet-history-summary-rejected"
+              >
                 <span className="summary-label">Rejected</span>
                 <span className="summary-value">{getStatusCount('rejected')}</span>
               </div>
@@ -321,7 +325,10 @@ export function TimesheetHistoryReport() {
             </div>
           ) : (
             <div className="timesheet-history-report-content">
-              <table className="timesheet-history-report-table" data-testid="timesheet-history-results-table">
+              <table
+                className="timesheet-history-report-table"
+                data-testid="timesheet-history-results-table"
+              >
                 <thead>
                   <tr>
                     <th></th>
@@ -363,7 +370,8 @@ export function TimesheetHistoryReport() {
                         <td>
                           {ts.complianceFailCount > 0 ? (
                             <span className="compliance-issues">
-                              {ts.complianceFailCount} issue{ts.complianceFailCount !== 1 ? 's' : ''}
+                              {ts.complianceFailCount} issue
+                              {ts.complianceFailCount !== 1 ? 's' : ''}
                             </span>
                           ) : (
                             <span className="compliance-ok">OK</span>
@@ -387,7 +395,8 @@ export function TimesheetHistoryReport() {
                               )}
                               {ts.complianceFailCount > 0 && (
                                 <div className="detail-item compliance">
-                                  <strong>Compliance:</strong> {ts.complianceFailCount} of {ts.complianceCheckCount} checks failed
+                                  <strong>Compliance:</strong> {ts.complianceFailCount} of{' '}
+                                  {ts.complianceCheckCount} checks failed
                                 </div>
                               )}
                             </div>

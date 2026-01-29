@@ -8,10 +8,7 @@ import {
   markPayrollExported,
   PayrollError,
 } from '../services/payroll.service.js';
-import {
-  payrollReportQuerySchema,
-  payrollExportSchema,
-} from '../validation/payroll.schema.js';
+import { payrollReportQuerySchema, payrollExportSchema } from '../validation/payroll.schema.js';
 import { generatePayrollCSV, generatePayrollFilename } from '../utils/payroll-export.js';
 
 const router: Router = Router();
@@ -124,48 +121,44 @@ router.get('/report', async (req: Request, res: Response) => {
  * POST /api/payroll/export
  * Generate and download CSV export for payroll records.
  */
-router.post(
-  '/export',
-  validate(payrollExportSchema),
-  async (req: Request, res: Response) => {
-    try {
-      const { startDate, endDate, employeeId, ageBand } = req.body;
+router.post('/export', validate(payrollExportSchema), async (req: Request, res: Response) => {
+  try {
+    const { startDate, endDate, employeeId, ageBand } = req.body;
 
-      const records = await listPayrollRecords({ startDate, endDate, employeeId, ageBand });
+    const records = await listPayrollRecords({ startDate, endDate, employeeId, ageBand });
 
-      if (records.length === 0) {
-        res.status(404).json({
-          error: 'NO_RECORDS',
-          message: 'No payroll records found for the specified date range',
-        });
-        return;
-      }
-
-      // Generate CSV
-      const csv = generatePayrollCSV(records);
-      const filename = generatePayrollFilename(startDate, endDate);
-
-      // Mark records as exported
-      const payrollIds = records.map((r) => r.id);
-      await markPayrollExported(payrollIds);
-
-      // Send CSV response
-      res.setHeader('Content-Type', 'text/csv');
-      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-      res.send(csv);
-    } catch (error) {
-      if (error instanceof PayrollError) {
-        const statusCode = getStatusCodeForError(error.code);
-        res.status(statusCode).json({
-          error: error.code,
-          message: error.message,
-        });
-        return;
-      }
-      throw error;
+    if (records.length === 0) {
+      res.status(404).json({
+        error: 'NO_RECORDS',
+        message: 'No payroll records found for the specified date range',
+      });
+      return;
     }
+
+    // Generate CSV
+    const csv = generatePayrollCSV(records);
+    const filename = generatePayrollFilename(startDate, endDate);
+
+    // Mark records as exported
+    const payrollIds = records.map((r) => r.id);
+    await markPayrollExported(payrollIds);
+
+    // Send CSV response
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(csv);
+  } catch (error) {
+    if (error instanceof PayrollError) {
+      const statusCode = getStatusCodeForError(error.code);
+      res.status(statusCode).json({
+        error: error.code,
+        message: error.message,
+      });
+      return;
+    }
+    throw error;
   }
-);
+});
 
 /**
  * POST /api/payroll/recalculate/:timesheetId

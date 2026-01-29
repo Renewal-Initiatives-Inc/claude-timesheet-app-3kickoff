@@ -1,10 +1,5 @@
 import { Router, Request, Response } from 'express';
-import {
-  register,
-  login,
-  logout,
-  AuthError,
-} from '../services/auth.service.js';
+import { register, login, logout, AuthError } from '../services/auth.service.js';
 import {
   requestPasswordReset,
   validateResetToken,
@@ -55,9 +50,7 @@ router.post(
     } catch (error) {
       if (error instanceof AuthError) {
         const statusCode =
-          error.code === 'EMAIL_EXISTS' ? 409 :
-          error.code === 'AGE_TOO_YOUNG' ? 400 :
-          400;
+          error.code === 'EMAIL_EXISTS' ? 409 : error.code === 'AGE_TOO_YOUNG' ? 400 : 400;
         res.status(statusCode).json({
           error: error.code,
           message: error.message,
@@ -73,27 +66,32 @@ router.post(
  * POST /api/auth/login
  * Authenticate with email and password.
  */
-router.post('/login', loginRateLimiter, validate(loginSchema), async (req: Request, res: Response) => {
-  try {
-    const { email, password } = req.body;
-    const result = await login(email, password);
+router.post(
+  '/login',
+  loginRateLimiter,
+  validate(loginSchema),
+  async (req: Request, res: Response) => {
+    try {
+      const { email, password } = req.body;
+      const result = await login(email, password);
 
-    res.json({
-      token: result.token,
-      employee: result.employee,
-    });
-  } catch (error) {
-    if (error instanceof AuthError) {
-      const statusCode = error.code === 'ACCOUNT_LOCKED' ? 423 : 401;
-      res.status(statusCode).json({
-        error: error.code,
-        message: error.message,
+      res.json({
+        token: result.token,
+        employee: result.employee,
       });
-      return;
+    } catch (error) {
+      if (error instanceof AuthError) {
+        const statusCode = error.code === 'ACCOUNT_LOCKED' ? 423 : 401;
+        res.status(statusCode).json({
+          error: error.code,
+          message: error.message,
+        });
+        return;
+      }
+      throw error;
     }
-    throw error;
   }
-});
+);
 
 /**
  * POST /api/auth/logout

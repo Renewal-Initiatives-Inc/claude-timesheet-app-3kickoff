@@ -5,10 +5,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3001),
   // DATABASE_URL is optional at startup to allow health checks without DB
   // The db module will throw if DATABASE_URL is missing when actually accessing the database
-  DATABASE_URL: z
-    .string()
-    .url('DATABASE_URL must be a valid PostgreSQL URL')
-    .optional(),
+  DATABASE_URL: z.string().url('DATABASE_URL must be a valid PostgreSQL URL').optional(),
   FRONTEND_URL: z.string().default('http://localhost:5173'),
 
   // Authentication

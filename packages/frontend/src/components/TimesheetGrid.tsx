@@ -1,4 +1,9 @@
-import type { TimesheetWithEntries, TimesheetTotals, TimesheetEntryWithTaskCode, HourLimits } from '@renewal/types';
+import type {
+  TimesheetWithEntries,
+  TimesheetTotals,
+  TimesheetEntryWithTaskCode,
+  HourLimits,
+} from '@renewal/types';
 import { DayCell } from './DayCell.js';
 import './TimesheetGrid.css';
 
@@ -66,7 +71,9 @@ function isDefaultSchoolDay(dateStr: string): boolean {
 /**
  * Group entries by date
  */
-function groupEntriesByDate(entries: TimesheetEntryWithTaskCode[]): Map<string, TimesheetEntryWithTaskCode[]> {
+function groupEntriesByDate(
+  entries: TimesheetEntryWithTaskCode[]
+): Map<string, TimesheetEntryWithTaskCode[]> {
   const grouped = new Map<string, TimesheetEntryWithTaskCode[]>();
   for (const entry of entries) {
     const existing = grouped.get(entry.workDate) || [];
@@ -103,9 +110,8 @@ export function TimesheetGrid({
       <div className="grid-body" data-testid="timesheet-grid-body">
         {weekDates.map((date) => {
           const entries = entriesByDate.get(date) || [];
-          const isSchoolDay = entries.length > 0
-            ? entries[0]!.isSchoolDay
-            : isDefaultSchoolDay(date);
+          const isSchoolDay =
+            entries.length > 0 ? entries[0]!.isSchoolDay : isDefaultSchoolDay(date);
           const dailyLimit = getDailyLimit(employeeAge, isSchoolDay, totals.limits);
 
           return (

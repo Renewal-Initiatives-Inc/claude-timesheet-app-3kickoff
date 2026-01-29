@@ -40,7 +40,13 @@ export interface AccountLockStatus {
 export class AuthError extends Error {
   constructor(
     message: string,
-    public code: 'INVALID_CREDENTIALS' | 'ACCOUNT_LOCKED' | 'PASSWORD_TOO_WEAK' | 'EMAIL_EXISTS' | 'EMPLOYEE_NOT_FOUND' | 'AGE_TOO_YOUNG'
+    public code:
+      | 'INVALID_CREDENTIALS'
+      | 'ACCOUNT_LOCKED'
+      | 'PASSWORD_TOO_WEAK'
+      | 'EMAIL_EXISTS'
+      | 'EMPLOYEE_NOT_FOUND'
+      | 'AGE_TOO_YOUNG'
   ) {
     super(message);
     this.name = 'AuthError';
@@ -66,7 +72,10 @@ function toPublic(employee: Employee): EmployeePublic {
  * Register a new employee account.
  * Called by supervisors to create accounts for new employees.
  */
-export async function register(data: RegisterData): Promise<{ employee: EmployeePublic; requiredDocuments: ReturnType<typeof getRequiredDocuments> }> {
+export async function register(data: RegisterData): Promise<{
+  employee: EmployeePublic;
+  requiredDocuments: ReturnType<typeof getRequiredDocuments>;
+}> {
   // Validate age requirement
   try {
     validateEmployeeAge(data.dateOfBirth);

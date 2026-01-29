@@ -30,10 +30,7 @@ export function generateComplianceAuditCSV(records: ComplianceAuditRecord[]): st
     record.weekStartDate,
   ]);
 
-  const csvContent = [
-    headers.join(','),
-    ...rows.map((row) => row.join(',')),
-  ].join('\n');
+  const csvContent = [headers.join(','), ...rows.map((row) => row.join(','))].join('\n');
 
   return csvContent;
 }

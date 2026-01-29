@@ -1,6 +1,12 @@
 import { useState, useCallback } from 'react';
 import type { PayrollRecordWithDetails, PayrollReportSummary } from '@renewal/types';
-import { getPayrollReport, exportPayrollCSV, getEmployees, ApiRequestError, type AgeBand } from '../api/client.js';
+import {
+  getPayrollReport,
+  exportPayrollCSV,
+  getEmployees,
+  ApiRequestError,
+  type AgeBand,
+} from '../api/client.js';
 import './PayrollReportPage.css';
 
 /**
@@ -252,7 +258,9 @@ export function PayrollReportPage() {
               </div>
               <div className="summary-card">
                 <span className="summary-label">Non-Ag Hours</span>
-                <span className="summary-value">{formatHours(summary.totalNonAgriculturalHours)}</span>
+                <span className="summary-value">
+                  {formatHours(summary.totalNonAgriculturalHours)}
+                </span>
               </div>
               <div className="summary-card">
                 <span className="summary-label">OT Hours</span>
@@ -278,9 +286,7 @@ export function PayrollReportPage() {
               >
                 {exporting ? 'Exporting...' : 'Download CSV'}
               </button>
-              {exportError && (
-                <span className="export-error">{exportError}</span>
-              )}
+              {exportError && <span className="export-error">{exportError}</span>}
             </div>
           )}
 

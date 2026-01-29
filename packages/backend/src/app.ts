@@ -4,7 +4,11 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { env } from './config/env.js';
 import { generalRateLimiter } from './middleware/rate-limit.middleware.js';
-import { csrfProtection, csrfTokenEndpoint, csrfTokenGenerator } from './middleware/csrf.middleware.js';
+import {
+  csrfProtection,
+  csrfTokenEndpoint,
+  csrfTokenGenerator,
+} from './middleware/csrf.middleware.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.middleware.js';
 import healthRouter from './routes/health.js';
 import authRouter from './routes/auth.js';

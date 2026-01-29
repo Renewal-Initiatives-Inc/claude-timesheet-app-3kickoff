@@ -19,15 +19,14 @@ function createMockContext(
     checkDate?: string;
   } = {}
 ): ComplianceContext {
-  const {
-    ageBand = '14-15',
-    documents = [],
-    checkDate = '2024-06-15',
-  } = options;
+  const { ageBand = '14-15', documents = [], checkDate = '2024-06-15' } = options;
 
   const dailyAgeBands = new Map<string, AgeBand>([['2024-06-10', ageBand]]);
   const dailyAges = new Map<string, number>([
-    ['2024-06-10', ageBand === '12-13' ? 13 : ageBand === '14-15' ? 15 : ageBand === '16-17' ? 17 : 18],
+    [
+      '2024-06-10',
+      ageBand === '12-13' ? 13 : ageBand === '14-15' ? 15 : ageBand === '16-17' ? 17 : 18,
+    ],
   ]);
 
   const fullDocuments: EmployeeDocument[] = documents.map((doc, i) => ({

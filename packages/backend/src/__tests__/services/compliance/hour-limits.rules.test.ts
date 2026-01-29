@@ -24,12 +24,7 @@ function createMockContext(
     isSchoolWeek?: boolean;
   } = {}
 ): ComplianceContext {
-  const {
-    ageBand = '14-15',
-    dailyHours = {},
-    schoolDays = [],
-    isSchoolWeek = false,
-  } = options;
+  const { ageBand = '14-15', dailyHours = {}, schoolDays = [], isSchoolWeek = false } = options;
 
   const dailyHoursMap = new Map<string, number>(Object.entries(dailyHours));
   const dailyAgeBands = new Map<string, AgeBand>();
@@ -40,11 +35,13 @@ function createMockContext(
   for (const date of dailyHoursMap.keys()) {
     dailyAgeBands.set(date, ageBand);
     dailyAges.set(date, ageBand === '12-13' ? 13 : ageBand === '14-15' ? 15 : 17);
-    dailyEntries.set(date, [{
-      id: `entry-${date}`,
-      workDate: date,
-      isSchoolDay: schoolDays.includes(date),
-    }]);
+    dailyEntries.set(date, [
+      {
+        id: `entry-${date}`,
+        workDate: date,
+        isSchoolDay: schoolDays.includes(date),
+      },
+    ]);
   }
 
   return {

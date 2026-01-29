@@ -1,8 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import {
-  scrubSensitiveData,
-  formatError,
-} from '../../utils/logger.js';
+import { describe, it, expect, afterEach } from 'vitest';
+import { scrubSensitiveData, formatError } from '../../utils/logger.js';
 
 describe('Logger Utilities', () => {
   describe('scrubSensitiveData', () => {
@@ -96,10 +93,7 @@ describe('Logger Utilities', () => {
     it('should preserve arrays while scrubbing nested objects', () => {
       const data = {
         items: ['string1', 'string2'],
-        mixed: [
-          { email: 'user@test.com', password: 'pass1' },
-          'plain string',
-        ],
+        mixed: [{ email: 'user@test.com', password: 'pass1' }, 'plain string'],
       };
 
       const scrubbed = scrubSensitiveData(data);
@@ -195,7 +189,10 @@ describe('Logger Utilities', () => {
 
     it('should handle custom error types', () => {
       class CustomError extends Error {
-        constructor(message: string, public code: string) {
+        constructor(
+          message: string,
+          public code: string
+        ) {
           super(message);
           this.name = 'CustomError';
         }

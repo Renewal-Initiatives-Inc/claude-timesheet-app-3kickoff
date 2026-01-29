@@ -33,15 +33,35 @@ export function AddEmployee() {
 
   const getRequiredDocs = (age: number): RequiredDocuments => {
     if (age < 12) {
-      return { parentalConsent: false, workPermit: false, safetyTraining: false, coppaDisclosure: false };
+      return {
+        parentalConsent: false,
+        workPermit: false,
+        safetyTraining: false,
+        coppaDisclosure: false,
+      };
     }
     if (age <= 13) {
-      return { parentalConsent: true, workPermit: false, safetyTraining: true, coppaDisclosure: true };
+      return {
+        parentalConsent: true,
+        workPermit: false,
+        safetyTraining: true,
+        coppaDisclosure: true,
+      };
     }
     if (age <= 17) {
-      return { parentalConsent: true, workPermit: true, safetyTraining: true, coppaDisclosure: false };
+      return {
+        parentalConsent: true,
+        workPermit: true,
+        safetyTraining: true,
+        coppaDisclosure: false,
+      };
     }
-    return { parentalConsent: false, workPermit: false, safetyTraining: false, coppaDisclosure: false };
+    return {
+      parentalConsent: false,
+      workPermit: false,
+      safetyTraining: false,
+      coppaDisclosure: false,
+    };
   };
 
   const handleDobChange = (dob: string) => {
@@ -107,7 +127,12 @@ export function AddEmployee() {
         {error && (
           <div className="form-error">
             {error}
-            <button type="button" onClick={() => setError(null)} className="error-close" data-testid="add-employee-error-close-button">
+            <button
+              type="button"
+              onClick={() => setError(null)}
+              className="error-close"
+              data-testid="add-employee-error-close-button"
+            >
               ×
             </button>
           </div>
@@ -211,9 +236,7 @@ export function AddEmployee() {
                 Generate
               </button>
             </div>
-            <p className="field-hint">
-              Must be at least 8 characters with letters and numbers.
-            </p>
+            <p className="field-hint">Must be at least 8 characters with letters and numbers.</p>
           </div>
         </div>
 

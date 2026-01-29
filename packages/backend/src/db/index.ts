@@ -10,7 +10,8 @@ const { Pool } = pg;
 const isVercel = process.env['VERCEL'] === '1';
 const nodeEnv = process.env['NODE_ENV'];
 const databaseUrl = process.env['DATABASE_URL'];
-const isLocal = nodeEnv === 'development' || nodeEnv === 'test' || databaseUrl?.includes('localhost');
+const isLocal =
+  nodeEnv === 'development' || nodeEnv === 'test' || databaseUrl?.includes('localhost');
 
 // Create appropriate database client
 function createDb() {

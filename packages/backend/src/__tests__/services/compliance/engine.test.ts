@@ -1,12 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type {
-  ComplianceRule,
-  ComplianceContext,
-  RuleResult,
-  ComplianceEmployee,
-  EmployeeDocument,
-} from '../../../services/compliance/types.js';
-import type { TimesheetWithEntries, TimesheetEntryWithTaskCode } from '../../../services/timesheet.service.js';
+import type { ComplianceRule, ComplianceContext } from '../../../services/compliance/types.js';
 import type { AgeBand } from '../../../utils/age.js';
 
 // Mock the database module

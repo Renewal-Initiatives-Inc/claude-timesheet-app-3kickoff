@@ -68,6 +68,7 @@ BLOB_READ_WRITE_TOKEN=<from-vercel-blob-dashboard>
 ```
 
 **Acceptance Criteria:**
+
 - [ ] All required environment variables set in Vercel dashboard
 - [ ] Variables set for Production environment (not Preview/Development)
 - [ ] No development secrets used in production
@@ -83,12 +84,14 @@ BLOB_READ_WRITE_TOKEN=<from-vercel-blob-dashboard>
 #### 2.1 Create Vercel Postgres Database
 
 **Steps:**
+
 1. Go to Vercel Dashboard → Storage → Create Database
 2. Select PostgreSQL
 3. Choose region closest to users (US East recommended)
 4. Note the connection string (automatically added to env vars)
 
 **Verification:**
+
 ```bash
 # Connection string should use pooler endpoint for serverless
 # Format: postgres://...@...-pooler.vercel-storage.com/verceldb
@@ -97,14 +100,17 @@ BLOB_READ_WRITE_TOKEN=<from-vercel-blob-dashboard>
 #### 2.2 Run Database Migrations
 
 **Steps:**
+
 1. Set DATABASE_URL environment variable locally to production database
 2. Run migrations:
+
 ```bash
 # From project root with production DATABASE_URL
 npm run db:migrate -w @renewal/backend
 ```
 
 **Verification:**
+
 ```bash
 # Verify tables created (via Vercel Postgres dashboard or psql)
 # Expected tables:
@@ -121,6 +127,7 @@ npm run db:migrate -w @renewal/backend
 ```
 
 **Acceptance Criteria:**
+
 - [ ] All migrations run successfully
 - [ ] All tables created with correct schema
 - [ ] Indexes created for performance-critical queries
@@ -136,24 +143,25 @@ npm run db:migrate -w @renewal/backend
 
 **Before seeding, confirm with Renewal Initiatives:**
 
-| Code | Name | Rate | Ag/Non-Ag | Min Age | Notes |
-|------|------|------|-----------|---------|-------|
-| F1 | Field Harvesting - Light | $8.00/hr | Agricultural | 12 | |
-| F2 | Field Planting | $8.00/hr | Agricultural | 12 | |
-| F3 | Irrigation Assistance | $8.00/hr | Agricultural | 14 | |
-| F4 | Equipment Operation - Light | $8.00/hr | Agricultural | 16 | Power machinery |
-| F5 | Heavy Equipment Operation | $8.00/hr | Agricultural | 18 | Hazardous |
-| F6 | Pesticide Application | $8.00/hr | Agricultural | 18 | Hazardous |
-| R1 | Farm Stand - Customer Service | $15.00/hr | Non-Agricultural | 12 | |
-| R2 | Farm Stand - Cash Register | $15.00/hr | Non-Agricultural | 16 | Cash handling |
-| R3 | Inventory Stocking | $15.00/hr | Non-Agricultural | 12 | |
-| A1 | Office Filing | $15.00/hr | Non-Agricultural | 14 | |
-| A2 | Data Entry | $15.00/hr | Non-Agricultural | 14 | |
-| M1 | Grounds Keeping - Light | $15.00/hr | Non-Agricultural | 12 | |
-| M2 | Grounds Keeping - Power Tools | $15.00/hr | Non-Agricultural | 16 | Power machinery |
-| D1 | Delivery Driver | $15.00/hr | Non-Agricultural | 18 | Driving required |
+| Code | Name                          | Rate      | Ag/Non-Ag        | Min Age | Notes            |
+| ---- | ----------------------------- | --------- | ---------------- | ------- | ---------------- |
+| F1   | Field Harvesting - Light      | $8.00/hr  | Agricultural     | 12      |                  |
+| F2   | Field Planting                | $8.00/hr  | Agricultural     | 12      |                  |
+| F3   | Irrigation Assistance         | $8.00/hr  | Agricultural     | 14      |                  |
+| F4   | Equipment Operation - Light   | $8.00/hr  | Agricultural     | 16      | Power machinery  |
+| F5   | Heavy Equipment Operation     | $8.00/hr  | Agricultural     | 18      | Hazardous        |
+| F6   | Pesticide Application         | $8.00/hr  | Agricultural     | 18      | Hazardous        |
+| R1   | Farm Stand - Customer Service | $15.00/hr | Non-Agricultural | 12      |                  |
+| R2   | Farm Stand - Cash Register    | $15.00/hr | Non-Agricultural | 16      | Cash handling    |
+| R3   | Inventory Stocking            | $15.00/hr | Non-Agricultural | 12      |                  |
+| A1   | Office Filing                 | $15.00/hr | Non-Agricultural | 14      |                  |
+| A2   | Data Entry                    | $15.00/hr | Non-Agricultural | 14      |                  |
+| M1   | Grounds Keeping - Light       | $15.00/hr | Non-Agricultural | 12      |                  |
+| M2   | Grounds Keeping - Power Tools | $15.00/hr | Non-Agricultural | 16      | Power machinery  |
+| D1   | Delivery Driver               | $15.00/hr | Non-Agricultural | 18      | Driving required |
 
 **Questions for organization:**
+
 - [ ] Are rates accurate? (Agricultural minimum: $8/hr, Non-agricultural: $15/hr)
 - [ ] Any additional task codes needed?
 - [ ] Any task codes to remove or modify?
@@ -176,12 +184,14 @@ npm run db:migrate -w @renewal/backend
 ```
 
 **Commands:**
+
 ```bash
 # Run production seed (task codes only)
 npm run db:seed:production -w @renewal/backend
 ```
 
 **Acceptance Criteria:**
+
 - [ ] Task codes confirmed with organization
 - [ ] Rates verified accurate
 - [ ] Production seed script created (no test data)
@@ -197,8 +207,9 @@ npm run db:seed:production -w @renewal/backend
 #### 4.1 Determine Initial Supervisor
 
 **Collect from organization:**
-- Full name: ____________________
-- Email: ____________________
+
+- Full name: **\*\*\*\***\_\_\_\_**\*\*\*\***
+- Email: **\*\*\*\***\_\_\_\_**\*\*\*\***
 - Temporary password: (will be reset on first login)
 
 #### 4.2 Create Account via API or Script
@@ -237,6 +248,7 @@ INSERT INTO employees (
 ```
 
 **Acceptance Criteria:**
+
 - [ ] Initial supervisor account created
 - [ ] Supervisor can log in to production
 - [ ] Password reset works for supervisor
@@ -251,11 +263,13 @@ INSERT INTO employees (
 #### 5.1 Trigger Production Deployment
 
 **Option A: Git push (recommended)**
+
 ```bash
 git push origin main
 ```
 
 **Option B: Vercel CLI**
+
 ```bash
 vercel --prod
 ```
@@ -263,12 +277,14 @@ vercel --prod
 #### 5.2 Verify Deployment
 
 **Checks:**
+
 - [ ] Build completes successfully (Vercel dashboard → Deployments)
 - [ ] No build errors in logs
 - [ ] Production URL accessible (https://<app>.vercel.app)
 - [ ] API health check returns 200 (`/api/health`)
 
 **Acceptance Criteria:**
+
 - [ ] Production deployment successful
 - [ ] No build errors
 - [ ] Application loads in browser
@@ -285,6 +301,7 @@ vercel --prod
 Perform these tests as the initial supervisor:
 
 **Authentication Flow:**
+
 - [ ] Login with supervisor credentials
 - [ ] Logout works
 - [ ] Invalid credentials rejected
@@ -293,6 +310,7 @@ Perform these tests as the initial supervisor:
 - [ ] Password reset completes successfully
 
 **Employee Management:**
+
 - [ ] Create new employee (adult first)
 - [ ] Create minor employee (age 14)
 - [ ] Upload parental consent document
@@ -300,12 +318,14 @@ Perform these tests as the initial supervisor:
 - [ ] Employee receives credentials email
 
 **Task Code Management:**
+
 - [ ] View all task codes
 - [ ] Task codes filtered by age (test with minor employee)
 - [ ] Add new rate to task code
 - [ ] Rate versioning visible
 
 **Timesheet Flow (as employee):**
+
 - [ ] Create timesheet for current week
 - [ ] Add time entries
 - [ ] Task dropdown filtered by age
@@ -314,12 +334,14 @@ Perform these tests as the initial supervisor:
 - [ ] Submit timesheet
 
 **Compliance Engine:**
+
 - [ ] Submit valid timesheet → success
 - [ ] Submit invalid timesheet (over hours) → compliance error
 - [ ] Error messages are actionable
 - [ ] Compliance check logs created
 
 **Supervisor Review:**
+
 - [ ] See pending timesheets queue
 - [ ] Review timesheet (read-only)
 - [ ] Approve timesheet
@@ -327,15 +349,18 @@ Perform these tests as the initial supervisor:
 - [ ] Employee sees rejection notes
 
 **Payroll:**
+
 - [ ] Calculate payroll for approved timesheet
 - [ ] Export CSV downloads correctly
 - [ ] Payroll record created
 
 **Alerts & Notifications:**
+
 - [ ] Dashboard shows pending counts
 - [ ] Alert notifications display
 
 **Reports:**
+
 - [ ] Compliance audit report generates
 - [ ] Timesheet history report generates
 - [ ] Filters work correctly
@@ -351,6 +376,7 @@ PLAYWRIGHT_BASE_URL=https://<app>.vercel.app npm run test:e2e
 **Note**: Some E2E tests may need modification to work with production (no database reset between tests).
 
 **Acceptance Criteria:**
+
 - [ ] All smoke tests pass
 - [ ] Critical user flows verified
 - [ ] No JavaScript errors in browser console
@@ -365,6 +391,7 @@ PLAYWRIGHT_BASE_URL=https://<app>.vercel.app npm run test:e2e
 #### 7.1 Configure Postmark Production
 
 **Steps:**
+
 1. Log into Postmark dashboard
 2. Create production server (or use existing)
 3. Get server API token
@@ -372,16 +399,19 @@ PLAYWRIGHT_BASE_URL=https://<app>.vercel.app npm run test:e2e
 5. Verify sender domain (renewal.org)
 
 **Verification Emails to Send:**
+
 - [ ] Password reset request → Email received
 - [ ] New employee creation → Credentials email received
 - [ ] (If alerts due) → Alert email received
 
 **Postmark Dashboard Checks:**
+
 - [ ] Activity feed shows sent emails
 - [ ] No bounces or complaints
 - [ ] Delivery rate > 95%
 
 **Acceptance Criteria:**
+
 - [ ] Postmark production server configured
 - [ ] Sender domain verified
 - [ ] Test emails delivered successfully
@@ -396,6 +426,7 @@ PLAYWRIGHT_BASE_URL=https://<app>.vercel.app npm run test:e2e
 #### 8.1 Test Document Upload
 
 **Steps:**
+
 1. Create test minor employee
 2. Upload parental consent document (PDF)
 3. Upload work permit document (PDF)
@@ -403,6 +434,7 @@ PLAYWRIGHT_BASE_URL=https://<app>.vercel.app npm run test:e2e
 5. Download/view documents
 
 **Verification:**
+
 - [ ] Documents upload without error
 - [ ] Documents stored in Vercel Blob
 - [ ] Documents retrievable
@@ -410,10 +442,12 @@ PLAYWRIGHT_BASE_URL=https://<app>.vercel.app npm run test:e2e
 - [ ] File type validation works
 
 **Vercel Blob Dashboard Checks:**
+
 - [ ] Files visible in storage
 - [ ] Usage within limits
 
 **Acceptance Criteria:**
+
 - [ ] Document upload works
 - [ ] Documents persist and are retrievable
 - [ ] Storage quotas acceptable
@@ -427,12 +461,14 @@ PLAYWRIGHT_BASE_URL=https://<app>.vercel.app npm run test:e2e
 #### 9.1 Manual Cron Test
 
 **Trigger cron manually (with auth):**
+
 ```bash
 curl -X GET "https://<app>.vercel.app/api/crons/check-alerts" \
   -H "Authorization: Bearer <CRON_SECRET>"
 ```
 
 **Expected response:**
+
 ```json
 {
   "success": true,
@@ -442,16 +478,19 @@ curl -X GET "https://<app>.vercel.app/api/crons/check-alerts" \
 ```
 
 **Verification:**
+
 - [ ] Cron endpoint responds with 200
 - [ ] Unauthorized requests rejected (401)
 - [ ] Alerts generated if employees have upcoming events
 - [ ] Emails sent for generated alerts
 
 **Vercel Dashboard Checks:**
+
 - [ ] Cron job visible in project settings
 - [ ] Schedule correct (daily at 8 AM ET / 1 PM UTC)
 
 **Acceptance Criteria:**
+
 - [ ] Cron job executes successfully
 - [ ] Alerts generated correctly
 - [ ] Emails sent for alerts
@@ -469,18 +508,20 @@ curl -X GET "https://<app>.vercel.app/api/crons/check-alerts" \
 
 **Content:**
 
-```markdown
+````markdown
 # Backup & Recovery Procedures
 
 ## Automatic Backups
 
 Vercel Postgres provides automatic daily backups:
+
 - Retention: 7 days (Hobby plan) / 30 days (Pro plan)
 - Point-in-time recovery available on Pro plan
 
 ## Manual Backup
 
 ### Database Export
+
 ```bash
 # Export full database
 pg_dump "DATABASE_URL" > backup_$(date +%Y%m%d).sql
@@ -488,20 +529,24 @@ pg_dump "DATABASE_URL" > backup_$(date +%Y%m%d).sql
 # Export specific tables
 pg_dump "DATABASE_URL" -t employees -t timesheets > critical_$(date +%Y%m%d).sql
 ```
+````
 
 ### Vercel Blob Export
+
 Documents stored in Vercel Blob are not automatically backed up.
 Download critical documents monthly via dashboard or API.
 
 ## Recovery Procedures
 
 ### Full Database Restore
+
 1. Create new Vercel Postgres database
 2. Import backup: `psql "NEW_DATABASE_URL" < backup.sql`
 3. Update DATABASE_URL in Vercel environment variables
 4. Redeploy
 
 ### Point-in-Time Recovery (Pro plan)
+
 1. Go to Vercel Dashboard → Storage → Database
 2. Click "Restore"
 3. Select date/time
@@ -510,6 +555,7 @@ Download critical documents monthly via dashboard or API.
 ## Testing Backups
 
 Monthly backup verification:
+
 1. Export production database
 2. Import to local/test environment
 3. Verify data integrity
@@ -518,11 +564,13 @@ Monthly backup verification:
 ## Retention Policy
 
 Per REQ-022, retain all data for minimum 3 years:
+
 - Timesheets and entries
 - Compliance check logs
 - Documents (consent forms, work permits)
 - Payroll records
-```
+
+````
 
 **Acceptance Criteria:**
 - [ ] Backup procedure documented
@@ -554,25 +602,30 @@ Per REQ-022, retain all data for minimum 3 years:
 ### CLI Rollback
 ```bash
 vercel rollback
-```
+````
 
 ### Database Rollback
+
 If database changes were made:
+
 1. Identify breaking migration
 2. Restore from backup (see BACKUP.md)
 3. Or manually reverse migration
 
 ### When to Rollback
+
 - Critical functionality broken
 - Security vulnerability discovered
 - Performance severely degraded
 - Data corruption occurring
 
 ### Post-Rollback Steps
+
 1. Notify team of rollback
 2. Investigate root cause
 3. Fix issue in development
 4. Deploy fix with enhanced testing
+
 ```
 
 **Acceptance Criteria:**
@@ -806,3 +859,4 @@ After successful launch:
 4. Plan first backup restoration drill (month 1)
 5. Document lessons learned
 6. Celebrate successful launch!
+```

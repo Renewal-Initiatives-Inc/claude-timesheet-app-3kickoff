@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { ReviewQueueItem, TimesheetReviewData, ComplianceCheckLog } from '@renewal/types';
+import type { ReviewQueueItem, TimesheetReviewData } from '@renewal/types';
 import {
   getReviewQueue,
   getPendingReviewCount,
@@ -152,45 +152,51 @@ export function useReviewDetail(timesheetId: string | undefined): UseReviewDetai
     fetchReviewData();
   }, [fetchReviewData]);
 
-  const approve = useCallback(async (notes?: string): Promise<boolean> => {
-    if (!timesheetId) return false;
+  const approve = useCallback(
+    async (notes?: string): Promise<boolean> => {
+      if (!timesheetId) return false;
 
-    setApproving(true);
-    setError(null);
-    try {
-      await approveTimesheet(timesheetId, notes);
-      return true;
-    } catch (err) {
-      if (err instanceof ApiRequestError) {
-        setError(err.message);
-      } else {
-        setError('Failed to approve timesheet');
+      setApproving(true);
+      setError(null);
+      try {
+        await approveTimesheet(timesheetId, notes);
+        return true;
+      } catch (err) {
+        if (err instanceof ApiRequestError) {
+          setError(err.message);
+        } else {
+          setError('Failed to approve timesheet');
+        }
+        return false;
+      } finally {
+        setApproving(false);
       }
-      return false;
-    } finally {
-      setApproving(false);
-    }
-  }, [timesheetId]);
+    },
+    [timesheetId]
+  );
 
-  const reject = useCallback(async (notes: string): Promise<boolean> => {
-    if (!timesheetId) return false;
+  const reject = useCallback(
+    async (notes: string): Promise<boolean> => {
+      if (!timesheetId) return false;
 
-    setRejecting(true);
-    setError(null);
-    try {
-      await rejectTimesheet(timesheetId, notes);
-      return true;
-    } catch (err) {
-      if (err instanceof ApiRequestError) {
-        setError(err.message);
-      } else {
-        setError('Failed to reject timesheet');
+      setRejecting(true);
+      setError(null);
+      try {
+        await rejectTimesheet(timesheetId, notes);
+        return true;
+      } catch (err) {
+        if (err instanceof ApiRequestError) {
+          setError(err.message);
+        } else {
+          setError('Failed to reject timesheet');
+        }
+        return false;
+      } finally {
+        setRejecting(false);
       }
-      return false;
-    } finally {
-      setRejecting(false);
-    }
-  }, [timesheetId]);
+    },
+    [timesheetId]
+  );
 
   return {
     reviewData,

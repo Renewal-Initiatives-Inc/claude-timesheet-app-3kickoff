@@ -98,7 +98,9 @@ export const taskAgeRestrictionRule: ComplianceRule = {
 
     const first = violations[0]!;
     // Find the minimum age for this task
-    const minAge = context.dailyEntries.get(first.date)?.find(e => e.id === first.entryId)?.taskCode.minAgeAllowed ?? 0;
+    const minAge =
+      context.dailyEntries.get(first.date)?.find((e) => e.id === first.entryId)?.taskCode
+        .minAgeAllowed ?? 0;
 
     return {
       ruleId: 'RULE-005',
@@ -429,8 +431,7 @@ export const supervisorAttestationRule: ComplianceRule = {
         // Check if supervisor required
         const supervisorRequired = entry.taskCode.supervisorRequired;
         const needsSupervisor =
-          supervisorRequired === 'always' ||
-          (supervisorRequired === 'for_minors' && age < 18);
+          supervisorRequired === 'always' || (supervisorRequired === 'for_minors' && age < 18);
 
         if (needsSupervisor) {
           // Check if supervisor name is provided

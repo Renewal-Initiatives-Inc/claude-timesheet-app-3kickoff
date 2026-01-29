@@ -283,9 +283,7 @@ export function ComplianceAuditReport() {
 
       {/* Loading State */}
       {loading && (
-        <div className="compliance-audit-report-loading">
-          Loading compliance audit data...
-        </div>
+        <div className="compliance-audit-report-loading">Loading compliance audit data...</div>
       )}
 
       {/* Results */}
@@ -332,9 +330,7 @@ export function ComplianceAuditReport() {
               >
                 {exporting ? 'Exporting...' : 'Download CSV'}
               </button>
-              {exportError && (
-                <span className="export-error">{exportError}</span>
-              )}
+              {exportError && <span className="export-error">{exportError}</span>}
             </div>
           )}
 
@@ -347,7 +343,10 @@ export function ComplianceAuditReport() {
             </div>
           ) : (
             <div className="compliance-audit-report-content">
-              <table className="compliance-audit-report-table" data-testid="compliance-audit-results-table">
+              <table
+                className="compliance-audit-report-table"
+                data-testid="compliance-audit-results-table"
+              >
                 <thead>
                   <tr>
                     <th></th>
@@ -388,10 +387,7 @@ export function ComplianceAuditReport() {
                         </td>
                         <td className="week">{formatDate(record.weekStartDate)}</td>
                         <td>
-                          <a
-                            href={`/review/${record.timesheetId}`}
-                            className="view-link"
-                          >
+                          <a href={`/review/${record.timesheetId}`} className="view-link">
                             View Timesheet
                           </a>
                         </td>

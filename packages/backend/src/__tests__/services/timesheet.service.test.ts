@@ -132,21 +132,19 @@ describe('Timesheet Service', () => {
     });
 
     it('should throw error for non-Sunday week start date', async () => {
-      await expect(
-        getOrCreateTimesheet('emp-1', '2024-06-10')
-      ).rejects.toThrow(TimesheetError);
+      await expect(getOrCreateTimesheet('emp-1', '2024-06-10')).rejects.toThrow(TimesheetError);
 
-      await expect(
-        getOrCreateTimesheet('emp-1', '2024-06-10')
-      ).rejects.toThrow('Week start date must be a Sunday');
+      await expect(getOrCreateTimesheet('emp-1', '2024-06-10')).rejects.toThrow(
+        'Week start date must be a Sunday'
+      );
     });
 
     it('should throw error for non-existent employee', async () => {
       vi.mocked(db.query.employees.findFirst).mockResolvedValueOnce(null as never);
 
-      await expect(
-        getOrCreateTimesheet('non-existent', '2024-06-09')
-      ).rejects.toThrow(TimesheetError);
+      await expect(getOrCreateTimesheet('non-existent', '2024-06-09')).rejects.toThrow(
+        TimesheetError
+      );
     });
   });
 

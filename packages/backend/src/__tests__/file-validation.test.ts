@@ -38,7 +38,9 @@ describe('File Upload Validation', () => {
 
     it('should reject Word documents', () => {
       expect(isAllowedFileType('application/msword')).toBe(false);
-      expect(isAllowedFileType('application/vnd.openxmlformats-officedocument.wordprocessingml.document')).toBe(false);
+      expect(
+        isAllowedFileType('application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+      ).toBe(false);
     });
 
     it('should reject executables', () => {

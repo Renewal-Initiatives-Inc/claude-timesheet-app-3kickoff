@@ -17,9 +17,7 @@ const { employees, employeeDocuments } = schema;
  * @param employeeId - Employee UUID
  * @returns Documentation status
  */
-export async function getDocumentationStatus(
-  employeeId: string
-): Promise<DocumentationStatus> {
+export async function getDocumentationStatus(employeeId: string): Promise<DocumentationStatus> {
   // Get employee
   const employee = await db.query.employees.findFirst({
     where: eq(employees.id, employeeId),
@@ -115,7 +113,7 @@ export async function isDocumentationComplete(employeeId: string): Promise<boole
   try {
     const status = await getDocumentationStatus(employeeId);
     return status.isComplete;
-  } catch (error) {
+  } catch {
     // If employee not found or other error, treat as incomplete
     return false;
   }

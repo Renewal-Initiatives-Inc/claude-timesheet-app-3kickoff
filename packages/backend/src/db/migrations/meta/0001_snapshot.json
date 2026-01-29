@@ -66,12 +66,8 @@
           "name": "employee_documents_employee_id_employees_id_fk",
           "tableFrom": "employee_documents",
           "tableTo": "employees",
-          "columnsFrom": [
-            "employee_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["employee_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -79,12 +75,8 @@
           "name": "employee_documents_uploaded_by_employees_id_fk",
           "tableFrom": "employee_documents",
           "tableTo": "employees",
-          "columnsFrom": [
-            "uploaded_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["uploaded_by"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -180,9 +172,7 @@
         "employees_email_unique": {
           "name": "employees_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -238,12 +228,8 @@
           "name": "task_code_rates_task_code_id_task_codes_id_fk",
           "tableFrom": "task_code_rates",
           "tableTo": "task_codes",
-          "columnsFrom": [
-            "task_code_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["task_code_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -355,9 +341,7 @@
         "task_codes_code_unique": {
           "name": "task_codes_code_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "code"
-          ]
+          "columns": ["code"]
         }
       },
       "policies": {},
@@ -450,12 +434,8 @@
           "name": "timesheet_entries_timesheet_id_timesheets_id_fk",
           "tableFrom": "timesheet_entries",
           "tableTo": "timesheets",
-          "columnsFrom": [
-            "timesheet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["timesheet_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -463,12 +443,8 @@
           "name": "timesheet_entries_task_code_id_task_codes_id_fk",
           "tableFrom": "timesheet_entries",
           "tableTo": "task_codes",
-          "columnsFrom": [
-            "task_code_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["task_code_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -555,12 +531,8 @@
           "name": "timesheets_employee_id_employees_id_fk",
           "tableFrom": "timesheets",
           "tableTo": "employees",
-          "columnsFrom": [
-            "employee_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["employee_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -568,12 +540,8 @@
           "name": "timesheets_reviewed_by_employees_id_fk",
           "tableFrom": "timesheets",
           "tableTo": "employees",
-          "columnsFrom": [
-            "reviewed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["reviewed_by"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -640,12 +608,8 @@
           "name": "compliance_check_logs_timesheet_id_timesheets_id_fk",
           "tableFrom": "compliance_check_logs",
           "tableTo": "timesheets",
-          "columnsFrom": [
-            "timesheet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["timesheet_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -753,12 +717,8 @@
           "name": "payroll_records_timesheet_id_timesheets_id_fk",
           "tableFrom": "payroll_records",
           "tableTo": "timesheets",
-          "columnsFrom": [
-            "timesheet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["timesheet_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -766,12 +726,8 @@
           "name": "payroll_records_employee_id_employees_id_fk",
           "tableFrom": "payroll_records",
           "tableTo": "employees",
-          "columnsFrom": [
-            "employee_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["employee_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -781,9 +737,7 @@
         "payroll_records_timesheet_id_unique": {
           "name": "payroll_records_timesheet_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "timesheet_id"
-          ]
+          "columns": ["timesheet_id"]
         }
       },
       "policies": {},
@@ -839,12 +793,8 @@
           "name": "password_reset_tokens_employee_id_employees_id_fk",
           "tableFrom": "password_reset_tokens",
           "tableTo": "employees",
-          "columnsFrom": [
-            "employee_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["employee_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -854,9 +804,7 @@
         "password_reset_tokens_token_unique": {
           "name": "password_reset_tokens_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "policies": {},
@@ -912,12 +860,8 @@
           "name": "sessions_employee_id_employees_id_fk",
           "tableFrom": "sessions",
           "tableTo": "employees",
-          "columnsFrom": [
-            "employee_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["employee_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -927,9 +871,7 @@
         "sessions_token_unique": {
           "name": "sessions_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "policies": {},
@@ -941,47 +883,27 @@
     "public.compliance_result": {
       "name": "compliance_result",
       "schema": "public",
-      "values": [
-        "pass",
-        "fail",
-        "not_applicable"
-      ]
+      "values": ["pass", "fail", "not_applicable"]
     },
     "public.document_type": {
       "name": "document_type",
       "schema": "public",
-      "values": [
-        "parental_consent",
-        "work_permit",
-        "safety_training"
-      ]
+      "values": ["parental_consent", "work_permit", "safety_training"]
     },
     "public.employee_status": {
       "name": "employee_status",
       "schema": "public",
-      "values": [
-        "active",
-        "archived"
-      ]
+      "values": ["active", "archived"]
     },
     "public.supervisor_required": {
       "name": "supervisor_required",
       "schema": "public",
-      "values": [
-        "none",
-        "for_minors",
-        "always"
-      ]
+      "values": ["none", "for_minors", "always"]
     },
     "public.timesheet_status": {
       "name": "timesheet_status",
       "schema": "public",
-      "values": [
-        "open",
-        "submitted",
-        "approved",
-        "rejected"
-      ]
+      "values": ["open", "submitted", "approved", "rejected"]
     }
   },
   "schemas": {},

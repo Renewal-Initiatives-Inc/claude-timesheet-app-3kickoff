@@ -66,7 +66,9 @@ export function DayCell({
     isApproachingLimit ? 'approaching-limit' : '',
     isAtLimit ? 'at-limit' : '',
     disabled ? 'disabled' : '',
-  ].filter(Boolean).join(' ');
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <div className={cellClassName}>

@@ -26,11 +26,7 @@ export const timesheetStatusEnum = pgEnum('timesheet_status', [
 ]);
 
 // Compliance check result
-export const complianceResultEnum = pgEnum('compliance_result', [
-  'pass',
-  'fail',
-  'not_applicable',
-]);
+export const complianceResultEnum = pgEnum('compliance_result', ['pass', 'fail', 'not_applicable']);
 
 // Alert types for notifications
 export const alertTypeEnum = pgEnum('alert_type', [

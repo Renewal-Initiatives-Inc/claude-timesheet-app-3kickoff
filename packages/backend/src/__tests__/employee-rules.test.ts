@@ -95,22 +95,30 @@ describe('Employee Business Rules', () => {
       // 13 years old -> 12-13 band
       const thirteenYearsAgo = new Date(today);
       thirteenYearsAgo.setFullYear(thirteenYearsAgo.getFullYear() - 13);
-      expect(validateEmployeeAge(thirteenYearsAgo.toISOString().split('T')[0]!, today).ageBand).toBe('12-13');
+      expect(
+        validateEmployeeAge(thirteenYearsAgo.toISOString().split('T')[0]!, today).ageBand
+      ).toBe('12-13');
 
       // 14 years old -> 14-15 band
       const fourteenYearsAgo = new Date(today);
       fourteenYearsAgo.setFullYear(fourteenYearsAgo.getFullYear() - 14);
-      expect(validateEmployeeAge(fourteenYearsAgo.toISOString().split('T')[0]!, today).ageBand).toBe('14-15');
+      expect(
+        validateEmployeeAge(fourteenYearsAgo.toISOString().split('T')[0]!, today).ageBand
+      ).toBe('14-15');
 
       // 16 years old -> 16-17 band
       const sixteenYearsAgo = new Date(today);
       sixteenYearsAgo.setFullYear(sixteenYearsAgo.getFullYear() - 16);
-      expect(validateEmployeeAge(sixteenYearsAgo.toISOString().split('T')[0]!, today).ageBand).toBe('16-17');
+      expect(validateEmployeeAge(sixteenYearsAgo.toISOString().split('T')[0]!, today).ageBand).toBe(
+        '16-17'
+      );
 
       // 18 years old -> 18+ band
       const eighteenYearsAgo = new Date(today);
       eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
-      expect(validateEmployeeAge(eighteenYearsAgo.toISOString().split('T')[0]!, today).ageBand).toBe('18+');
+      expect(
+        validateEmployeeAge(eighteenYearsAgo.toISOString().split('T')[0]!, today).ageBand
+      ).toBe('18+');
     });
   });
 

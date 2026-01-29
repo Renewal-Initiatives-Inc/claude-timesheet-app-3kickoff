@@ -3,7 +3,6 @@ import type {
   CreateEntryRequest,
   UpdateEntryRequest,
   TimesheetEntryWithTaskCode,
-  TaskCodeWithCurrentRate,
 } from '@renewal/types';
 import { useTaskCodesForEmployee } from '../hooks/useTaskCodes.js';
 import './EntryFormModal.css';
@@ -76,7 +75,7 @@ export function EntryFormModal({
   employeeAge,
   isSchoolDay,
 }: EntryFormModalProps) {
-  const { taskCodes, loading: loadingTasks } = useTaskCodesForEmployee(employeeId);
+  const { taskCodes, loading: loadingTasks } = useTaskCodesForEmployee(employeeId, date);
   const [formData, setFormData] = useState<EntryFormData>({
     taskCodeId: '',
     startTime: '',
@@ -157,7 +156,9 @@ export function EntryFormModal({
             startTime: formData.startTime,
             endTime: formData.endTime,
             taskCodeId: formData.taskCodeId,
-            supervisorPresentName: needsSupervisorAttestation ? formData.supervisorPresentName : null,
+            supervisorPresentName: needsSupervisorAttestation
+              ? formData.supervisorPresentName
+              : null,
             mealBreakConfirmed: needsMealBreakConfirmation ? formData.mealBreakConfirmed : null,
           }
         : {
@@ -166,7 +167,9 @@ export function EntryFormModal({
             startTime: formData.startTime,
             endTime: formData.endTime,
             isSchoolDay,
-            supervisorPresentName: needsSupervisorAttestation ? formData.supervisorPresentName : null,
+            supervisorPresentName: needsSupervisorAttestation
+              ? formData.supervisorPresentName
+              : null,
             mealBreakConfirmed: needsMealBreakConfirmation ? formData.mealBreakConfirmed : null,
           };
 
@@ -181,11 +184,20 @@ export function EntryFormModal({
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="entry-form-modal" onClick={(e) => e.stopPropagation()} data-testid="entry-form-modal">
+      <div
+        className="entry-form-modal"
+        onClick={(e) => e.stopPropagation()}
+        data-testid="entry-form-modal"
+      >
         <header className="modal-header">
           <h3>{entry ? 'Edit Entry' : 'Add Entry'}</h3>
           <span className="modal-date">{formatFullDate(date)}</span>
-          <button className="close-button" onClick={onClose} aria-label="Close" data-testid="entry-form-close-button">
+          <button
+            className="close-button"
+            onClick={onClose}
+            aria-label="Close"
+            data-testid="entry-form-close-button"
+          >
             &times;
           </button>
         </header>
@@ -213,7 +225,9 @@ export function EntryFormModal({
                 ))}
               </select>
             )}
-            {fieldErrors.taskCodeId && <span className="field-error">{fieldErrors.taskCodeId}</span>}
+            {fieldErrors.taskCodeId && (
+              <span className="field-error">{fieldErrors.taskCodeId}</span>
+            )}
           </div>
 
           <div className="form-row">
@@ -227,7 +241,9 @@ export function EntryFormModal({
                 required
                 data-testid="field-startTime"
               />
-              {fieldErrors.startTime && <span className="field-error">{fieldErrors.startTime}</span>}
+              {fieldErrors.startTime && (
+                <span className="field-error">{fieldErrors.startTime}</span>
+              )}
             </div>
             <div className="form-group">
               <label htmlFor="endTime">End Time *</label>
@@ -294,10 +310,21 @@ export function EntryFormModal({
           )}
 
           <div className="modal-actions">
-            <button type="button" className="cancel-button" onClick={onClose} disabled={submitting} data-testid="entry-form-cancel-button">
+            <button
+              type="button"
+              className="cancel-button"
+              onClick={onClose}
+              disabled={submitting}
+              data-testid="entry-form-cancel-button"
+            >
               Cancel
             </button>
-            <button type="submit" className="submit-button" disabled={submitting} data-testid="entry-form-submit-button">
+            <button
+              type="submit"
+              className="submit-button"
+              disabled={submitting}
+              data-testid="entry-form-submit-button"
+            >
               {submitting ? 'Saving...' : entry ? 'Update' : 'Add Entry'}
             </button>
           </div>

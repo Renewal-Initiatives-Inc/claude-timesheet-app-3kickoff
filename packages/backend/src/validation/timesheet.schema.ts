@@ -22,18 +22,10 @@ export const getTimesheetSchema = z.object({
  * Schema for creating a timesheet entry.
  */
 export const createEntrySchema = z.object({
-  workDate: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
-  taskCodeId: z
-    .string()
-    .uuid('Invalid task code ID'),
-  startTime: z
-    .string()
-    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:MM)'),
-  endTime: z
-    .string()
-    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:MM)'),
+  workDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
+  taskCodeId: z.string().uuid('Invalid task code ID'),
+  startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:MM)'),
+  endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:MM)'),
   isSchoolDay: z.boolean(),
   schoolDayOverrideNote: z
     .string()
@@ -62,10 +54,7 @@ export const updateEntrySchema = z.object({
     .string()
     .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:MM)')
     .optional(),
-  taskCodeId: z
-    .string()
-    .uuid('Invalid task code ID')
-    .optional(),
+  taskCodeId: z.string().uuid('Invalid task code ID').optional(),
   isSchoolDay: z.boolean().optional(),
   schoolDayOverrideNote: z
     .string()
@@ -86,9 +75,7 @@ export const updateEntrySchema = z.object({
  * Schema for listing timesheets query parameters.
  */
 export const listTimesheetsQuerySchema = z.object({
-  status: z
-    .enum(['open', 'submitted', 'approved', 'rejected', 'all'])
-    .optional(),
+  status: z.enum(['open', 'submitted', 'approved', 'rejected', 'all']).optional(),
   limit: z
     .string()
     .transform((val) => parseInt(val, 10))

@@ -39,9 +39,7 @@ export function ComplianceErrorDisplay({
     >
       <div className="compliance-errors__header">
         <div className="compliance-errors__icon">!</div>
-        <h3 className="compliance-errors__title">
-          Compliance Check Failed
-        </h3>
+        <h3 className="compliance-errors__title">Compliance Check Failed</h3>
         {onClose && (
           <button
             type="button"
@@ -56,7 +54,8 @@ export function ComplianceErrorDisplay({
       </div>
 
       <p className="compliance-errors__intro">
-        Please fix the following {violations.length} issue{violations.length !== 1 ? 's' : ''} before resubmitting:
+        Please fix the following {violations.length} issue{violations.length !== 1 ? 's' : ''}{' '}
+        before resubmitting:
       </p>
 
       <ul className="compliance-errors__list">
@@ -71,9 +70,7 @@ export function ComplianceErrorDisplay({
               <span className="compliance-error__rule-name">{violation.ruleName}</span>
             </div>
 
-            <p className="compliance-error__message">
-              {violation.message}
-            </p>
+            <p className="compliance-error__message">{violation.message}</p>
 
             <p className="compliance-error__remediation">
               <strong>How to fix:</strong> {violation.remediation}

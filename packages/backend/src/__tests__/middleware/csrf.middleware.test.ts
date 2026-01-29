@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import express, { Request, Response, NextFunction } from 'express';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import express from 'express';
 import request from 'supertest';
 import cookieParser from 'cookie-parser';
 
@@ -8,7 +8,6 @@ import {
   csrfProtection,
   csrfTokenEndpoint,
   csrfTokenGenerator,
-  setCsrfToken,
 } from '../../middleware/csrf.middleware.js';
 
 describe('CSRF Middleware', () => {
@@ -110,9 +109,7 @@ describe('CSRF Middleware', () => {
       app.use(csrfProtection);
       app.post('/test', (req, res) => res.json({ success: true }));
 
-      const response = await request(app)
-        .post('/test')
-        .set('Cookie', '_csrf=validtoken123');
+      const response = await request(app).post('/test').set('Cookie', '_csrf=validtoken123');
 
       expect(response.status).toBe(403);
       expect(response.body.error).toBe('CSRF_TOKEN_INVALID');
@@ -232,9 +229,7 @@ describe('CSRF Middleware', () => {
       app.get('/test', (req, res) => res.json({ success: true }));
 
       const existingToken = 'existingtoken123';
-      const response = await request(app)
-        .get('/test')
-        .set('Cookie', `_csrf=${existingToken}`);
+      const response = await request(app).get('/test').set('Cookie', `_csrf=${existingToken}`);
 
       expect(response.status).toBe(200);
       // Should not set a new cookie if one already exists

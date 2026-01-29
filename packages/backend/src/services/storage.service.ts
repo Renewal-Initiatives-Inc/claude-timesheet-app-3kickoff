@@ -129,12 +129,7 @@ export function getDownloadUrl(url: string): { url: string; expiresAt: string } 
  * @returns True if the file type is allowed
  */
 export function isAllowedFileType(mimetype: string): boolean {
-  const allowedTypes = [
-    'application/pdf',
-    'image/png',
-    'image/jpeg',
-    'image/jpg',
-  ];
+  const allowedTypes = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg'];
   return allowedTypes.includes(mimetype);
 }
 

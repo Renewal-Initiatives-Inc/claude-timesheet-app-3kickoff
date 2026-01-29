@@ -134,8 +134,13 @@ interface UseTaskCodesForEmployeeResult {
 
 /**
  * Hook for fetching age-filtered task codes for an employee
+ * @param employeeId - The employee's ID
+ * @param workDate - Optional date to calculate age as of (YYYY-MM-DD format). Defaults to today.
  */
-export function useTaskCodesForEmployee(employeeId: string | undefined): UseTaskCodesForEmployeeResult {
+export function useTaskCodesForEmployee(
+  employeeId: string | undefined,
+  workDate?: string
+): UseTaskCodesForEmployeeResult {
   const [taskCodes, setTaskCodes] = useState<TaskCodeWithCurrentRate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -149,7 +154,7 @@ export function useTaskCodesForEmployee(employeeId: string | undefined): UseTask
     setLoading(true);
     setError(null);
     try {
-      const response = await getTaskCodesForEmployee(employeeId);
+      const response = await getTaskCodesForEmployee(employeeId, workDate);
       setTaskCodes(response.taskCodes);
     } catch (err) {
       if (err instanceof ApiRequestError) {
@@ -160,7 +165,7 @@ export function useTaskCodesForEmployee(employeeId: string | undefined): UseTask
     } finally {
       setLoading(false);
     }
-  }, [employeeId]);
+  }, [employeeId, workDate]);
 
   useEffect(() => {
     fetchTaskCodes();

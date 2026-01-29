@@ -16,12 +16,7 @@ export type { TimesheetEntryWithTaskCode };
 /**
  * Categories of compliance rules.
  */
-export type RuleCategory =
-  | 'documentation'
-  | 'hours'
-  | 'time_window'
-  | 'task'
-  | 'break';
+export type RuleCategory = 'documentation' | 'hours' | 'time_window' | 'task' | 'break';
 
 /**
  * Result of evaluating a compliance rule.
@@ -89,15 +84,15 @@ export interface ComplianceContext {
   documents: EmployeeDocument[];
 
   // Pre-computed data for efficiency
-  dailyAges: Map<string, number>;           // date -> age on that date
-  dailyAgeBands: Map<string, AgeBand>;      // date -> age band on that date
-  dailyHours: Map<string, number>;          // date -> total hours
-  dailyEntries: Map<string, TimesheetEntryWithTaskCode[]>;  // date -> entries
-  schoolDays: string[];                     // dates marked as school days
-  workDays: string[];                       // dates with any entries
+  dailyAges: Map<string, number>; // date -> age on that date
+  dailyAgeBands: Map<string, AgeBand>; // date -> age band on that date
+  dailyHours: Map<string, number>; // date -> total hours
+  dailyEntries: Map<string, TimesheetEntryWithTaskCode[]>; // date -> entries
+  schoolDays: string[]; // dates marked as school days
+  workDays: string[]; // dates with any entries
   weeklyTotal: number;
-  isSchoolWeek: boolean;                    // true if any school day has entries
-  checkDate: string;                        // YYYY-MM-DD when check is performed
+  isSchoolWeek: boolean; // true if any school day has entries
+  checkDate: string; // YYYY-MM-DD when check is performed
 }
 
 /**

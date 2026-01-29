@@ -50,13 +50,15 @@ export const RULE_007_MESSAGE = {
 export const RULE_027_MESSAGE = {
   message: (age: number) =>
     `Work permit required: Massachusetts law requires a Youth Employment Permit for workers ages 14-17. You are currently ${age} years old.`,
-  remediation: 'Please obtain a work permit from your school and have your supervisor upload it before submitting.',
+  remediation:
+    'Please obtain a work permit from your school and have your supervisor upload it before submitting.',
 };
 
 export const RULE_028_MESSAGE = {
   message: (expiresAt: string) =>
     `Work permit expired: Your work permit expired on ${formatDate(expiresAt)}. You cannot submit timesheets until a valid permit is on file.`,
-  remediation: 'Please obtain a new work permit from your school and have your supervisor upload it.',
+  remediation:
+    'Please obtain a new work permit from your school and have your supervisor upload it.',
 };
 
 export const RULE_030_MESSAGE = {
@@ -72,15 +74,13 @@ export const RULE_030_MESSAGE = {
 export const RULE_002_MESSAGE = {
   message: (date: string, hours: number, limit: number) =>
     `Daily hour limit exceeded: Ages 12-13 may work a maximum of ${limit} hours per day. You entered ${hours.toFixed(1)} hours on ${formatDate(date)}.`,
-  remediation: (limit: number) =>
-    `Please reduce hours to ${limit} or less for that day.`,
+  remediation: (limit: number) => `Please reduce hours to ${limit} or less for that day.`,
 };
 
 export const RULE_003_MESSAGE = {
   message: (hours: number, limit: number) =>
     `Weekly hour limit exceeded: Ages 12-13 may work a maximum of ${limit} hours per week. Your total is ${hours.toFixed(1)} hours.`,
-  remediation: (limit: number) =>
-    `Please reduce your total weekly hours to ${limit} or less.`,
+  remediation: (limit: number) => `Please reduce your total weekly hours to ${limit} or less.`,
 };
 
 export const RULE_008_MESSAGE = {
@@ -93,22 +93,19 @@ export const RULE_008_MESSAGE = {
 export const RULE_009_MESSAGE = {
   message: (hours: number, limit: number) =>
     `School week hour limit exceeded: Ages 14-15 may work a maximum of ${limit} hours during school weeks. Your total is ${hours.toFixed(1)} hours.`,
-  remediation: (limit: number) =>
-    `Please reduce your total weekly hours to ${limit} or less.`,
+  remediation: (limit: number) => `Please reduce your total weekly hours to ${limit} or less.`,
 };
 
 export const RULE_014_MESSAGE = {
   message: (date: string, hours: number, limit: number) =>
     `Daily hour limit exceeded: Ages 16-17 may work a maximum of ${limit} hours per day. You entered ${hours.toFixed(1)} hours on ${formatDate(date)}.`,
-  remediation: (limit: number) =>
-    `Please reduce hours to ${limit} or less for that day.`,
+  remediation: (limit: number) => `Please reduce hours to ${limit} or less for that day.`,
 };
 
 export const RULE_015_MESSAGE = {
   message: (hours: number, limit: number) =>
     `Weekly hour limit exceeded: Ages 16-17 may work a maximum of ${limit} hours per week. Your total is ${hours.toFixed(1)} hours.`,
-  remediation: (limit: number) =>
-    `Please reduce your total weekly hours to ${limit} or less.`,
+  remediation: (limit: number) => `Please reduce your total weekly hours to ${limit} or less.`,
 };
 
 export const RULE_018_MESSAGE = {
@@ -121,15 +118,13 @@ export const RULE_018_MESSAGE = {
 export const RULE_032_MESSAGE = {
   message: (date: string, hours: number, limit: number) =>
     `Daily hour limit exceeded: Ages 14-15 may work a maximum of ${limit} hours on non-school days. You entered ${hours.toFixed(1)} hours on ${formatDate(date)}.`,
-  remediation: (limit: number) =>
-    `Please reduce hours to ${limit} or less for that day.`,
+  remediation: (limit: number) => `Please reduce hours to ${limit} or less for that day.`,
 };
 
 export const RULE_033_MESSAGE = {
   message: (hours: number, limit: number) =>
     `Weekly hour limit exceeded: Ages 14-15 may work a maximum of ${limit} hours during non-school weeks. Your total is ${hours.toFixed(1)} hours.`,
-  remediation: (limit: number) =>
-    `Please reduce your total weekly hours to ${limit} or less.`,
+  remediation: (limit: number) => `Please reduce your total weekly hours to ${limit} or less.`,
 };
 
 // ============================================================================
@@ -153,22 +148,19 @@ export const RULE_010_MESSAGE = {
 export const RULE_011_MESSAGE = {
   message: (date: string, endTime: string, windowEnd: string, isSummer: boolean) =>
     `Work window violation: Ages 14-15 may only work between 7:00 AM and ${windowEnd} ${isSummer ? '(summer hours)' : ''}. You logged work ending at ${formatTime(endTime)} on ${formatDate(date)}.`,
-  remediation: (windowEnd: string) =>
-    `Please adjust your end time to be before ${windowEnd}.`,
+  remediation: (windowEnd: string) => `Please adjust your end time to be before ${windowEnd}.`,
 };
 
 export const RULE_016_MESSAGE = {
   message: (date: string, endTime: string) =>
     `School night violation: Ages 16-17 cannot work past 10:00 PM on nights before school days. You logged work ending at ${formatTime(endTime)} on ${formatDate(date)}.`,
-  remediation:
-    'Please adjust your end time to be before 10:00 PM.',
+  remediation: 'Please adjust your end time to be before 10:00 PM.',
 };
 
 export const RULE_017_MESSAGE = {
   message: (date: string, startTime: string, endTime: string) =>
     `Work window violation: Ages 16-17 may only work between 6:00 AM and 11:30 PM. You logged work from ${formatTime(startTime)} to ${formatTime(endTime)} on ${formatDate(date)}.`,
-  remediation:
-    'Please adjust your times to be between 6:00 AM and 11:30 PM.',
+  remediation: 'Please adjust your times to be between 6:00 AM and 11:30 PM.',
 };
 
 export const RULE_034_MESSAGE = {
@@ -190,7 +182,13 @@ export const RULE_036_MESSAGE = {
 // ============================================================================
 
 export const RULE_005_MESSAGE = {
-  message: (taskCode: string, taskName: string, minAge: number, employeeAge: number, date: string) =>
+  message: (
+    taskCode: string,
+    taskName: string,
+    minAge: number,
+    employeeAge: number,
+    date: string
+  ) =>
     `Task age restriction: Task ${taskCode} (${taskName}) requires a minimum age of ${minAge}. You were ${employeeAge} years old on ${formatDate(date)}.`,
   remediation:
     'Please remove this task from your timesheet or speak with your supervisor about reassignment.',

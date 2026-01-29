@@ -138,9 +138,7 @@ describe('Security Headers', () => {
 
   describe('CORS headers', () => {
     it('should return CORS headers for allowed origin', async () => {
-      const response = await request(app)
-        .get('/api/health')
-        .set('Origin', 'http://localhost:5173');
+      const response = await request(app).get('/api/health').set('Origin', 'http://localhost:5173');
 
       expect(response.headers['access-control-allow-origin']).toBe('http://localhost:5173');
       expect(response.headers['access-control-allow-credentials']).toBe('true');

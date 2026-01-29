@@ -43,10 +43,19 @@ export function SchoolDayOverrideModal({
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="school-day-override-modal" onClick={(e) => e.stopPropagation()} data-testid="school-day-override-modal">
+      <div
+        className="school-day-override-modal"
+        onClick={(e) => e.stopPropagation()}
+        data-testid="school-day-override-modal"
+      >
         <header className="modal-header">
           <h3>Override School Day Status</h3>
-          <button className="close-button" onClick={onClose} aria-label="Close" data-testid="school-day-override-close-button">
+          <button
+            className="close-button"
+            onClick={onClose}
+            aria-label="Close"
+            data-testid="school-day-override-close-button"
+          >
             &times;
           </button>
         </header>
@@ -66,8 +75,8 @@ export function SchoolDayOverrideModal({
             <div className="warning-content">
               <strong>Compliance Note</strong>
               <p>
-                Changing the school day status affects which labor rules apply. Different hour limits
-                may be enforced for school days vs. non-school days for workers under 18.
+                Changing the school day status affects which labor rules apply. Different hour
+                limits may be enforced for school days vs. non-school days for workers under 18.
               </p>
             </div>
           </div>
@@ -97,7 +106,12 @@ export function SchoolDayOverrideModal({
         </div>
 
         <div className="modal-actions">
-          <button type="button" className="cancel-button" onClick={onClose} data-testid="school-day-override-cancel-button">
+          <button
+            type="button"
+            className="cancel-button"
+            onClick={onClose}
+            data-testid="school-day-override-cancel-button"
+          >
             Cancel
           </button>
           <button

@@ -390,9 +390,7 @@ describe('Task Code Service', () => {
     it('should throw error for non-existent task code', async () => {
       vi.mocked(db.query.taskCodes.findFirst).mockResolvedValueOnce(null as never);
 
-      await expect(
-        updateTaskCode('non-existent', { name: 'Test' })
-      ).rejects.toThrow(TaskCodeError);
+      await expect(updateTaskCode('non-existent', { name: 'Test' })).rejects.toThrow(TaskCodeError);
     });
 
     it('should allow deactivation (archive)', async () => {

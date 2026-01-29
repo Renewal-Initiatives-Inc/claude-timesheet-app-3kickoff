@@ -94,7 +94,9 @@
 .stat-card-link {
   text-decoration: none;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .stat-card-link:hover {
@@ -112,7 +114,8 @@
 }
 
 @keyframes pending-pulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 2px 4px rgba(21, 101, 192, 0.2);
   }
   50% {

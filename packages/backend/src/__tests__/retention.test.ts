@@ -25,9 +25,7 @@ describe('Data Retention Verification', () => {
       startDate: string,
       endDate: string
     ) {
-      return timesheets.filter(
-        (t) => t.weekStartDate >= startDate && t.weekStartDate <= endDate
-      );
+      return timesheets.filter((t) => t.weekStartDate >= startDate && t.weekStartDate <= endDate);
     }
 
     it('should query timesheets from 3 years ago', () => {
@@ -40,11 +38,7 @@ describe('Data Retention Verification', () => {
         { id: 'ts3', weekStartDate: getDateYearsAgo(1) },
       ];
 
-      const filtered = filterTimesheetsByDateRange(
-        timesheets,
-        fourYearsAgo,
-        threeYearsAgo
-      );
+      const filtered = filterTimesheetsByDateRange(timesheets, fourYearsAgo, threeYearsAgo);
 
       expect(filtered).toHaveLength(2);
       expect(filtered.map((t) => t.id)).toContain('ts1');
@@ -73,11 +67,7 @@ describe('Data Retention Verification', () => {
         { id: 'ts4', weekStartDate: '2024-03-20' },
       ];
 
-      const filtered = filterTimesheetsByDateRange(
-        timesheets,
-        '2021-01-01',
-        '2024-12-31'
-      );
+      const filtered = filterTimesheetsByDateRange(timesheets, '2021-01-01', '2024-12-31');
 
       expect(filtered).toHaveLength(4);
     });
@@ -90,9 +80,7 @@ describe('Data Retention Verification', () => {
       startDate: Date,
       endDate: Date
     ) {
-      return logs.filter(
-        (log) => log.checkedAt >= startDate && log.checkedAt <= endDate
-      );
+      return logs.filter((log) => log.checkedAt >= startDate && log.checkedAt <= endDate);
     }
 
     it('should query compliance logs from 3 years ago', () => {
@@ -139,9 +127,7 @@ describe('Data Retention Verification', () => {
       startDate: Date,
       endDate: Date
     ) {
-      return documents.filter(
-        (doc) => doc.uploadedAt >= startDate && doc.uploadedAt <= endDate
-      );
+      return documents.filter((doc) => doc.uploadedAt >= startDate && doc.uploadedAt <= endDate);
     }
 
     it('should query documents uploaded 3+ years ago', () => {
@@ -153,11 +139,7 @@ describe('Data Retention Verification', () => {
         { id: 'doc2', uploadedAt: new Date(), invalidatedAt: null },
       ];
 
-      const filtered = filterDocumentsByUploadDate(
-        documents,
-        new Date('2000-01-01'),
-        new Date()
-      );
+      const filtered = filterDocumentsByUploadDate(documents, new Date('2000-01-01'), new Date());
 
       expect(filtered).toHaveLength(2);
     });
@@ -174,11 +156,7 @@ describe('Data Retention Verification', () => {
         },
       ];
 
-      const filtered = filterDocumentsByUploadDate(
-        documents,
-        new Date('2000-01-01'),
-        new Date()
-      );
+      const filtered = filterDocumentsByUploadDate(documents, new Date('2000-01-01'), new Date());
 
       // Invalidated documents should still be queryable for audit
       expect(filtered).toHaveLength(1);
@@ -257,9 +235,7 @@ describe('Data Retention Verification', () => {
       employees[0] = { ...employees[0]!, status: 'archived' };
 
       // Timesheets should still exist
-      const employeeTimesheets = timesheets.filter(
-        (t) => t.employeeId === 'e1'
-      );
+      const employeeTimesheets = timesheets.filter((t) => t.employeeId === 'e1');
       expect(employeeTimesheets).toHaveLength(2);
     });
   });
@@ -288,9 +264,7 @@ describe('Data Retention Verification', () => {
         start: string,
         end: string
       ) => {
-        return data.filter(
-          (item) => item.weekStartDate >= start && item.weekStartDate <= end
-        );
+        return data.filter((item) => item.weekStartDate >= start && item.weekStartDate <= end);
       };
 
       const testData = [
@@ -317,9 +291,7 @@ describe('Data Retention Verification', () => {
     }
 
     function getEffectiveRate(rates: Rate[], workDate: string): Rate | null {
-      const sorted = [...rates].sort(
-        (a, b) => b.effectiveDate.localeCompare(a.effectiveDate)
-      );
+      const sorted = [...rates].sort((a, b) => b.effectiveDate.localeCompare(a.effectiveDate));
       return sorted.find((r) => r.effectiveDate <= workDate) ?? null;
     }
 

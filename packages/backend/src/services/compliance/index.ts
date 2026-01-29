@@ -45,12 +45,7 @@ export type {
 } from './types.js';
 
 // Re-export engine functions
-export {
-  registerRules,
-  clearRules,
-  buildContext,
-  ComplianceError,
-};
+export { registerRules, clearRules, buildContext, ComplianceError };
 
 /**
  * Initialize compliance rules.
@@ -124,8 +119,8 @@ export async function previewCompliance(timesheetId: string) {
 /**
  * Get the count of registered rules.
  */
-export function getRuleCount(): number {
+export async function getRuleCount(): Promise<number> {
   initializeComplianceRules();
-  const { getRules } = require('./engine.js') as typeof import('./engine.js');
+  const { getRules } = await import('./engine.js');
   return getRules().length;
 }

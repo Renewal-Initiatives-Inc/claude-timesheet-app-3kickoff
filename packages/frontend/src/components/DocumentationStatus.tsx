@@ -100,18 +100,10 @@ export function DocumentationBadge({
   }
 
   if (isComplete && expiringCount > 0) {
-    return (
-      <span className="doc-status-badge doc-status-warning">
-        {expiringCount} Expiring
-      </span>
-    );
+    return <span className="doc-status-badge doc-status-warning">{expiringCount} Expiring</span>;
   }
 
-  return (
-    <span className="doc-status-badge doc-status-incomplete">
-      {missingCount} Missing
-    </span>
-  );
+  return <span className="doc-status-badge doc-status-incomplete">{missingCount} Missing</span>;
 }
 
 function formatDocumentType(type: string): string {

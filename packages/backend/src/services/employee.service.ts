@@ -1,11 +1,7 @@
 import { eq, and, like, or, ne } from 'drizzle-orm';
 import { db, schema } from '../db/index.js';
 import { calculateAge, getAgeBand, type AgeBand } from '../utils/age.js';
-import type {
-  RequiredDocuments,
-  EmployeePublic,
-  EmployeeWithDocStatus,
-} from '@renewal/types';
+import type { RequiredDocuments, EmployeePublic, EmployeeWithDocStatus } from '@renewal/types';
 
 const { employees, employeeDocuments } = schema;
 
@@ -87,10 +83,7 @@ export function validateEmployeeAge(
  */
 export function getRequiredDocuments(age: number): RequiredDocuments {
   if (age < MIN_EMPLOYMENT_AGE) {
-    throw new EmployeeError(
-      `Minimum employment age is ${MIN_EMPLOYMENT_AGE}`,
-      'AGE_TOO_YOUNG'
-    );
+    throw new EmployeeError(`Minimum employment age is ${MIN_EMPLOYMENT_AGE}`, 'AGE_TOO_YOUNG');
   }
 
   if (age <= 13) {
@@ -143,12 +136,7 @@ export async function listEmployees(options: {
 
   if (search) {
     const searchPattern = `%${search}%`;
-    conditions.push(
-      or(
-        like(employees.name, searchPattern),
-        like(employees.email, searchPattern)
-      )
-    );
+    conditions.push(or(like(employees.name, searchPattern), like(employees.email, searchPattern)));
   }
 
   const employeeList = await db.query.employees.findMany({
@@ -162,7 +150,8 @@ export async function listEmployees(options: {
   for (const employee of employeeList) {
     const age = calculateAge(employee.dateOfBirth, new Date().toISOString().split('T')[0]!);
     const ageBand = age >= MIN_EMPLOYMENT_AGE ? getAgeBand(age) : '18+'; // Fallback for edge cases
-    const required = age >= MIN_EMPLOYMENT_AGE ? getRequiredDocuments(age) : getRequiredDocuments(18);
+    const required =
+      age >= MIN_EMPLOYMENT_AGE ? getRequiredDocuments(age) : getRequiredDocuments(18);
 
     // Get valid (non-invalidated, non-expired) documents
     const docs = await db.query.employeeDocuments.findMany({
@@ -174,9 +163,7 @@ export async function listEmployees(options: {
 
     // Filter out expired documents
     const today = new Date().toISOString().split('T')[0]!;
-    const validDocs = docs.filter(
-      (d) => !d.expiresAt || d.expiresAt >= today
-    );
+    const validDocs = docs.filter((d) => !d.expiresAt || d.expiresAt >= today);
 
     // Count missing and expiring
     const requiredTypes: Array<'parental_consent' | 'work_permit' | 'safety_training'> = [];
@@ -184,8 +171,7 @@ export async function listEmployees(options: {
     if (required.workPermit) requiredTypes.push('work_permit');
     if (required.safetyTraining) requiredTypes.push('safety_training');
 
-    const hasDocOfType = (type: string) =>
-      validDocs.some((d) => d.type === type);
+    const hasDocOfType = (type: string) => validDocs.some((d) => d.type === type);
 
     const missingCount = requiredTypes.filter((t) => !hasDocOfType(t)).length;
 
@@ -219,9 +205,7 @@ export async function listEmployees(options: {
  * @param employeeId - Employee UUID
  * @returns Employee with documentation status or null if not found
  */
-export async function getEmployeeById(
-  employeeId: string
-): Promise<EmployeeWithDocStatus | null> {
+export async function getEmployeeById(employeeId: string): Promise<EmployeeWithDocStatus | null> {
   const employee = await db.query.employees.findFirst({
     where: eq(employees.id, employeeId),
   });
@@ -240,17 +224,14 @@ export async function getEmployeeById(
   });
 
   const today = new Date().toISOString().split('T')[0]!;
-  const validDocs = docs.filter(
-    (d) => !d.invalidatedAt && (!d.expiresAt || d.expiresAt >= today)
-  );
+  const validDocs = docs.filter((d) => !d.invalidatedAt && (!d.expiresAt || d.expiresAt >= today));
 
   const requiredTypes: string[] = [];
   if (required.parentalConsent) requiredTypes.push('parental_consent');
   if (required.workPermit) requiredTypes.push('work_permit');
   if (required.safetyTraining) requiredTypes.push('safety_training');
 
-  const hasDocOfType = (type: string) =>
-    validDocs.some((d) => d.type === type);
+  const hasDocOfType = (type: string) => validDocs.some((d) => d.type === type);
 
   const missingCount = requiredTypes.filter((t) => !hasDocOfType(t)).length;
 
@@ -296,17 +277,11 @@ export async function updateEmployee(
   // Check for email uniqueness if changing email
   if (data.email && data.email.toLowerCase() !== employee.email.toLowerCase()) {
     const existingEmail = await db.query.employees.findFirst({
-      where: and(
-        eq(employees.email, data.email.toLowerCase()),
-        ne(employees.id, employeeId)
-      ),
+      where: and(eq(employees.email, data.email.toLowerCase()), ne(employees.id, employeeId)),
     });
 
     if (existingEmail) {
-      throw new EmployeeError(
-        'An account with this email already exists',
-        'EMAIL_EXISTS'
-      );
+      throw new EmployeeError('An account with this email already exists', 'EMAIL_EXISTS');
     }
   }
 

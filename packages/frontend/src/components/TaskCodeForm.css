@@ -143,14 +143,16 @@
   border-radius: 8px;
   border: 1px solid #e9ecef;
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
 }
 
 .checkbox-label:hover {
   border-color: #2c5530;
 }
 
-.checkbox-label input[type="checkbox"] {
+.checkbox-label input[type='checkbox'] {
   width: 1.25rem;
   height: 1.25rem;
   margin-top: 0.125rem;

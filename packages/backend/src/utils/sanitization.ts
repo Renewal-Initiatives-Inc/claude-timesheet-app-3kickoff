@@ -53,9 +53,7 @@ export function sanitizeString(str: string): string {
     return str;
   }
 
-  return stripHtmlTags(str)
-    .trim()
-    .replace(/\s+/g, ' '); // Normalize whitespace
+  return stripHtmlTags(str).trim().replace(/\s+/g, ' '); // Normalize whitespace
 }
 
 /**
@@ -122,9 +120,7 @@ export function sanitizeObject<T extends Record<string, unknown>>(obj: T): T {
             : item
       );
     } else if (typeof value === 'object' && value !== null) {
-      (result as Record<string, unknown>)[key] = sanitizeObject(
-        value as Record<string, unknown>
-      );
+      (result as Record<string, unknown>)[key] = sanitizeObject(value as Record<string, unknown>);
     }
   }
 

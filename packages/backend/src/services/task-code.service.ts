@@ -149,12 +149,7 @@ export async function listTaskCodes(
 
   if (search) {
     const searchPattern = `%${search}%`;
-    conditions.push(
-      or(
-        like(taskCodes.code, searchPattern),
-        like(taskCodes.name, searchPattern)
-      )
-    );
+    conditions.push(or(like(taskCodes.code, searchPattern), like(taskCodes.name, searchPattern)));
   }
 
   const taskCodeList = await db.query.taskCodes.findMany({
@@ -247,9 +242,7 @@ export interface CreateTaskCodeInput {
   rateJustificationNotes?: string;
 }
 
-export async function createTaskCode(
-  input: CreateTaskCodeInput
-): Promise<TaskCodeWithCurrentRate> {
+export async function createTaskCode(input: CreateTaskCodeInput): Promise<TaskCodeWithCurrentRate> {
   // Validate minimum age
   if (input.minAgeAllowed < MIN_AGE_ALLOWED) {
     throw new TaskCodeError(
@@ -264,10 +257,7 @@ export async function createTaskCode(
   });
 
   if (existingCode) {
-    throw new TaskCodeError(
-      `Task code "${input.code}" already exists`,
-      'CODE_ALREADY_EXISTS'
-    );
+    throw new TaskCodeError(`Task code "${input.code}" already exists`, 'CODE_ALREADY_EXISTS');
   }
 
   // Create task code
@@ -353,11 +343,7 @@ export async function updateTaskCode(
   if (input.powerMachinery !== undefined) updates.powerMachinery = input.powerMachinery;
   if (input.isActive !== undefined) updates.isActive = input.isActive;
 
-  const [updated] = await db
-    .update(taskCodes)
-    .set(updates)
-    .where(eq(taskCodes.id, id))
-    .returning();
+  const [updated] = await db.update(taskCodes).set(updates).where(eq(taskCodes.id, id)).returning();
 
   const today = new Date().toISOString().split('T')[0]!;
   const currentRate = await getEffectiveRate(id, today);
@@ -378,10 +364,7 @@ export interface AddRateInput {
   justificationNotes?: string;
 }
 
-export async function addRate(
-  taskCodeId: string,
-  input: AddRateInput
-): Promise<TaskCodeRate> {
+export async function addRate(taskCodeId: string, input: AddRateInput): Promise<TaskCodeRate> {
   const taskCode = await db.query.taskCodes.findFirst({
     where: eq(taskCodes.id, taskCodeId),
   });
@@ -395,10 +378,7 @@ export async function addRate(
   const effectiveDateStr = input.effectiveDate.split('T')[0]!;
 
   if (effectiveDateStr < today) {
-    throw new TaskCodeError(
-      'Effective date cannot be in the past',
-      'INVALID_EFFECTIVE_DATE'
-    );
+    throw new TaskCodeError('Effective date cannot be in the past', 'INVALID_EFFECTIVE_DATE');
   }
 
   const [newRate] = await db
@@ -436,9 +416,12 @@ export async function getRateHistory(taskCodeId: string): Promise<TaskCodeRate[]
 
 /**
  * Get task codes filtered for a specific employee based on their age.
+ * @param employeeId - The employee's ID
+ * @param asOfDate - Optional date to calculate age as of (YYYY-MM-DD format). Defaults to today.
  */
 export async function getTaskCodesForEmployee(
-  employeeId: string
+  employeeId: string,
+  asOfDate?: string
 ): Promise<{ taskCodes: TaskCodeWithCurrentRate[]; total: number }> {
   const employee = await db.query.employees.findFirst({
     where: eq(employees.id, employeeId),
@@ -448,12 +431,12 @@ export async function getTaskCodesForEmployee(
     throw new TaskCodeError('Employee not found', 'EMPLOYEE_NOT_FOUND');
   }
 
-  // Calculate employee's current age
-  const today = new Date();
-  const birthDate = new Date(employee.dateOfBirth);
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const monthDiff = today.getMonth() - birthDate.getMonth();
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+  // Calculate employee's age as of the specified date (or today)
+  const referenceDate = asOfDate ? new Date(asOfDate + 'T00:00:00') : new Date();
+  const birthDate = new Date(employee.dateOfBirth + 'T00:00:00');
+  let age = referenceDate.getFullYear() - birthDate.getFullYear();
+  const monthDiff = referenceDate.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && referenceDate.getDate() < birthDate.getDate())) {
     age--;
   }
 

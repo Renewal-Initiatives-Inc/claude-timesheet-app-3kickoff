@@ -4,7 +4,6 @@ import type {
   TimesheetTotals,
   CreateEntryRequest,
   UpdateEntryRequest,
-  TimesheetEntry,
   Timesheet,
   TimesheetListParams,
 } from '@renewal/types';
@@ -69,62 +68,71 @@ export function useTimesheet(options: UseTimesheetOptions = {}): UseTimesheetRes
     fetchTimesheet();
   }, [fetchTimesheet]);
 
-  const addEntry = useCallback(async (entry: CreateEntryRequest) => {
-    if (!timesheet) return;
-    setSaving(true);
-    setError(null);
-    try {
-      await createTimesheetEntry(timesheet.id, entry);
-      await fetchTimesheet(); // Refresh to get updated totals
-    } catch (err) {
-      if (err instanceof ApiRequestError) {
-        setError(err.message);
-      } else {
-        setError('Failed to add entry');
+  const addEntry = useCallback(
+    async (entry: CreateEntryRequest) => {
+      if (!timesheet) return;
+      setSaving(true);
+      setError(null);
+      try {
+        await createTimesheetEntry(timesheet.id, entry);
+        await fetchTimesheet(); // Refresh to get updated totals
+      } catch (err) {
+        if (err instanceof ApiRequestError) {
+          setError(err.message);
+        } else {
+          setError('Failed to add entry');
+        }
+        throw err;
+      } finally {
+        setSaving(false);
       }
-      throw err;
-    } finally {
-      setSaving(false);
-    }
-  }, [timesheet, fetchTimesheet]);
+    },
+    [timesheet, fetchTimesheet]
+  );
 
-  const updateEntry = useCallback(async (entryId: string, updates: UpdateEntryRequest) => {
-    if (!timesheet) return;
-    setSaving(true);
-    setError(null);
-    try {
-      await updateTimesheetEntry(timesheet.id, entryId, updates);
-      await fetchTimesheet(); // Refresh to get updated totals
-    } catch (err) {
-      if (err instanceof ApiRequestError) {
-        setError(err.message);
-      } else {
-        setError('Failed to update entry');
+  const updateEntry = useCallback(
+    async (entryId: string, updates: UpdateEntryRequest) => {
+      if (!timesheet) return;
+      setSaving(true);
+      setError(null);
+      try {
+        await updateTimesheetEntry(timesheet.id, entryId, updates);
+        await fetchTimesheet(); // Refresh to get updated totals
+      } catch (err) {
+        if (err instanceof ApiRequestError) {
+          setError(err.message);
+        } else {
+          setError('Failed to update entry');
+        }
+        throw err;
+      } finally {
+        setSaving(false);
       }
-      throw err;
-    } finally {
-      setSaving(false);
-    }
-  }, [timesheet, fetchTimesheet]);
+    },
+    [timesheet, fetchTimesheet]
+  );
 
-  const deleteEntry = useCallback(async (entryId: string) => {
-    if (!timesheet) return;
-    setSaving(true);
-    setError(null);
-    try {
-      await deleteTimesheetEntry(timesheet.id, entryId);
-      await fetchTimesheet(); // Refresh to get updated totals
-    } catch (err) {
-      if (err instanceof ApiRequestError) {
-        setError(err.message);
-      } else {
-        setError('Failed to delete entry');
+  const deleteEntry = useCallback(
+    async (entryId: string) => {
+      if (!timesheet) return;
+      setSaving(true);
+      setError(null);
+      try {
+        await deleteTimesheetEntry(timesheet.id, entryId);
+        await fetchTimesheet(); // Refresh to get updated totals
+      } catch (err) {
+        if (err instanceof ApiRequestError) {
+          setError(err.message);
+        } else {
+          setError('Failed to delete entry');
+        }
+        throw err;
+      } finally {
+        setSaving(false);
       }
-      throw err;
-    } finally {
-      setSaving(false);
-    }
-  }, [timesheet, fetchTimesheet]);
+    },
+    [timesheet, fetchTimesheet]
+  );
 
   return {
     timesheet,
@@ -238,62 +246,71 @@ export function useTimesheetById(id: string | undefined): UseTimesheetByIdResult
     fetchTimesheet();
   }, [fetchTimesheet]);
 
-  const addEntry = useCallback(async (entry: CreateEntryRequest) => {
-    if (!id) return;
-    setSaving(true);
-    setError(null);
-    try {
-      await createTimesheetEntry(id, entry);
-      await fetchTimesheet();
-    } catch (err) {
-      if (err instanceof ApiRequestError) {
-        setError(err.message);
-      } else {
-        setError('Failed to add entry');
+  const addEntry = useCallback(
+    async (entry: CreateEntryRequest) => {
+      if (!id) return;
+      setSaving(true);
+      setError(null);
+      try {
+        await createTimesheetEntry(id, entry);
+        await fetchTimesheet();
+      } catch (err) {
+        if (err instanceof ApiRequestError) {
+          setError(err.message);
+        } else {
+          setError('Failed to add entry');
+        }
+        throw err;
+      } finally {
+        setSaving(false);
       }
-      throw err;
-    } finally {
-      setSaving(false);
-    }
-  }, [id, fetchTimesheet]);
+    },
+    [id, fetchTimesheet]
+  );
 
-  const updateEntry = useCallback(async (entryId: string, updates: UpdateEntryRequest) => {
-    if (!id) return;
-    setSaving(true);
-    setError(null);
-    try {
-      await updateTimesheetEntry(id, entryId, updates);
-      await fetchTimesheet();
-    } catch (err) {
-      if (err instanceof ApiRequestError) {
-        setError(err.message);
-      } else {
-        setError('Failed to update entry');
+  const updateEntry = useCallback(
+    async (entryId: string, updates: UpdateEntryRequest) => {
+      if (!id) return;
+      setSaving(true);
+      setError(null);
+      try {
+        await updateTimesheetEntry(id, entryId, updates);
+        await fetchTimesheet();
+      } catch (err) {
+        if (err instanceof ApiRequestError) {
+          setError(err.message);
+        } else {
+          setError('Failed to update entry');
+        }
+        throw err;
+      } finally {
+        setSaving(false);
       }
-      throw err;
-    } finally {
-      setSaving(false);
-    }
-  }, [id, fetchTimesheet]);
+    },
+    [id, fetchTimesheet]
+  );
 
-  const deleteEntry = useCallback(async (entryId: string) => {
-    if (!id) return;
-    setSaving(true);
-    setError(null);
-    try {
-      await deleteTimesheetEntry(id, entryId);
-      await fetchTimesheet();
-    } catch (err) {
-      if (err instanceof ApiRequestError) {
-        setError(err.message);
-      } else {
-        setError('Failed to delete entry');
+  const deleteEntry = useCallback(
+    async (entryId: string) => {
+      if (!id) return;
+      setSaving(true);
+      setError(null);
+      try {
+        await deleteTimesheetEntry(id, entryId);
+        await fetchTimesheet();
+      } catch (err) {
+        if (err instanceof ApiRequestError) {
+          setError(err.message);
+        } else {
+          setError('Failed to delete entry');
+        }
+        throw err;
+      } finally {
+        setSaving(false);
       }
-      throw err;
-    } finally {
-      setSaving(false);
-    }
-  }, [id, fetchTimesheet]);
+    },
+    [id, fetchTimesheet]
+  );
 
   return {
     timesheet,

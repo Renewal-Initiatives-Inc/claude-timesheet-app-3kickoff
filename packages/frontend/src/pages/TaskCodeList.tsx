@@ -85,7 +85,9 @@ export function TaskCodeList() {
       {error && (
         <div className="error-message">
           <p>Error: {error}</p>
-          <button onClick={refetch} data-testid="task-code-list-retry-button">Retry</button>
+          <button onClick={refetch} data-testid="task-code-list-retry-button">
+            Retry
+          </button>
         </div>
       )}
 
@@ -138,7 +140,9 @@ export function TaskCodeList() {
                 </td>
                 <td className="rate-cell">${taskCode.currentRate.toFixed(2)}/hr</td>
                 <td>
-                  <span className={`status-badge status-${taskCode.isActive ? 'active' : 'inactive'}`}>
+                  <span
+                    className={`status-badge status-${taskCode.isActive ? 'active' : 'inactive'}`}
+                  >
                     {taskCode.isActive ? 'Active' : 'Inactive'}
                   </span>
                 </td>
@@ -149,7 +153,10 @@ export function TaskCodeList() {
                     </span>
                   )}
                   {taskCode.supervisorRequired !== 'none' && (
-                    <span className="attribute-badge supervisor-badge" title={`Supervisor: ${taskCode.supervisorRequired}`}>
+                    <span
+                      className="attribute-badge supervisor-badge"
+                      title={`Supervisor: ${taskCode.supervisorRequired}`}
+                    >
                       Supv: {taskCode.supervisorRequired === 'for_minors' ? 'Minors' : 'Always'}
                     </span>
                   )}
@@ -170,7 +177,11 @@ export function TaskCodeList() {
                   )}
                 </td>
                 <td>
-                  <Link to={`/task-codes/${taskCode.id}`} className="view-link" data-testid={`task-code-view-${taskCode.code}`}>
+                  <Link
+                    to={`/task-codes/${taskCode.id}`}
+                    className="view-link"
+                    data-testid={`task-code-view-${taskCode.code}`}
+                  >
                     View
                   </Link>
                 </td>

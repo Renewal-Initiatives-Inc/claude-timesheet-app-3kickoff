@@ -12,7 +12,11 @@ const SUPERVISOR_EMAIL = 'sarah.supervisor@renewal.org';
 const SUPERVISOR_PASSWORD = 'TestPass123!';
 
 // Helper to login
-async function login(page: ReturnType<typeof test['fn']>['page'], email: string, password: string) {
+async function login(
+  page: ReturnType<(typeof test)['fn']>['page'],
+  email: string,
+  password: string
+) {
   await page.goto('/login');
   await page.fill('input[type="email"]', email);
   await page.fill('input[type="password"]', password);
@@ -80,7 +84,12 @@ test.describe('Task Code Management', () => {
     await page.goto('/task-codes');
 
     // Click on the first task code's View link
-    await page.getByTestId('task-codes-table').locator('tbody tr').first().getByRole('link', { name: 'View' }).click();
+    await page
+      .getByTestId('task-codes-table')
+      .locator('tbody tr')
+      .first()
+      .getByRole('link', { name: 'View' })
+      .click();
 
     // Wait for detail page
     await page.waitForURL(/\/task-codes\/[a-zA-Z0-9-]+$/);
@@ -132,7 +141,12 @@ test.describe('Task Code Management', () => {
     await page.goto('/task-codes');
 
     // Navigate to first task code detail
-    await page.getByTestId('task-codes-table').locator('tbody tr').first().getByRole('link', { name: 'View' }).click();
+    await page
+      .getByTestId('task-codes-table')
+      .locator('tbody tr')
+      .first()
+      .getByRole('link', { name: 'View' })
+      .click();
     await page.waitForURL(/\/task-codes\/[a-zA-Z0-9-]+$/);
 
     // Click Edit button
@@ -158,11 +172,19 @@ test.describe('Task Code Management', () => {
     await page.goto('/task-codes');
 
     // Navigate to first task code detail
-    await page.getByTestId('task-codes-table').locator('tbody tr').first().getByRole('link', { name: 'View' }).click();
+    await page
+      .getByTestId('task-codes-table')
+      .locator('tbody tr')
+      .first()
+      .getByRole('link', { name: 'View' })
+      .click();
     await page.waitForURL(/\/task-codes\/[a-zA-Z0-9-]+$/);
 
     // Get initial rate count
-    const initialRateRows = await page.getByTestId('rate-history-table').locator('tbody tr').count();
+    const initialRateRows = await page
+      .getByTestId('rate-history-table')
+      .locator('tbody tr')
+      .count();
 
     // Click Add New Rate button
     await page.getByTestId('task-code-add-rate-button').click();

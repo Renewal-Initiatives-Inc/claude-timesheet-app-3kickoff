@@ -41,11 +41,7 @@ vi.mock('../../utils/age.js', () => ({
 import { db } from '../../db/index.js';
 import { getDocumentationStatus } from '../../services/documentation-status.service.js';
 import { calculateAge } from '../../utils/age.js';
-import {
-  sendWorkPermitExpirationAlert,
-  sendAgeTransitionAlert,
-  sendMissingDocumentAlert,
-} from '../../services/email.service.js';
+import { sendMissingDocumentAlert } from '../../services/email.service.js';
 import { generateAlerts, generateAndSendAlerts } from '../../services/notification.service.js';
 
 describe('Notification Service', () => {

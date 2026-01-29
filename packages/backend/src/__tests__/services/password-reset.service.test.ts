@@ -198,9 +198,7 @@ describe('Password Reset Service', () => {
         errors: ['Password must be at least 8 characters'],
       });
 
-      await expect(completePasswordReset('token', 'weak')).rejects.toThrow(
-        PasswordResetError
-      );
+      await expect(completePasswordReset('token', 'weak')).rejects.toThrow(PasswordResetError);
       await expect(completePasswordReset('token', 'weak')).rejects.toMatchObject({
         code: 'PASSWORD_TOO_WEAK',
       });

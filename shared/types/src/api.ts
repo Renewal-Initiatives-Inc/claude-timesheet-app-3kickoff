@@ -3,7 +3,14 @@
  * Shared between frontend and backend for type-safe API communication
  */
 
-import type { AgeBand, DocumentType, EmployeeDocument, SupervisorRequired, TaskCode, TaskCodeRate } from './db.js';
+import type {
+  AgeBand,
+  DocumentType,
+  EmployeeDocument,
+  SupervisorRequired,
+  TaskCode,
+  TaskCodeRate,
+} from './db.js';
 
 export interface HealthResponse {
   status: 'ok' | 'error';

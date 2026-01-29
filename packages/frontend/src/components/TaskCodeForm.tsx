@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import type { SupervisorRequired, CreateTaskCodeRequest, UpdateTaskCodeRequest } from '@renewal/types';
+import type {
+  SupervisorRequired,
+  CreateTaskCodeRequest,
+  UpdateTaskCodeRequest,
+} from '@renewal/types';
 import { useTaskCode, useTaskCodeActions } from '../hooks/useTaskCodes.js';
 import './TaskCodeForm.css';
 
@@ -142,7 +146,9 @@ export function TaskCodeForm({ mode }: TaskCodeFormProps) {
       <div className="task-code-form-page">
         <div className="error-message">
           <p>Task code not found</p>
-          <Link to="/task-codes" className="back-link">Back to Task Codes</Link>
+          <Link to="/task-codes" className="back-link">
+            Back to Task Codes
+          </Link>
         </div>
       </div>
     );
@@ -158,13 +164,9 @@ export function TaskCodeForm({ mode }: TaskCodeFormProps) {
       </header>
 
       <form className="task-code-form" onSubmit={handleSubmit}>
-        {successMessage && (
-          <div className="success-message">{successMessage}</div>
-        )}
+        {successMessage && <div className="success-message">{successMessage}</div>}
 
-        {(validationError || error) && (
-          <div className="form-error">{validationError || error}</div>
-        )}
+        {(validationError || error) && <div className="form-error">{validationError || error}</div>}
 
         <section className="form-section">
           <h2>Basic Information</h2>
@@ -381,7 +383,12 @@ export function TaskCodeForm({ mode }: TaskCodeFormProps) {
           >
             Cancel
           </Link>
-          <button type="submit" className="submit-button" disabled={loading} data-testid="task-code-submit-button">
+          <button
+            type="submit"
+            className="submit-button"
+            disabled={loading}
+            data-testid="task-code-submit-button"
+          >
             {loading ? 'Saving...' : mode === 'create' ? 'Create Task Code' : 'Save Changes'}
           </button>
         </div>

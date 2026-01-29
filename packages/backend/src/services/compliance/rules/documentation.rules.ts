@@ -47,17 +47,13 @@ function requiresWorkPermit(context: ComplianceContext): boolean {
  * Helper: Get valid parental consent document.
  */
 function getValidParentalConsent(context: ComplianceContext) {
-  return context.documents.find(
-    (d) =>
-      d.type === 'parental_consent' &&
-      d.invalidatedAt === null
-  );
+  return context.documents.find((d) => d.type === 'parental_consent' && d.invalidatedAt === null);
 }
 
 /**
  * Helper: Get valid work permit document.
  */
-function getValidWorkPermit(context: ComplianceContext) {
+function _getValidWorkPermit(context: ComplianceContext) {
   const today = context.checkDate;
   return context.documents.find(
     (d) =>
@@ -71,11 +67,7 @@ function getValidWorkPermit(context: ComplianceContext) {
  * Helper: Get safety training document.
  */
 function getSafetyTraining(context: ComplianceContext) {
-  return context.documents.find(
-    (d) =>
-      d.type === 'safety_training' &&
-      d.invalidatedAt === null
-  );
+  return context.documents.find((d) => d.type === 'safety_training' && d.invalidatedAt === null);
 }
 
 /**

@@ -42,15 +42,9 @@ test.describe('Reports Dashboard - Access Control', () => {
 
     // Should see the reports dashboard
     await expect(page.locator('h1')).toContainText('Reports');
-    await expect(
-      page.locator('[data-testid="reports-dashboard-payroll-card"]')
-    ).toBeVisible();
-    await expect(
-      page.locator('[data-testid="reports-dashboard-compliance-card"]')
-    ).toBeVisible();
-    await expect(
-      page.locator('[data-testid="reports-dashboard-timesheet-card"]')
-    ).toBeVisible();
+    await expect(page.locator('[data-testid="reports-dashboard-payroll-card"]')).toBeVisible();
+    await expect(page.locator('[data-testid="reports-dashboard-compliance-card"]')).toBeVisible();
+    await expect(page.locator('[data-testid="reports-dashboard-timesheet-card"]')).toBeVisible();
   });
 
   test('employee cannot access reports dashboard (403)', async ({ page }) => {
@@ -121,7 +115,10 @@ test.describe('Compliance Audit Report - Filtering', () => {
     await page.click('[data-testid="compliance-audit-search-button"]');
 
     // Should see results or empty message
-    await page.waitForSelector('[data-testid="compliance-audit-results-table"], .compliance-audit-report-empty', { timeout: 10000 });
+    await page.waitForSelector(
+      '[data-testid="compliance-audit-results-table"], .compliance-audit-report-empty',
+      { timeout: 10000 }
+    );
   });
 
   test('can filter by age band', async ({ page }) => {
@@ -136,7 +133,10 @@ test.describe('Compliance Audit Report - Filtering', () => {
     await page.click('[data-testid="compliance-audit-search-button"]');
 
     // Should complete without error
-    await page.waitForSelector('[data-testid="compliance-audit-results-table"], .compliance-audit-report-empty', { timeout: 10000 });
+    await page.waitForSelector(
+      '[data-testid="compliance-audit-results-table"], .compliance-audit-report-empty',
+      { timeout: 10000 }
+    );
   });
 
   test('can filter by result (pass/fail/na)', async ({ page }) => {
@@ -151,7 +151,10 @@ test.describe('Compliance Audit Report - Filtering', () => {
     await page.click('[data-testid="compliance-audit-search-button"]');
 
     // Should complete without error
-    await page.waitForSelector('[data-testid="compliance-audit-results-table"], .compliance-audit-report-empty', { timeout: 10000 });
+    await page.waitForSelector(
+      '[data-testid="compliance-audit-results-table"], .compliance-audit-report-empty',
+      { timeout: 10000 }
+    );
   });
 
   test('shows empty results message for no matching records', async ({ page }) => {
@@ -179,7 +182,10 @@ test.describe('Compliance Audit Report - Summary Display', () => {
     await page.click('[data-testid="compliance-audit-search-button"]');
 
     // Wait for loading to complete
-    await page.waitForSelector('.compliance-audit-report-loading', { state: 'hidden', timeout: 10000 });
+    await page.waitForSelector('.compliance-audit-report-loading', {
+      state: 'hidden',
+      timeout: 10000,
+    });
 
     // Summary cards should be visible
     await expect(page.locator('[data-testid="compliance-audit-summary-total"]')).toBeVisible();
@@ -201,7 +207,10 @@ test.describe('Compliance Audit Report - CSV Export', () => {
     await page.click('[data-testid="compliance-audit-search-button"]');
 
     // Wait for loading
-    await page.waitForSelector('.compliance-audit-report-loading', { state: 'hidden', timeout: 10000 });
+    await page.waitForSelector('.compliance-audit-report-loading', {
+      state: 'hidden',
+      timeout: 10000,
+    });
 
     // Check if export button is visible (only shown when records exist)
     const exportButton = page.locator('[data-testid="compliance-audit-export-csv"]');
@@ -247,7 +256,10 @@ test.describe('Timesheet History Report - Filtering', () => {
     await page.click('[data-testid="timesheet-history-search-button"]');
 
     // Should complete without error
-    await page.waitForSelector('[data-testid="timesheet-history-results-table"], .timesheet-history-report-empty', { timeout: 10000 });
+    await page.waitForSelector(
+      '[data-testid="timesheet-history-results-table"], .timesheet-history-report-empty',
+      { timeout: 10000 }
+    );
   });
 
   test('shows rejection notes for rejected timesheets', async ({ page }) => {
@@ -262,7 +274,10 @@ test.describe('Timesheet History Report - Filtering', () => {
     await page.click('[data-testid="timesheet-history-search-button"]');
 
     // Wait for results
-    await page.waitForSelector('.timesheet-history-report-loading', { state: 'hidden', timeout: 10000 });
+    await page.waitForSelector('.timesheet-history-report-loading', {
+      state: 'hidden',
+      timeout: 10000,
+    });
 
     // If there are rejected timesheets with notes, expand button should be visible
     const expandButton = page.locator('.expand-button').first();
@@ -286,7 +301,10 @@ test.describe('Timesheet History Report - Summary Display', () => {
     await page.click('[data-testid="timesheet-history-search-button"]');
 
     // Wait for loading to complete
-    await page.waitForSelector('.timesheet-history-report-loading', { state: 'hidden', timeout: 10000 });
+    await page.waitForSelector('.timesheet-history-report-loading', {
+      state: 'hidden',
+      timeout: 10000,
+    });
 
     // Summary cards should be visible
     await expect(page.locator('[data-testid="timesheet-history-summary-total"]')).toBeVisible();
@@ -317,7 +335,10 @@ test.describe('Payroll Report - Age Band Filter', () => {
     await page.click('[data-testid="payroll-report-apply-filters"]');
 
     // Should complete without error
-    await page.waitForSelector('[data-testid="payroll-report-loading"]', { state: 'hidden', timeout: 10000 });
+    await page.waitForSelector('[data-testid="payroll-report-loading"]', {
+      state: 'hidden',
+      timeout: 10000,
+    });
   });
 });
 
@@ -332,7 +353,10 @@ test.describe('Reports - Read-Only Verification', () => {
     await page.click('[data-testid="compliance-audit-search-button"]');
 
     // Wait for results
-    await page.waitForSelector('.compliance-audit-report-loading', { state: 'hidden', timeout: 10000 });
+    await page.waitForSelector('.compliance-audit-report-loading', {
+      state: 'hidden',
+      timeout: 10000,
+    });
 
     // Verify no edit buttons exist in the table
     await expect(page.locator('button:has-text("Edit")')).not.toBeVisible();
@@ -350,7 +374,10 @@ test.describe('Reports - Read-Only Verification', () => {
     await page.click('[data-testid="timesheet-history-search-button"]');
 
     // Wait for results
-    await page.waitForSelector('.timesheet-history-report-loading', { state: 'hidden', timeout: 10000 });
+    await page.waitForSelector('.timesheet-history-report-loading', {
+      state: 'hidden',
+      timeout: 10000,
+    });
 
     // Verify no edit buttons exist in the table (except View links)
     await expect(page.locator('button:has-text("Edit")')).not.toBeVisible();
@@ -371,7 +398,9 @@ test.describe('Reports - Date Range Validation', () => {
     await page.click('[data-testid="compliance-audit-search-button"]');
 
     // Should show error message
-    await expect(page.locator('[data-testid="error-compliance-audit"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="error-compliance-audit"]')).toBeVisible({
+      timeout: 10000,
+    });
   });
 });
 

@@ -12,10 +12,10 @@ This document outlines backup and recovery procedures for the Renewal Initiative
 
 Vercel Postgres (powered by Neon) provides automatic backups:
 
-| Plan | Backup Frequency | Retention | Point-in-Time Recovery |
-|------|-----------------|-----------|------------------------|
-| Hobby | Daily | 7 days | No |
-| Pro | Continuous | 30 days | Yes |
+| Plan  | Backup Frequency | Retention | Point-in-Time Recovery |
+| ----- | ---------------- | --------- | ---------------------- |
+| Hobby | Daily            | 7 days    | No                     |
+| Pro   | Continuous       | 30 days   | Yes                    |
 
 **Note**: For production use with compliance requirements, consider upgrading to Pro plan for point-in-time recovery.
 
@@ -223,21 +223,21 @@ async function restoreDocument(localPath: string, blobPath: string) {
 
 ### Monthly (Manual)
 
-| Task | Owner | Due |
-|------|-------|-----|
-| Export database to local storage | Admin | 1st of month |
+| Task                              | Owner | Due          |
+| --------------------------------- | ----- | ------------ |
+| Export database to local storage  | Admin | 1st of month |
 | Export documents from Vercel Blob | Admin | 1st of month |
-| Test backup restoration | Admin | 1st of month |
-| Verify 3-year-old data accessible | Admin | Quarterly |
+| Test backup restoration           | Admin | 1st of month |
+| Verify 3-year-old data accessible | Admin | Quarterly    |
 
 ### Backup Storage Locations
 
-| Backup Type | Primary Location | Secondary Location |
-|-------------|-----------------|-------------------|
-| Database | Vercel (automatic) | Local encrypted drive |
-| Documents | Vercel Blob | Local encrypted drive |
-| Code | GitHub | Local Git clone |
-| Env variables | Vercel | Password manager |
+| Backup Type   | Primary Location   | Secondary Location    |
+| ------------- | ------------------ | --------------------- |
+| Database      | Vercel (automatic) | Local encrypted drive |
+| Documents     | Vercel Blob        | Local encrypted drive |
+| Code          | GitHub             | Local Git clone       |
+| Env variables | Vercel             | Password manager      |
 
 ---
 
@@ -248,6 +248,7 @@ async function restoreDocument(localPath: string, blobPath: string) {
 Perform this test monthly to ensure backups are valid:
 
 1. **Export production database**
+
    ```bash
    pg_dump "$PROD_DATABASE_URL" > test_restore.sql
    ```
@@ -256,11 +257,13 @@ Perform this test monthly to ensure backups are valid:
    - Use local PostgreSQL or Vercel preview database
 
 3. **Restore backup**
+
    ```bash
    psql "$TEST_DATABASE_URL" < test_restore.sql
    ```
 
 4. **Verify data integrity**
+
    ```sql
    -- Check record counts
    SELECT 'employees' as table_name, COUNT(*) as count FROM employees
@@ -301,16 +304,16 @@ Per REQ-022, retain all data for minimum 3 years:
 
 ### Data Types and Retention
 
-| Data Type | Retention Period | Notes |
-|-----------|-----------------|-------|
-| Timesheets | 3 years minimum | Never delete |
-| Timesheet entries | 3 years minimum | Never delete |
-| Compliance check logs | 3 years minimum | Audit trail |
-| Payroll records | 3 years minimum | Financial records |
-| Employee records | 3 years after termination | Include archived |
-| Documents (consent, permits) | 3 years minimum | Legal requirement |
-| Session data | 30 days | Can be purged |
-| Alerts | 1 year | Can be archived |
+| Data Type                    | Retention Period          | Notes             |
+| ---------------------------- | ------------------------- | ----------------- |
+| Timesheets                   | 3 years minimum           | Never delete      |
+| Timesheet entries            | 3 years minimum           | Never delete      |
+| Compliance check logs        | 3 years minimum           | Audit trail       |
+| Payroll records              | 3 years minimum           | Financial records |
+| Employee records             | 3 years after termination | Include archived  |
+| Documents (consent, permits) | 3 years minimum           | Legal requirement |
+| Session data                 | 30 days                   | Can be purged     |
+| Alerts                       | 1 year                    | Can be archived   |
 
 ### Soft Delete Policy
 
@@ -372,12 +375,12 @@ For long-term retention beyond 3 years:
 
 ### Recovery Time Objectives
 
-| Scenario | Target Recovery Time |
-|----------|---------------------|
-| Application outage | < 15 minutes |
-| Database corruption | < 1 hour |
-| Complete data loss | < 4 hours |
-| Document loss | < 24 hours |
+| Scenario            | Target Recovery Time |
+| ------------------- | -------------------- |
+| Application outage  | < 15 minutes         |
+| Database corruption | < 1 hour             |
+| Complete data loss  | < 4 hours            |
+| Document loss       | < 24 hours           |
 
 ---
 
@@ -398,6 +401,6 @@ For long-term retention beyond 3 years:
 
 ## Change Log
 
-| Date | Change | Author |
-|------|--------|--------|
+| Date       | Change           | Author              |
+| ---------- | ---------------- | ------------------- |
 | 2026-01-24 | Initial document | Phase 13 deployment |

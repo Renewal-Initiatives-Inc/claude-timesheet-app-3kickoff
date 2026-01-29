@@ -12,7 +12,12 @@ interface AlertsBannerProps {
 /**
  * Banner displaying pending alerts/actions for supervisors
  */
-export function AlertsBanner({ alerts, maxItems = 5, loading = false, onRefresh }: AlertsBannerProps) {
+export function AlertsBanner({
+  alerts,
+  maxItems = 5,
+  loading = false,
+  onRefresh,
+}: AlertsBannerProps) {
   if (loading) {
     return (
       <div className="alerts-banner alerts-banner-loading" data-testid="alerts-banner-loading">
@@ -51,13 +56,15 @@ export function AlertsBanner({ alerts, maxItems = 5, loading = false, onRefresh 
             <span className={`alert-icon alert-icon-${alert.type}`}>
               {getAlertIcon(alert.type)}
             </span>
-            <Link to={`/employees/${alert.employeeId}`} className="alert-link" data-testid={`alert-link-${alert.employeeId}`}>
+            <Link
+              to={`/employees/${alert.employeeId}`}
+              className="alert-link"
+              data-testid={`alert-link-${alert.employeeId}`}
+            >
               <span className="alert-employee">{alert.employeeName}</span>
               <span className="alert-message">{alert.message}</span>
             </Link>
-            {alert.dueDate && (
-              <span className="alert-date">Due: {formatDate(alert.dueDate)}</span>
-            )}
+            {alert.dueDate && <span className="alert-date">Due: {formatDate(alert.dueDate)}</span>}
           </li>
         ))}
       </ul>

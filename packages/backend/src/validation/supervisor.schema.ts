@@ -12,10 +12,7 @@ function isValidSunday(dateStr: string): boolean {
  * Schema for approving a timesheet.
  */
 export const approveTimesheetSchema = z.object({
-  notes: z
-    .string()
-    .max(2000, 'Notes must be less than 2000 characters')
-    .optional(),
+  notes: z.string().max(2000, 'Notes must be less than 2000 characters').optional(),
 });
 
 /**

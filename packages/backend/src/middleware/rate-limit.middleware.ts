@@ -1,5 +1,4 @@
 import rateLimit from 'express-rate-limit';
-import { Request } from 'express';
 
 /**
  * Rate limiting middleware for security hardening.

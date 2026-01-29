@@ -34,11 +34,7 @@ test.describe('Supervisor Review API', () => {
 
   test.beforeAll(async ({ request }) => {
     // Login as supervisor
-    supervisorToken = await loginAs(
-      request,
-      'sarah.supervisor@renewal.org',
-      'TestPass123!'
-    );
+    supervisorToken = await loginAs(request, 'sarah.supervisor@renewal.org', 'TestPass123!');
   });
 
   test.describe('GET /api/supervisor/review-queue', () => {
@@ -63,11 +59,7 @@ test.describe('Supervisor Review API', () => {
 
     test('should reject requests from non-supervisors', async ({ request }) => {
       // Login as regular employee
-      const employeeToken = await loginAs(
-        request,
-        'alex.age12@renewal.org',
-        'TestPass123!'
-      );
+      const employeeToken = await loginAs(request, 'alex.age12@renewal.org', 'TestPass123!');
 
       const response = await request.get(`${API_URL}/api/supervisor/review-queue`, {
         headers: {
@@ -131,11 +123,7 @@ test.describe('Review Actions API', () => {
   let supervisorToken: string;
 
   test.beforeAll(async ({ request }) => {
-    supervisorToken = await loginAs(
-      request,
-      'sarah.supervisor@renewal.org',
-      'TestPass123!'
-    );
+    supervisorToken = await loginAs(request, 'sarah.supervisor@renewal.org', 'TestPass123!');
   });
 
   test.describe('POST /api/supervisor/review/:id/approve', () => {
@@ -214,7 +202,8 @@ test.describe('Review Actions API', () => {
             Authorization: `Bearer ${supervisorToken}`,
           },
           data: {
-            notes: 'Please correct the hours on Monday - they exceed the daily limit for your age band.',
+            notes:
+              'Please correct the hours on Monday - they exceed the daily limit for your age band.',
           },
         }
       );
@@ -228,11 +217,7 @@ test.describe('Review Actions API', () => {
 test.describe('Timesheet Immutability API', () => {
   test('should prevent editing submitted timesheets', async ({ request }) => {
     // Login as supervisor first to get a submitted timesheet ID
-    const supervisorToken = await loginAs(
-      request,
-      'sarah.supervisor@renewal.org',
-      'TestPass123!'
-    );
+    const supervisorToken = await loginAs(request, 'sarah.supervisor@renewal.org', 'TestPass123!');
 
     // Get review queue to find a submitted timesheet (if any)
     const queueResponse = await request.get(`${API_URL}/api/supervisor/review-queue`, {

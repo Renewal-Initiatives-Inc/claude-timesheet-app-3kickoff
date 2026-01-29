@@ -6,8 +6,12 @@ async function globalTeardown(config: FullConfig) {
 
   // Report any orphaned processes on test ports (informational only)
   try {
-    const frontendPids = execSync('lsof -ti :5173 2>/dev/null || true', { encoding: 'utf-8' }).trim();
-    const backendPids = execSync('lsof -ti :3001 2>/dev/null || true', { encoding: 'utf-8' }).trim();
+    const frontendPids = execSync('lsof -ti :5173 2>/dev/null || true', {
+      encoding: 'utf-8',
+    }).trim();
+    const backendPids = execSync('lsof -ti :3001 2>/dev/null || true', {
+      encoding: 'utf-8',
+    }).trim();
 
     if (frontendPids) {
       console.log(`ℹ Processes still on port 5173: ${frontendPids.split('\n').join(', ')}`);

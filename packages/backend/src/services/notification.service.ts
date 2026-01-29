@@ -56,9 +56,11 @@ export async function generateAlerts(): Promise<AlertWithKey[]> {
       const missingDocLabels: string[] = [];
       for (const missingType of docStatus.missingDocuments) {
         const docLabel =
-          missingType === 'parental_consent' ? 'Parental consent form' :
-          missingType === 'work_permit' ? 'Work permit' :
-          'Safety training verification';
+          missingType === 'parental_consent'
+            ? 'Parental consent form'
+            : missingType === 'work_permit'
+              ? 'Work permit'
+              : 'Safety training verification';
         missingDocLabels.push(docLabel);
       }
 
@@ -76,9 +78,11 @@ export async function generateAlerts(): Promise<AlertWithKey[]> {
       // Alert for expiring documents
       for (const expiring of docStatus.expiringDocuments) {
         const docLabel =
-          expiring.type === 'parental_consent' ? 'Parental consent' :
-          expiring.type === 'work_permit' ? 'Work permit' :
-          'Safety training';
+          expiring.type === 'parental_consent'
+            ? 'Parental consent'
+            : expiring.type === 'work_permit'
+              ? 'Work permit'
+              : 'Safety training';
 
         alerts.push({
           type: 'expiring_document' as AlertType,
@@ -133,10 +137,7 @@ export async function generateAlerts(): Promise<AlertWithKey[]> {
  */
 async function getSupervisors(): Promise<Array<{ id: string; name: string; email: string }>> {
   const supervisors = await db.query.employees.findMany({
-    where: and(
-      eq(employees.status, 'active'),
-      eq(employees.isSupervisor, true)
-    ),
+    where: and(eq(employees.status, 'active'), eq(employees.isSupervisor, true)),
   });
 
   return supervisors.map((s) => ({
@@ -149,10 +150,7 @@ async function getSupervisors(): Promise<Array<{ id: string; name: string; email
 /**
  * Check if an alert has been sent recently.
  */
-async function wasAlertSentRecently(
-  alertKey: string,
-  supervisorEmail: string
-): Promise<boolean> {
+async function wasAlertSentRecently(alertKey: string, supervisorEmail: string): Promise<boolean> {
   const windowStart = new Date();
   windowStart.setDate(windowStart.getDate() - DEDUPLICATION_WINDOW_DAYS);
 
@@ -215,7 +213,11 @@ async function sendAlertToSupervisors(
           alert.employeeName,
           missingDocs
         );
-      } else if (alert.type === 'expiring_document' && alert.expirationDate && alert.daysRemaining !== undefined) {
+      } else if (
+        alert.type === 'expiring_document' &&
+        alert.expirationDate &&
+        alert.daysRemaining !== undefined
+      ) {
         success = await sendWorkPermitExpirationAlert(
           supervisor.email,
           supervisor.name,
@@ -223,7 +225,11 @@ async function sendAlertToSupervisors(
           alert.expirationDate,
           alert.daysRemaining
         );
-      } else if (alert.type === 'age_transition' && alert.expirationDate && alert.daysRemaining !== undefined) {
+      } else if (
+        alert.type === 'age_transition' &&
+        alert.expirationDate &&
+        alert.daysRemaining !== undefined
+      ) {
         success = await sendAgeTransitionAlert(
           supervisor.email,
           supervisor.name,
@@ -237,10 +243,14 @@ async function sendAlertToSupervisors(
         await logAlertSent(alert.type, alert.employeeId, supervisor.email, alert.alertKey);
         sent++;
       } else {
-        errors.push(`Failed to send ${alert.type} alert for ${alert.employeeName} to ${supervisor.email}`);
+        errors.push(
+          `Failed to send ${alert.type} alert for ${alert.employeeName} to ${supervisor.email}`
+        );
       }
     } catch (error) {
-      errors.push(`Error sending ${alert.type} alert for ${alert.employeeName} to ${supervisor.email}: ${error}`);
+      errors.push(
+        `Error sending ${alert.type} alert for ${alert.employeeName} to ${supervisor.email}: ${error}`
+      );
     }
   }
 

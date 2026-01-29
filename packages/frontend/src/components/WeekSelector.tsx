@@ -47,13 +47,9 @@ function addDays(dateStr: string, days: number): string {
   return date.toISOString().split('T')[0]!;
 }
 
-export function WeekSelector({
-  selectedWeek,
-  onWeekChange,
-  lockedWeeks = [],
-}: WeekSelectorProps) {
+export function WeekSelector({ selectedWeek, onWeekChange, lockedWeeks = [] }: WeekSelectorProps) {
   const currentWeek = getCurrentWeekStart();
-  const isFutureWeek = selectedWeek > currentWeek;
+  const _isFutureWeek = selectedWeek > currentWeek;
   const isCurrentWeek = selectedWeek === currentWeek;
   const isLocked = lockedWeeks.includes(selectedWeek) && !isCurrentWeek;
 

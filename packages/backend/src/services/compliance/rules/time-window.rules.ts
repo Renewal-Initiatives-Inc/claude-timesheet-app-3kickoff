@@ -11,7 +11,7 @@
  * - RULE-036: All minors school hours prohibition (master rule)
  */
 
-import type { ComplianceRule, ComplianceContext, RuleResult, TimesheetEntryWithTaskCode } from '../types.js';
+import type { ComplianceRule, ComplianceContext, RuleResult } from '../types.js';
 import { timeToMinutes } from '../../../utils/timezone.js';
 import {
   RULE_004_MESSAGE,
@@ -96,7 +96,7 @@ function isSchoolNight(date: string, context: ComplianceContext): boolean {
   // Mon-Thu are school nights (before Tue-Fri)
   const dayOfWeek = new Date(date + 'T00:00:00').getDay();
   const currentDayEntries = context.dailyEntries.get(date);
-  const isCurrentSchoolDay = currentDayEntries?.some((e) => e.isSchoolDay) ?? false;
+  const _isCurrentSchoolDay = currentDayEntries?.some((e) => e.isSchoolDay) ?? false;
 
   // If it's a school week and Mon-Thu, treat as school night
   if (context.isSchoolWeek && dayOfWeek >= 1 && dayOfWeek <= 4) {
@@ -155,7 +155,8 @@ export const schoolHours12_13Rule: ComplianceRule = {
         ruleName: 'Ages 12-13 School Hours Prohibition',
         result: 'pass',
         details: {
-          ruleDescription: 'Ages 12-13 cannot work during school hours (7 AM - 3 PM) on school days',
+          ruleDescription:
+            'Ages 12-13 cannot work during school hours (7 AM - 3 PM) on school days',
         },
       };
     }
@@ -215,7 +216,8 @@ export const schoolHours14_15Rule: ComplianceRule = {
         ruleName: 'Ages 14-15 School Hours Prohibition',
         result: 'pass',
         details: {
-          ruleDescription: 'Ages 14-15 cannot work during school hours (7 AM - 3 PM) on school days',
+          ruleDescription:
+            'Ages 14-15 cannot work during school hours (7 AM - 3 PM) on school days',
         },
       };
     }
@@ -297,9 +299,19 @@ export const workWindow14_15Rule: ComplianceRule = {
         checkedValues: { violations },
         affectedDates: [...new Set(violations.map((v) => v.date))],
         affectedEntries: violations.map((v) => v.entryId),
-        message: RULE_011_MESSAGE.message(first.date, first.endTime, first.windowEnd, first.isSummer),
+        message: RULE_011_MESSAGE.message(
+          first.date,
+          first.endTime,
+          first.windowEnd,
+          first.isSummer
+        ),
       },
-      errorMessage: RULE_011_MESSAGE.message(first.date, first.endTime, first.windowEnd, first.isSummer),
+      errorMessage: RULE_011_MESSAGE.message(
+        first.date,
+        first.endTime,
+        first.windowEnd,
+        first.isSummer
+      ),
       remediationGuidance: RULE_011_MESSAGE.remediation(first.windowEnd),
     };
   },
@@ -482,7 +494,8 @@ export const schoolHours16_17Rule: ComplianceRule = {
         ruleName: 'Ages 16-17 School Hours Prohibition',
         result: 'pass',
         details: {
-          ruleDescription: 'Ages 16-17 cannot work during school hours (7 AM - 3 PM) on school days',
+          ruleDescription:
+            'Ages 16-17 cannot work during school hours (7 AM - 3 PM) on school days',
         },
       };
     }
