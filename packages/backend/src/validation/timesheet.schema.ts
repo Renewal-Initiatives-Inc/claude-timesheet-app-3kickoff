@@ -88,8 +88,33 @@ export const listTimesheetsQuerySchema = z.object({
     .optional(),
 });
 
+/**
+ * Schema for bulk creating timesheet entries.
+ * Used for multi-day drag operations in timeline UI.
+ */
+export const bulkCreateEntriesSchema = z.object({
+  entries: z
+    .array(createEntrySchema)
+    .min(1, 'At least one entry is required')
+    .max(7, 'Maximum 7 entries allowed per bulk operation'),
+});
+
+/**
+ * Schema for previewing compliance for a proposed entry.
+ * Used for real-time compliance feedback in timeline UI.
+ */
+export const previewEntrySchema = z.object({
+  workDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
+  taskCodeId: z.string().uuid('Invalid task code ID'),
+  startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:MM)'),
+  endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:MM)'),
+  isSchoolDay: z.boolean(),
+});
+
 // Export types
 export type GetTimesheetInput = z.infer<typeof getTimesheetSchema>;
 export type CreateEntryInput = z.infer<typeof createEntrySchema>;
 export type UpdateEntryInput = z.infer<typeof updateEntrySchema>;
 export type ListTimesheetsQueryInput = z.infer<typeof listTimesheetsQuerySchema>;
+export type BulkCreateEntriesInput = z.infer<typeof bulkCreateEntriesSchema>;
+export type PreviewEntryInput = z.infer<typeof previewEntrySchema>;

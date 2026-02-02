@@ -1,0 +1,353 @@
+/* Backdrop overlay */
+.task-assignment-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: backdropIn 0.15s ease-out;
+}
+
+@keyframes backdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.task-assignment-popover {
+  position: relative;
+  z-index: 1000;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.2),
+    0 4px 10px rgba(0, 0, 0, 0.15);
+  min-width: 340px;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: popoverIn 0.15s ease-out;
+}
+
+@keyframes popoverIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Header */
+.popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.popover-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.popover-header .close-btn {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.25rem;
+  color: #6b7280;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease;
+}
+
+.popover-header .close-btn:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* Info section */
+.popover-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.popover-info .time-range {
+  font-size: 0.875rem;
+  color: #374151;
+  font-weight: 500;
+}
+
+.popover-info .hours-badge {
+  background: #dbeafe;
+  color: #1d4ed8;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.popover-info .days-badge {
+  background: #fef3c7;
+  color: #b45309;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Compliance preview section */
+.compliance-loading {
+  padding: 12px 16px;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 0.875rem;
+  text-align: center;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.compliance-preview {
+  padding: 12px 16px;
+  background: #fafafa;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Violations (blocking) */
+.compliance-violations {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.compliance-violations .violation-header {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #dc2626;
+  margin-bottom: 6px;
+}
+
+.compliance-violations .violation-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #b91c1c;
+  margin-top: 4px;
+}
+
+.compliance-violations .violation-icon {
+  flex-shrink: 0;
+}
+
+/* Warnings (informational) */
+.compliance-warnings {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.compliance-warnings .warning-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #92400e;
+}
+
+.compliance-warnings .warning-item + .warning-item {
+  margin-top: 4px;
+}
+
+.compliance-warnings .warning-icon {
+  flex-shrink: 0;
+}
+
+/* Limits info */
+.compliance-limits {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.compliance-limits .limit-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+}
+
+.compliance-limits .limit-label {
+  color: #6b7280;
+  min-width: 45px;
+}
+
+.compliance-limits .limit-value {
+  font-weight: 600;
+  color: #059669;
+}
+
+.compliance-limits .limit-value.near-limit {
+  color: #d97706;
+}
+
+.compliance-limits .limit-value.over-limit {
+  color: #dc2626;
+}
+
+.compliance-limits .limit-max {
+  color: #9ca3af;
+  font-size: 0.75rem;
+}
+
+/* Form */
+.task-assignment-popover form {
+  padding: 16px;
+}
+
+.task-assignment-popover .form-group {
+  margin-bottom: 16px;
+}
+
+.task-assignment-popover .form-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.task-assignment-popover .form-group select,
+.task-assignment-popover .form-group input[type='text'] {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #111827;
+  background: #fff;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.task-assignment-popover .form-group select:focus,
+.task-assignment-popover .form-group input[type='text']:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.task-assignment-popover .help-text {
+  display: block;
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+/* Checkbox group */
+.task-assignment-popover .checkbox-group label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.task-assignment-popover .checkbox-group input[type='checkbox'] {
+  margin-top: 2px;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Error message */
+.popover-error {
+  background: #fef2f2;
+  color: #dc2626;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  margin-bottom: 16px;
+  border: 1px solid #fecaca;
+}
+
+/* Actions */
+.popover-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.popover-actions button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.popover-actions .cancel-btn {
+  background: #fff;
+  border: 1px solid #d1d5db;
+  color: #374151;
+}
+
+.popover-actions .cancel-btn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.popover-actions .assign-btn {
+  background: #3b82f6;
+  border: 1px solid #3b82f6;
+  color: #fff;
+}
+
+.popover-actions .assign-btn:hover:not(:disabled) {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.popover-actions .assign-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.popover-actions .assign-btn.has-violations {
+  background: #ef4444;
+  border-color: #ef4444;
+}
+
+.popover-actions .assign-btn.has-violations:disabled {
+  opacity: 0.8;
+}

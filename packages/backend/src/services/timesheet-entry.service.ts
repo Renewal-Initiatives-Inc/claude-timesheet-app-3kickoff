@@ -268,6 +268,103 @@ export async function createEntry(
 }
 
 /**
+ * Result of bulk entry creation.
+ */
+export interface BulkCreateResult {
+  entries: TimesheetEntry[];
+  created: number;
+  failed: number;
+  errors: Array<{ index: number; error: string }>;
+}
+
+/**
+ * Create multiple timesheet entries in a single operation.
+ * Used for multi-day drag in timeline UI.
+ * All entries must have the same task code, start/end times, and supervisor/meal settings.
+ * This performs validation for each entry individually but creates them in a batch.
+ */
+export async function createMultipleEntries(
+  timesheetId: string,
+  entries: CreateEntryInput[]
+): Promise<BulkCreateResult> {
+  // Get and validate timesheet once
+  const timesheet = await db.query.timesheets.findFirst({
+    where: eq(timesheets.id, timesheetId),
+  });
+
+  if (!timesheet) {
+    throw new TimesheetEntryError('Timesheet not found', 'TIMESHEET_NOT_FOUND');
+  }
+
+  if (timesheet.status !== 'open') {
+    throw new TimesheetEntryError(
+      `Cannot add entries to timesheet with status: ${timesheet.status}`,
+      'TIMESHEET_NOT_EDITABLE'
+    );
+  }
+
+  // Validate task code exists (assuming all entries use the same task code)
+  if (entries.length > 0) {
+    const taskCodeId = entries[0]!.taskCodeId;
+    const taskCode = await db.query.taskCodes.findFirst({
+      where: eq(taskCodes.id, taskCodeId),
+    });
+
+    if (!taskCode) {
+      throw new TimesheetEntryError('Task code not found', 'TASK_CODE_NOT_FOUND');
+    }
+  }
+
+  const results: TimesheetEntry[] = [];
+  const errors: Array<{ index: number; error: string }> = [];
+
+  // Process each entry
+  for (let i = 0; i < entries.length; i++) {
+    const input = entries[i]!;
+
+    try {
+      // Validate work date is within the timesheet week
+      if (!validateEntryDate(timesheet.weekStartDate, input.workDate)) {
+        errors.push({ index: i, error: `Work date ${input.workDate} is not within the timesheet week` });
+        continue;
+      }
+
+      // Calculate hours
+      const hours = calculateHours(input.startTime, input.endTime);
+
+      // Insert entry
+      const [newEntry] = await db
+        .insert(timesheetEntries)
+        .values({
+          timesheetId,
+          workDate: input.workDate,
+          taskCodeId: input.taskCodeId,
+          startTime: input.startTime,
+          endTime: input.endTime,
+          hours: hours.toFixed(2),
+          isSchoolDay: input.isSchoolDay,
+          schoolDayOverrideNote: input.schoolDayOverrideNote ?? null,
+          supervisorPresentName: input.supervisorPresentName ?? null,
+          mealBreakConfirmed: input.mealBreakConfirmed ?? null,
+        })
+        .returning();
+
+      results.push(toPublicEntry(newEntry!));
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      errors.push({ index: i, error: errorMessage });
+    }
+  }
+
+  return {
+    entries: results,
+    created: results.length,
+    failed: errors.length,
+    errors,
+  };
+}
+
+/**
  * Input for updating a timesheet entry.
  */
 export interface UpdateEntryInput {
@@ -512,4 +609,217 @@ export function getAgeBand(age: number): '12-13' | '14-15' | '16-17' | '18+' {
   if (age >= 16) return '16-17';
   if (age >= 14) return '14-15';
   return '12-13';
+}
+
+// ============================================================================
+// Entry Compliance Preview (for Timeline UI Phase 3)
+// ============================================================================
+
+import type {
+  EntryCompliancePreview,
+  EntryPreviewRequest,
+  ComplianceWarning,
+  ComplianceViolation,
+} from '@renewal/types';
+
+/**
+ * Preview compliance for a proposed entry without saving.
+ * Returns violations, warnings, limits, and requirements.
+ */
+export async function previewEntryCompliance(
+  timesheetId: string,
+  entry: EntryPreviewRequest
+): Promise<EntryCompliancePreview> {
+  // Get timesheet with employee info
+  const timesheet = await db.query.timesheets.findFirst({
+    where: eq(timesheets.id, timesheetId),
+    with: { employee: true },
+  });
+
+  if (!timesheet || !timesheet.employee) {
+    throw new TimesheetEntryError('Timesheet not found', 'TIMESHEET_NOT_FOUND');
+  }
+
+  // Calculate employee age on work date
+  const age = calculateAge(timesheet.employee.dateOfBirth, entry.workDate);
+  const limits = getHourLimitsForAge(age);
+  const isMinor = age < 18;
+
+  // Calculate proposed hours
+  const proposedHours = calculateHours(entry.startTime, entry.endTime);
+
+  // Get existing entries for this timesheet
+  const existingEntries = await db.query.timesheetEntries.findMany({
+    where: eq(timesheetEntries.timesheetId, timesheetId),
+  });
+
+  // Calculate current totals
+  let currentDailyHours = 0;
+  let currentWeeklyHours = 0;
+
+  for (const e of existingEntries) {
+    const hours = parseFloat(e.hours);
+    currentWeeklyHours += hours;
+    if (e.workDate === entry.workDate) {
+      currentDailyHours += hours;
+    }
+  }
+
+  // Determine applicable daily limit
+  const dailyLimit =
+    limits.dailyLimitSchoolDay !== undefined && entry.isSchoolDay
+      ? limits.dailyLimitSchoolDay
+      : limits.dailyLimit;
+
+  // Determine applicable weekly limit
+  // Check if this is a school week (has at least one school day entry or proposed is on school day)
+  const hasSchoolDayEntry = existingEntries.some((e) => e.isSchoolDay) || entry.isSchoolDay;
+  const weeklyLimit =
+    limits.weeklyLimitSchoolWeek !== undefined && hasSchoolDayEntry
+      ? limits.weeklyLimitSchoolWeek
+      : limits.weeklyLimit;
+
+  // Calculate projected totals
+  const projectedDailyHours = currentDailyHours + proposedHours;
+  const projectedWeeklyHours = currentWeeklyHours + proposedHours;
+
+  // Build violations and warnings
+  const violations: ComplianceViolation[] = [];
+  const warnings: ComplianceWarning[] = [];
+
+  // Check daily limit
+  if (projectedDailyHours > dailyLimit) {
+    violations.push({
+      ruleId: 'HOUR_LIMIT_DAILY',
+      ruleName: 'Daily Hour Limit',
+      message: `This entry would exceed the daily limit of ${dailyLimit} hours for your age group. Current: ${currentDailyHours.toFixed(1)}h + Entry: ${proposedHours.toFixed(1)}h = ${projectedDailyHours.toFixed(1)}h`,
+      remediation: `Reduce the entry to ${Math.max(0, dailyLimit - currentDailyHours).toFixed(1)} hours or less.`,
+      affectedDates: [entry.workDate],
+    });
+  } else if (projectedDailyHours >= dailyLimit * 0.8) {
+    warnings.push({
+      code: 'APPROACHING_DAILY_LIMIT',
+      message: `Approaching daily limit (${projectedDailyHours.toFixed(1)}/${dailyLimit}h)`,
+    });
+  }
+
+  // Check weekly limit
+  if (projectedWeeklyHours > weeklyLimit) {
+    violations.push({
+      ruleId: 'HOUR_LIMIT_WEEKLY',
+      ruleName: 'Weekly Hour Limit',
+      message: `This entry would exceed the weekly limit of ${weeklyLimit} hours. Current: ${currentWeeklyHours.toFixed(1)}h + Entry: ${proposedHours.toFixed(1)}h = ${projectedWeeklyHours.toFixed(1)}h`,
+      remediation: `Reduce total weekly hours to ${weeklyLimit} hours or less.`,
+    });
+  } else if (projectedWeeklyHours >= weeklyLimit * 0.8) {
+    warnings.push({
+      code: 'APPROACHING_WEEKLY_LIMIT',
+      message: `Approaching weekly limit (${projectedWeeklyHours.toFixed(1)}/${weeklyLimit}h)`,
+    });
+  }
+
+  // Check school hours (7 AM - 3 PM) for minors on school days
+  if (isMinor && entry.isSchoolDay) {
+    const startMinutes = timeToMinutes(entry.startTime);
+    const endMinutes = timeToMinutes(entry.endTime);
+    const schoolStartMinutes = 7 * 60; // 7 AM
+    const schoolEndMinutes = 15 * 60; // 3 PM
+
+    // Check if any part of the entry overlaps school hours
+    if (startMinutes < schoolEndMinutes && endMinutes > schoolStartMinutes) {
+      violations.push({
+        ruleId: 'SCHOOL_HOURS_VIOLATION',
+        ruleName: 'School Hours Prohibition',
+        message: `Workers under 18 cannot work during school hours (7:00 AM - 3:00 PM) on school days.`,
+        remediation: `Adjust the entry to start after 3:00 PM or change the school day designation.`,
+        affectedDates: [entry.workDate],
+      });
+    }
+  }
+
+  // Check task age restrictions
+  if (entry.taskCodeId) {
+    const taskCode = await db.query.taskCodes.findFirst({
+      where: eq(taskCodes.id, entry.taskCodeId),
+    });
+
+    if (taskCode) {
+      if (age < taskCode.minAgeAllowed) {
+        violations.push({
+          ruleId: 'TASK_AGE_RESTRICTION',
+          ruleName: 'Task Age Restriction',
+          message: `The task "${taskCode.name}" requires a minimum age of ${taskCode.minAgeAllowed}. You are ${age} years old on this date.`,
+          remediation: `Select a different task code that is allowed for your age.`,
+        });
+      }
+
+      // Hazardous task check
+      if (isMinor && taskCode.isHazardous) {
+        violations.push({
+          ruleId: 'HAZARDOUS_TASK_MINOR',
+          ruleName: 'Hazardous Task Restriction',
+          message: `Workers under 18 cannot perform hazardous tasks like "${taskCode.name}".`,
+          remediation: `Select a non-hazardous task code.`,
+        });
+      }
+    }
+  }
+
+  // Determine requirements
+  let supervisorRequired = false;
+  let supervisorReason: string | undefined;
+  let mealBreakRequired = false;
+  let mealBreakReason: string | undefined;
+
+  // Check task for supervisor requirement
+  if (entry.taskCodeId) {
+    const taskCode = await db.query.taskCodes.findFirst({
+      where: eq(taskCodes.id, entry.taskCodeId),
+    });
+
+    if (taskCode) {
+      if (
+        taskCode.supervisorRequired === 'always' ||
+        (taskCode.supervisorRequired === 'for_minors' && isMinor)
+      ) {
+        supervisorRequired = true;
+        supervisorReason =
+          taskCode.supervisorRequired === 'always'
+            ? `Task "${taskCode.name}" requires a supervisor for all workers.`
+            : `Task "${taskCode.name}" requires a supervisor for workers under 18.`;
+      }
+    }
+  }
+
+  // Check meal break requirement (>6 hours for minors)
+  if (isMinor && proposedHours > 6) {
+    mealBreakRequired = true;
+    mealBreakReason =
+      'Massachusetts law requires a 30-minute meal break for shifts over 6 hours for workers under 18.';
+  }
+
+  return {
+    valid: violations.length === 0,
+    warnings,
+    violations,
+    limits: {
+      daily: {
+        current: currentDailyHours,
+        limit: dailyLimit,
+        remaining: Math.max(0, dailyLimit - currentDailyHours),
+      },
+      weekly: {
+        current: currentWeeklyHours,
+        limit: weeklyLimit,
+        remaining: Math.max(0, weeklyLimit - currentWeeklyHours),
+      },
+    },
+    requirements: {
+      supervisorRequired,
+      mealBreakRequired,
+      supervisorReason,
+      mealBreakReason,
+    },
+    proposedHours,
+  };
 }

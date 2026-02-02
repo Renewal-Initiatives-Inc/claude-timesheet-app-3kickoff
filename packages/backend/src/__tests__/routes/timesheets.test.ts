@@ -755,4 +755,131 @@ describe('Timesheets API Routes', () => {
       expect(response.status).toBe(404);
     });
   });
+
+  describe('POST /api/timesheets/:id/entries/preview', () => {
+    const taskCodeUuid = '550e8400-e29b-41d4-a716-446655440000';
+
+    it('should return 401 for unauthenticated request', async () => {
+      const response = await request(app)
+        .post('/api/timesheets/ts-1/entries/preview')
+        .send({
+          workDate: '2024-06-10',
+          startTime: '16:00',
+          endTime: '18:00',
+          taskCodeId: taskCodeUuid,
+          isSchoolDay: true,
+        });
+
+      expect(response.status).toBe(401);
+    });
+
+    it('should return 403 for access denied', async () => {
+      vi.mocked(db.query.employees.findFirst).mockResolvedValueOnce(testEmployee as never);
+
+      const mockTimesheet = {
+        id: 'ts-1',
+        employeeId: 'emp-other', // Different employee
+      };
+
+      vi.mocked(db.query.timesheets.findFirst).mockResolvedValueOnce(mockTimesheet as never);
+
+      const response = await request(app)
+        .post('/api/timesheets/ts-1/entries/preview')
+        .set('Authorization', 'Bearer valid-employee-token')
+        .send({
+          workDate: '2024-06-10',
+          startTime: '16:00',
+          endTime: '18:00',
+          taskCodeId: taskCodeUuid,
+          isSchoolDay: true,
+        });
+
+      expect(response.status).toBe(403);
+      expect(response.body.error).toBe('TIMESHEET_ACCESS_DENIED');
+    });
+
+    it('should return 404 for non-existent timesheet', async () => {
+      vi.mocked(db.query.employees.findFirst).mockResolvedValueOnce(testEmployee as never);
+      vi.mocked(db.query.timesheets.findFirst).mockResolvedValueOnce(null as never);
+
+      const response = await request(app)
+        .post('/api/timesheets/ts-1/entries/preview')
+        .set('Authorization', 'Bearer valid-employee-token')
+        .send({
+          workDate: '2024-06-10',
+          startTime: '16:00',
+          endTime: '18:00',
+          taskCodeId: taskCodeUuid,
+          isSchoolDay: true,
+        });
+
+      expect(response.status).toBe(404);
+    });
+
+    it('should return 400 for invalid request schema', async () => {
+      vi.mocked(db.query.employees.findFirst).mockResolvedValueOnce(testEmployee as never);
+
+      const response = await request(app)
+        .post('/api/timesheets/ts-1/entries/preview')
+        .set('Authorization', 'Bearer valid-employee-token')
+        .send({
+          workDate: 'invalid-date',
+          startTime: 'not-a-time',
+          taskCodeId: 'not-a-uuid',
+        });
+
+      expect(response.status).toBe(400);
+    });
+
+    it('should return 200 with valid preview for valid entry', async () => {
+      vi.mocked(db.query.employees.findFirst).mockResolvedValueOnce(testEmployee as never);
+
+      const mockTimesheet = {
+        id: 'ts-1',
+        employeeId: 'emp-1',
+        weekStartDate: '2024-06-09',
+        status: 'open',
+        employee: {
+          id: 'emp-1',
+          dateOfBirth: '2008-01-15', // 16 years old
+        },
+      };
+
+      const mockTaskCode = {
+        id: taskCodeUuid,
+        code: 'C1',
+        name: 'Customer Service',
+        isActive: true,
+        isHazardous: false,
+        minAgeRequirement: null,
+        supervisorRequired: 'never',
+      };
+
+      vi.mocked(db.query.timesheets.findFirst)
+        .mockResolvedValueOnce(mockTimesheet as never) // validateTimesheetAccess
+        .mockResolvedValueOnce(mockTimesheet as never); // previewEntryCompliance
+      vi.mocked(db.query.taskCodes.findFirst).mockResolvedValueOnce(mockTaskCode as never);
+      vi.mocked(db.query.timesheetEntries.findMany)
+        .mockResolvedValueOnce([] as never) // Daily entries
+        .mockResolvedValueOnce([] as never); // Weekly entries
+
+      const response = await request(app)
+        .post('/api/timesheets/ts-1/entries/preview')
+        .set('Authorization', 'Bearer valid-employee-token')
+        .send({
+          workDate: '2024-06-10',
+          startTime: '16:00',
+          endTime: '18:00',
+          taskCodeId: taskCodeUuid,
+          isSchoolDay: true,
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.valid).toBeDefined();
+      expect(response.body.violations).toBeDefined();
+      expect(response.body.warnings).toBeDefined();
+      expect(response.body.limits).toBeDefined();
+      expect(response.body.requirements).toBeDefined();
+    });
+  });
 });

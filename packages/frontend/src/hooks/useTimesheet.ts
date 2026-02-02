@@ -6,6 +6,8 @@ import type {
   UpdateEntryRequest,
   Timesheet,
   TimesheetListParams,
+  EntryPreviewRequest,
+  EntryCompliancePreview,
 } from '@renewal/types';
 import {
   getCurrentTimesheet,
@@ -13,8 +15,10 @@ import {
   getTimesheetById,
   getTimesheets,
   createTimesheetEntry,
+  createTimesheetEntriesBulk,
   updateTimesheetEntry,
   deleteTimesheetEntry,
+  previewEntryCompliance,
   ApiRequestError,
 } from '../api/client.js';
 
@@ -29,8 +33,11 @@ interface UseTimesheetResult {
   error: string | null;
   saving: boolean;
   addEntry: (entry: CreateEntryRequest) => Promise<void>;
+  addMultipleEntries: (entries: CreateEntryRequest[]) => Promise<void>;
   updateEntry: (entryId: string, updates: UpdateEntryRequest) => Promise<void>;
+  updateEntriesSchoolDay: (date: string, isSchoolDay: boolean) => Promise<void>;
   deleteEntry: (entryId: string) => Promise<void>;
+  previewEntry: (entry: EntryPreviewRequest) => Promise<EntryCompliancePreview | null>;
   refresh: () => void;
 }
 
@@ -90,6 +97,28 @@ export function useTimesheet(options: UseTimesheetOptions = {}): UseTimesheetRes
     [timesheet, fetchTimesheet]
   );
 
+  const addMultipleEntries = useCallback(
+    async (entries: CreateEntryRequest[]) => {
+      if (!timesheet) return;
+      setSaving(true);
+      setError(null);
+      try {
+        await createTimesheetEntriesBulk(timesheet.id, entries);
+        await fetchTimesheet(); // Refresh to get updated totals
+      } catch (err) {
+        if (err instanceof ApiRequestError) {
+          setError(err.message);
+        } else {
+          setError('Failed to add entries');
+        }
+        throw err;
+      } finally {
+        setSaving(false);
+      }
+    },
+    [timesheet, fetchTimesheet]
+  );
+
   const updateEntry = useCallback(
     async (entryId: string, updates: UpdateEntryRequest) => {
       if (!timesheet) return;
@@ -134,6 +163,54 @@ export function useTimesheet(options: UseTimesheetOptions = {}): UseTimesheetRes
     [timesheet, fetchTimesheet]
   );
 
+  const previewEntry = useCallback(
+    async (entry: EntryPreviewRequest): Promise<EntryCompliancePreview | null> => {
+      if (!timesheet) return null;
+      try {
+        return await previewEntryCompliance(timesheet.id, entry);
+      } catch (err) {
+        if (err instanceof ApiRequestError) {
+          console.error('Preview failed:', err.message);
+        }
+        return null;
+      }
+    },
+    [timesheet]
+  );
+
+  // Update isSchoolDay for all entries on a specific date
+  const updateEntriesSchoolDay = useCallback(
+    async (date: string, isSchoolDay: boolean) => {
+      if (!timesheet) return;
+
+      // Find all entries on this date
+      const entriesOnDate = timesheet.entries.filter((e) => e.workDate === date);
+      if (entriesOnDate.length === 0) return;
+
+      setSaving(true);
+      setError(null);
+      try {
+        // Update each entry's isSchoolDay status
+        await Promise.all(
+          entriesOnDate.map((entry) =>
+            updateTimesheetEntry(timesheet.id, entry.id, { isSchoolDay })
+          )
+        );
+        await fetchTimesheet(); // Refresh to get updated data
+      } catch (err) {
+        if (err instanceof ApiRequestError) {
+          setError(err.message);
+        } else {
+          setError('Failed to update school day status');
+        }
+        throw err;
+      } finally {
+        setSaving(false);
+      }
+    },
+    [timesheet, fetchTimesheet]
+  );
+
   return {
     timesheet,
     totals,
@@ -141,8 +218,11 @@ export function useTimesheet(options: UseTimesheetOptions = {}): UseTimesheetRes
     error,
     saving,
     addEntry,
+    addMultipleEntries,
     updateEntry,
+    updateEntriesSchoolDay,
     deleteEntry,
+    previewEntry,
     refresh: fetchTimesheet,
   };
 }

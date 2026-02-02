@@ -1,6 +1,6 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useReviewDetail } from '../hooks/useReviewQueue.js';
-import { TimesheetGrid } from '../components/TimesheetGrid.js';
+import { TimelineView } from '../components/TimelineView.js';
 import { ComplianceSummary } from '../components/ComplianceSummary.js';
 import { ReviewActions } from '../components/ReviewActions.js';
 import './ReviewDetail.css';
@@ -141,11 +141,12 @@ export function ReviewDetail() {
       <section className="review-timesheet">
         <h3>Timesheet Entries</h3>
         <div className="review-timesheet-readonly">
-          <TimesheetGrid
+          <TimelineView
             timesheet={timesheet}
             totals={timesheet.totals}
             employeeAge={employeeAge}
-            onAddEntry={() => {}}
+            taskCodes={[]}
+            onAddEntry={async () => {}}
             onEditEntry={() => {}}
             onDeleteEntry={() => {}}
             disabled={true}

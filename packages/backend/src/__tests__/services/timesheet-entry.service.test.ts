@@ -79,6 +79,7 @@ import {
   calculateHours,
   getHourLimitsForAge,
   getAgeBand,
+  previewEntryCompliance,
   TimesheetEntryError,
 } from '../../services/timesheet-entry.service.js';
 
@@ -450,6 +451,200 @@ describe('Timesheet Entry Service', () => {
       const result = await getWeeklyTotal('ts-1');
 
       expect(result).toBe(0);
+    });
+  });
+
+  describe('previewEntryCompliance', () => {
+    const mockTimesheetBase = {
+      id: 'ts-1',
+      employeeId: 'emp-1',
+      weekStartDate: '2024-06-09',
+      status: 'open',
+      employee: {
+        id: 'emp-1',
+        dateOfBirth: '2011-01-15', // 13 years old in June 2024
+      },
+    };
+
+    const mockTaskCode = {
+      id: 'tc-1',
+      code: 'C1',
+      name: 'Customer Service',
+      isActive: true,
+      isHazardous: false,
+      minAgeRequirement: null,
+      supervisorRequired: 'never',
+    };
+
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
+    it('should return no violations for a valid entry', async () => {
+      vi.mocked(db.query.timesheets.findFirst).mockResolvedValueOnce(mockTimesheetBase as never);
+      vi.mocked(db.query.taskCodes.findFirst).mockResolvedValueOnce(mockTaskCode as never);
+      vi.mocked(db.query.timesheetEntries.findMany)
+        .mockResolvedValueOnce([] as never) // Daily entries
+        .mockResolvedValueOnce([] as never); // Weekly entries
+
+      const result = await previewEntryCompliance('ts-1', {
+        workDate: '2024-06-10',
+        startTime: '16:00',
+        endTime: '18:00',
+        taskCodeId: 'tc-1',
+        isSchoolDay: true,
+      });
+
+      expect(result.valid).toBe(true);
+      expect(result.violations).toHaveLength(0);
+      expect(result.proposedHours).toBe(2);
+    });
+
+    it('should return daily limit violation for 12-13 age band', async () => {
+      vi.mocked(db.query.timesheets.findFirst).mockResolvedValueOnce(mockTimesheetBase as never);
+      vi.mocked(db.query.taskCodes.findFirst).mockResolvedValueOnce(mockTaskCode as never);
+      vi.mocked(db.query.timesheetEntries.findMany)
+        .mockResolvedValueOnce([{ hours: '3.00' }] as never) // Already 3 hours today
+        .mockResolvedValueOnce([{ hours: '3.00' }] as never); // Weekly entries
+
+      const result = await previewEntryCompliance('ts-1', {
+        workDate: '2024-06-10',
+        startTime: '16:00',
+        endTime: '18:00', // 2 more hours = 5 total, exceeds 4-hour limit
+        taskCodeId: 'tc-1',
+        isSchoolDay: true,
+      });
+
+      expect(result.valid).toBe(false);
+      expect(result.violations.length).toBeGreaterThan(0);
+      expect(result.violations.some((v) => v.message.includes('daily'))).toBe(true);
+    });
+
+    it('should return weekly limit violation for 12-13 age band', async () => {
+      vi.mocked(db.query.timesheets.findFirst).mockResolvedValueOnce(mockTimesheetBase as never);
+      vi.mocked(db.query.taskCodes.findFirst).mockResolvedValueOnce(mockTaskCode as never);
+      vi.mocked(db.query.timesheetEntries.findMany)
+        .mockResolvedValueOnce([] as never) // No daily hours yet
+        .mockResolvedValueOnce([{ hours: '22.00' }] as never); // Already 22 hours this week
+
+      const result = await previewEntryCompliance('ts-1', {
+        workDate: '2024-06-10',
+        startTime: '16:00',
+        endTime: '19:00', // 3 more hours = 25 total, exceeds 24-hour limit
+        taskCodeId: 'tc-1',
+        isSchoolDay: true,
+      });
+
+      expect(result.valid).toBe(false);
+      expect(result.violations.some((v) => v.message.includes('weekly'))).toBe(true);
+    });
+
+    it('should return school hours violation for youth on school day', async () => {
+      vi.mocked(db.query.timesheets.findFirst).mockResolvedValueOnce(mockTimesheetBase as never);
+      vi.mocked(db.query.taskCodes.findFirst).mockResolvedValueOnce(mockTaskCode as never);
+      vi.mocked(db.query.timesheetEntries.findMany)
+        .mockResolvedValueOnce([] as never)
+        .mockResolvedValueOnce([] as never);
+
+      const result = await previewEntryCompliance('ts-1', {
+        workDate: '2024-06-10',
+        startTime: '10:00', // During school hours (7 AM - 3 PM)
+        endTime: '12:00',
+        taskCodeId: 'tc-1',
+        isSchoolDay: true,
+      });
+
+      expect(result.valid).toBe(false);
+      expect(result.violations.some((v) => v.message.toLowerCase().includes('school'))).toBe(true);
+    });
+
+    it('should return correct remaining hours calculation', async () => {
+      vi.mocked(db.query.timesheets.findFirst).mockResolvedValueOnce(mockTimesheetBase as never);
+      vi.mocked(db.query.taskCodes.findFirst).mockResolvedValueOnce(mockTaskCode as never);
+      vi.mocked(db.query.timesheetEntries.findMany)
+        .mockResolvedValueOnce([{ hours: '2.00' }] as never) // 2 hours today
+        .mockResolvedValueOnce([{ hours: '10.00' }] as never); // 10 hours this week
+
+      const result = await previewEntryCompliance('ts-1', {
+        workDate: '2024-06-10',
+        startTime: '16:00',
+        endTime: '17:00',
+        taskCodeId: 'tc-1',
+        isSchoolDay: true,
+      });
+
+      expect(result.limits.daily.current).toBe(2);
+      expect(result.limits.daily.limit).toBe(4); // 12-13 age band
+      expect(result.limits.daily.remaining).toBe(2);
+      expect(result.limits.weekly.current).toBe(10);
+      expect(result.limits.weekly.limit).toBe(24);
+      expect(result.limits.weekly.remaining).toBe(14);
+    });
+
+    it('should return supervisor required for tasks requiring supervision', async () => {
+      const taskWithSupervisor = {
+        ...mockTaskCode,
+        supervisorRequired: 'always',
+      };
+
+      vi.mocked(db.query.timesheets.findFirst).mockResolvedValueOnce(mockTimesheetBase as never);
+      vi.mocked(db.query.taskCodes.findFirst).mockResolvedValueOnce(taskWithSupervisor as never);
+      vi.mocked(db.query.timesheetEntries.findMany)
+        .mockResolvedValueOnce([] as never)
+        .mockResolvedValueOnce([] as never);
+
+      const result = await previewEntryCompliance('ts-1', {
+        workDate: '2024-06-10',
+        startTime: '16:00',
+        endTime: '18:00',
+        taskCodeId: 'tc-1',
+        isSchoolDay: true,
+      });
+
+      expect(result.requirements.supervisorRequired).toBe(true);
+    });
+
+    it('should return meal break required for shifts over 6 hours for youth', async () => {
+      vi.mocked(db.query.timesheets.findFirst).mockResolvedValueOnce(mockTimesheetBase as never);
+      vi.mocked(db.query.taskCodes.findFirst).mockResolvedValueOnce(mockTaskCode as never);
+      vi.mocked(db.query.timesheetEntries.findMany)
+        .mockResolvedValueOnce([] as never)
+        .mockResolvedValueOnce([] as never);
+
+      const result = await previewEntryCompliance('ts-1', {
+        workDate: '2024-06-15', // Saturday - no school
+        startTime: '09:00',
+        endTime: '15:30', // 6.5 hours
+        taskCodeId: 'tc-1',
+        isSchoolDay: false,
+      });
+
+      expect(result.requirements.mealBreakRequired).toBe(true);
+    });
+
+    it('should return task age restriction violation for hazardous task', async () => {
+      const hazardousTask = {
+        ...mockTaskCode,
+        isHazardous: true,
+        minAgeRequirement: 18,
+      };
+
+      vi.mocked(db.query.timesheets.findFirst).mockResolvedValueOnce(mockTimesheetBase as never);
+      vi.mocked(db.query.taskCodes.findFirst).mockResolvedValueOnce(hazardousTask as never);
+      vi.mocked(db.query.timesheetEntries.findMany)
+        .mockResolvedValueOnce([] as never)
+        .mockResolvedValueOnce([] as never);
+
+      const result = await previewEntryCompliance('ts-1', {
+        workDate: '2024-06-15',
+        startTime: '09:00',
+        endTime: '11:00',
+        taskCodeId: 'tc-1',
+        isSchoolDay: false,
+      });
+
+      expect(result.valid).toBe(false);
+      expect(result.violations.some((v) => v.message.toLowerCase().includes('age'))).toBe(true);
     });
   });
 });

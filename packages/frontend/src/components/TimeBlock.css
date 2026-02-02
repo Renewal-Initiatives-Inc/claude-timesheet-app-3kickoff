@@ -1,0 +1,206 @@
+.time-block {
+  position: absolute;
+  border-radius: 4px;
+  cursor: pointer;
+  overflow: hidden;
+  z-index: 5;
+  transition: box-shadow 0.15s ease, transform 0.1s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.time-block:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  transform: scale(1.02);
+  z-index: 6;
+}
+
+.time-block.disabled {
+  cursor: default;
+  opacity: 0.8;
+}
+
+.time-block.disabled:hover {
+  transform: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Selected state */
+.time-block.selected {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5), 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  transform: scale(1.02);
+}
+
+.time-block.selected:hover {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.6), 0 6px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Focused state (keyboard navigation) */
+.time-block:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5), 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+.time-block:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Resize handles */
+.resize-handle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 8px;
+  cursor: ns-resize;
+  background: transparent;
+  z-index: 15;
+  transition: background-color 0.15s ease;
+}
+
+.resize-handle:hover {
+  background: rgba(59, 130, 246, 0.3);
+}
+
+.resize-handle-top {
+  top: -2px;
+  border-radius: 4px 4px 0 0;
+}
+
+.resize-handle-bottom {
+  bottom: -2px;
+  border-radius: 0 0 4px 4px;
+}
+
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.resize-handle-top::after {
+  top: 2px;
+}
+
+.resize-handle-bottom::after {
+  bottom: 2px;
+}
+
+.resize-handle:hover::after {
+  opacity: 1;
+}
+
+/* Block content */
+.block-content {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 6px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.block-task-code {
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.block-task-name {
+  font-size: 0.75rem;
+  font-weight: 500;
+  opacity: 0.95;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.block-times {
+  font-size: 0.7rem;
+  opacity: 0.9;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.block-hours {
+  font-size: 0.7rem;
+  font-weight: 500;
+  opacity: 0.85;
+  margin-top: auto;
+}
+
+/* Action buttons */
+.block-actions {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.time-block:hover .block-actions {
+  opacity: 1;
+}
+
+.block-action-btn {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease;
+}
+
+.block-action-btn.edit {
+  background: rgba(255, 255, 255, 0.9);
+  color: #374151;
+}
+
+.block-action-btn.edit:hover {
+  background: #fff;
+}
+
+.block-action-btn.delete {
+  background: rgba(255, 255, 255, 0.9);
+  color: #dc2626;
+}
+
+.block-action-btn.delete:hover {
+  background: #fef2f2;
+}
+
+.block-action-btn.delete.confirm {
+  background: #dc2626;
+  color: #fff;
+  animation: pulse 0.5s ease infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}

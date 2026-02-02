@@ -39,18 +39,21 @@ export class ApiRequestError extends Error {
   public readonly endpoint: string;
   public readonly timestamp: string;
   public readonly diagnosticInfo: string;
+  public readonly responseBody: Record<string, unknown>;
 
   constructor(
     message: string,
     public status: number,
     public code?: string,
-    endpoint?: string
+    endpoint?: string,
+    responseBody?: Record<string, unknown>
   ) {
     super(message);
     this.name = 'ApiRequestError';
     this.endpoint = endpoint || 'unknown';
     this.timestamp = new Date().toISOString();
     this.isTimeout = status === 504 || code === 'FUNCTION_INVOCATION_TIMEOUT';
+    this.responseBody = responseBody || {};
 
     // Build diagnostic string for easy debugging
     this.diagnosticInfo = [
@@ -234,7 +237,8 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
       errorBody.message || 'Request failed',
       response.status,
       errorBody.error,
-      endpoint
+      endpoint,
+      errorBody as unknown as Record<string, unknown>
     );
     apiError.logDiagnostics();
     throw apiError;
@@ -534,6 +538,30 @@ export async function createTimesheetEntry(
 }
 
 /**
+ * Bulk create response type.
+ */
+export interface BulkCreateEntriesResponse {
+  entries: TimesheetEntry[];
+  created: number;
+  failed: number;
+  errors: Array<{ index: number; error: string }>;
+}
+
+/**
+ * Create multiple entries on a timesheet at once.
+ * Used for multi-day drag operations in timeline UI.
+ */
+export async function createTimesheetEntriesBulk(
+  timesheetId: string,
+  entries: CreateEntryRequest[]
+): Promise<BulkCreateEntriesResponse> {
+  return apiRequest(`/timesheets/${timesheetId}/entries/bulk`, {
+    method: 'POST',
+    body: JSON.stringify({ entries }),
+  });
+}
+
+/**
  * Update an entry on a timesheet.
  */
 export async function updateTimesheetEntry(
@@ -636,6 +664,26 @@ export async function submitTimesheet(timesheetId: string): Promise<SubmitTimesh
 export async function validateTimesheet(timesheetId: string): Promise<ValidateTimesheetResult> {
   return apiRequest(`/timesheets/${timesheetId}/validate`, {
     method: 'POST',
+  });
+}
+
+// ============================================================================
+// Entry Compliance Preview API (for Timeline UI Phase 3)
+// ============================================================================
+
+import type { EntryPreviewRequest, EntryCompliancePreview } from '@renewal/types';
+
+/**
+ * Preview compliance for a proposed entry without saving.
+ * Returns violations, warnings, limits, and requirements.
+ */
+export async function previewEntryCompliance(
+  timesheetId: string,
+  entry: EntryPreviewRequest
+): Promise<EntryCompliancePreview> {
+  return apiRequest(`/timesheets/${timesheetId}/entries/preview`, {
+    method: 'POST',
+    body: JSON.stringify(entry),
   });
 }
 

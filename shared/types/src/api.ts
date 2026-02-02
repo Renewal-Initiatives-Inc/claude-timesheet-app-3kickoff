@@ -758,3 +758,61 @@ export type PayrollErrorCode =
   | 'PAYROLL_ALREADY_EXISTS'
   | 'PAYROLL_NOT_FOUND'
   | 'INVALID_DATE_RANGE';
+
+// ============================================================================
+// Entry Compliance Preview Types (for Timeline UI Phase 3)
+// ============================================================================
+
+/**
+ * Warning about a proposed entry (informational, doesn't block).
+ */
+export interface ComplianceWarning {
+  code: string;
+  message: string;
+  field?: string; // Which field caused the warning
+}
+
+/**
+ * Request to preview compliance for a proposed entry.
+ */
+export interface EntryPreviewRequest {
+  workDate: string; // YYYY-MM-DD
+  startTime: string; // HH:MM
+  endTime: string; // HH:MM
+  taskCodeId: string;
+  isSchoolDay: boolean;
+}
+
+/**
+ * Limit information with current and remaining hours.
+ */
+export interface LimitInfo {
+  current: number;
+  limit: number;
+  remaining: number;
+}
+
+/**
+ * Requirements for a proposed entry based on compliance rules.
+ */
+export interface EntryRequirements {
+  supervisorRequired: boolean;
+  mealBreakRequired: boolean;
+  supervisorReason?: string;
+  mealBreakReason?: string;
+}
+
+/**
+ * Result of previewing compliance for a proposed entry.
+ */
+export interface EntryCompliancePreview {
+  valid: boolean;
+  warnings: ComplianceWarning[];
+  violations: ComplianceViolation[];
+  limits: {
+    daily: LimitInfo;
+    weekly: LimitInfo;
+  };
+  requirements: EntryRequirements;
+  proposedHours: number;
+}

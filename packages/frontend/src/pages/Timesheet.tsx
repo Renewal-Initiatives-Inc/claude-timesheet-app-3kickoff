@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.js';
 import { useTimesheet } from '../hooks/useTimesheet.js';
+import { useTaskCodesForEmployee } from '../hooks/useTaskCodes.js';
 import { WeekSelector } from '../components/WeekSelector.js';
-import { TimesheetGrid } from '../components/TimesheetGrid.js';
+import { TimelineView } from '../components/TimelineView.js';
 import { EntryFormModal } from '../components/EntryFormModal.js';
 import { HourLimitsDisplay } from '../components/HourLimitsDisplay.js';
+import { TaskColorLegend } from '../components/TaskColorLegend.js';
 import {
   ComplianceErrorDisplay,
   type ComplianceViolation,
@@ -74,10 +76,27 @@ export function Timesheet() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const { timesheet, totals, loading, error, saving, addEntry, updateEntry, deleteEntry, refresh } =
-    useTimesheet({ weekStartDate });
+  const {
+    timesheet,
+    totals,
+    loading,
+    error,
+    saving,
+    addEntry,
+    addMultipleEntries,
+    updateEntry,
+    updateEntriesSchoolDay,
+    deleteEntry,
+    previewEntry,
+    refresh,
+  } = useTimesheet({ weekStartDate });
 
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  // Load task codes for the timeline view
+  const { taskCodes, loading: taskCodesLoading } = useTaskCodesForEmployee(
+    user?.id,
+    timesheet?.weekStartDate
+  );
+
   const [editingEntry, setEditingEntry] = useState<TimesheetEntryWithTaskCode | null>(null);
   const [complianceErrors, setComplianceErrors] = useState<ComplianceViolation[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -88,12 +107,32 @@ export function Timesheet() {
     navigate(`/timesheet/${newWeekStartDate}`);
   };
 
-  const handleAddEntry = async (entry: CreateEntryRequest | UpdateEntryRequest) => {
-    // Type guard: CreateEntryRequest has 'workDate' property
-    if ('workDate' in entry) {
-      await addEntry(entry as CreateEntryRequest);
-    }
-    setSelectedDate(null);
+  // Handler for timeline view entries (directly adds without modal)
+  const handleTimelineAddEntry = async (entry: {
+    workDate: string;
+    taskCodeId: string;
+    startTime: string;
+    endTime: string;
+    isSchoolDay: boolean;
+    supervisorPresentName?: string | null;
+    mealBreakConfirmed?: boolean | null;
+  }) => {
+    await addEntry(entry as CreateEntryRequest);
+  };
+
+  // Handler for bulk timeline entries (multi-day drag)
+  const handleTimelineAddMultipleEntries = async (
+    entries: Array<{
+      workDate: string;
+      taskCodeId: string;
+      startTime: string;
+      endTime: string;
+      isSchoolDay: boolean;
+      supervisorPresentName?: string | null;
+      mealBreakConfirmed?: boolean | null;
+    }>
+  ) => {
+    await addMultipleEntries(entries as CreateEntryRequest[]);
   };
 
   const handleUpdateEntry = async (updates: CreateEntryRequest | UpdateEntryRequest) => {
@@ -130,24 +169,11 @@ export function Timesheet() {
       }
     } catch (err) {
       if (err instanceof ApiRequestError) {
-        // Try to parse compliance violations from error
-        try {
-          const errorResponse = JSON.parse(err.message);
-          if (errorResponse.violations) {
-            setComplianceErrors(errorResponse.violations);
-          } else {
-            setComplianceErrors([
-              {
-                ruleId: 'ERROR',
-                ruleName: 'Submission Error',
-                message: err.message,
-                remediation: 'Please try again or contact your supervisor.',
-              },
-            ]);
-          }
-        } catch {
-          // Fetch the actual error response from the API
-          // The error message might contain the compliance failures
+        // Check for compliance violations in the response body
+        const violations = err.responseBody['violations'] as ComplianceViolation[] | undefined;
+        if (violations && violations.length > 0) {
+          setComplianceErrors(violations);
+        } else {
           setComplianceErrors([
             {
               ruleId: 'ERROR',
@@ -181,7 +207,7 @@ export function Timesheet() {
     }
   };
 
-  if (loading) {
+  if (loading || taskCodesLoading) {
     return (
       <div className="timesheet-page">
         <div className="loading">Loading timesheet...</div>
@@ -339,11 +365,15 @@ export function Timesheet() {
 
       <div className="timesheet-content">
         <div className="timesheet-main">
-          <TimesheetGrid
+          <TimelineView
             timesheet={timesheet}
             totals={totals}
             employeeAge={employeeAge}
-            onAddEntry={(date) => setSelectedDate(date)}
+            taskCodes={taskCodes}
+            onAddEntry={handleTimelineAddEntry}
+            onAddMultipleEntries={handleTimelineAddMultipleEntries}
+            onPreviewEntry={previewEntry}
+            onUpdateEntriesSchoolDay={updateEntriesSchoolDay}
             onEditEntry={handleEditEntry}
             onDeleteEntry={handleDeleteEntry}
             disabled={!isEditable}
@@ -356,6 +386,9 @@ export function Timesheet() {
             limits={totals.limits}
             ageBand={ageBand}
           />
+          {timesheet.entries.length > 0 && (
+            <TaskColorLegend entries={timesheet.entries} />
+          )}
         </aside>
       </div>
 
@@ -375,18 +408,7 @@ export function Timesheet() {
         </div>
       )}
 
-      {selectedDate && user && (
-        <EntryFormModal
-          isOpen={true}
-          onClose={() => setSelectedDate(null)}
-          onSubmit={handleAddEntry}
-          date={selectedDate}
-          employeeId={user.id}
-          employeeAge={calculateAge(user.dateOfBirth, selectedDate)}
-          isSchoolDay={isDefaultSchoolDay(selectedDate)}
-        />
-      )}
-
+      {/* Edit entry modal - used when clicking on existing time blocks */}
       {editingEntry && user && (
         <EntryFormModal
           isOpen={true}

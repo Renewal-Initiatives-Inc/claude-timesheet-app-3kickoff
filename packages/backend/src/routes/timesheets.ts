@@ -13,18 +13,22 @@ import {
 import { checkCompliance, ComplianceError } from '../services/compliance/index.js';
 import {
   createEntry,
+  createMultipleEntries,
   updateEntry,
   deleteEntry,
   getEntryById,
   getDailyTotals,
   getWeeklyTotal,
   getHourLimitsForAge,
+  previewEntryCompliance,
   TimesheetEntryError,
 } from '../services/timesheet-entry.service.js';
 import {
   createEntrySchema,
+  bulkCreateEntriesSchema,
   updateEntrySchema,
   listTimesheetsQuerySchema,
+  previewEntrySchema,
 } from '../validation/timesheet.schema.js';
 import { getTodayET, getWeekStartDate, isDefaultSchoolDay } from '../utils/timezone.js';
 import { calculateAge, checkBirthdayInWeek, getWeeklyAges } from '../utils/age.js';
@@ -332,6 +336,95 @@ router.post('/:id/entries', validate(createEntrySchema), async (req: Request, re
     throw error;
   }
 });
+
+/**
+ * POST /api/timesheets/:id/entries/bulk
+ * Add multiple entries to timesheet at once (for multi-day drag).
+ */
+router.post(
+  '/:id/entries/bulk',
+  validate(bulkCreateEntriesSchema),
+  async (req: Request, res: Response) => {
+    try {
+      const timesheetId = req.params['id'] as string;
+
+      // Verify access
+      const hasAccess = await validateTimesheetAccess(timesheetId, req.employee!.id);
+      if (!hasAccess) {
+        res.status(403).json({
+          error: 'TIMESHEET_ACCESS_DENIED',
+          message: 'You do not have access to this timesheet',
+        });
+        return;
+      }
+
+      const result = await createMultipleEntries(timesheetId, req.body.entries);
+
+      res.status(201).json(result);
+    } catch (error) {
+      if (error instanceof TimesheetError || error instanceof TimesheetEntryError) {
+        const statusCode =
+          error.code === 'TIMESHEET_NOT_FOUND'
+            ? 404
+            : error.code === 'TASK_CODE_NOT_FOUND'
+              ? 404
+              : error.code === 'TIMESHEET_NOT_EDITABLE'
+                ? 400
+                : 400;
+        res.status(statusCode).json({
+          error: error.code,
+          message: error.message,
+        });
+        return;
+      }
+      throw error;
+    }
+  }
+);
+
+/**
+ * POST /api/timesheets/:id/entries/preview
+ * Preview compliance for a proposed entry without saving.
+ * Used for real-time compliance feedback in timeline UI.
+ */
+router.post(
+  '/:id/entries/preview',
+  validate(previewEntrySchema),
+  async (req: Request, res: Response) => {
+    try {
+      const timesheetId = req.params['id'] as string;
+
+      // Verify access
+      const hasAccess = await validateTimesheetAccess(timesheetId, req.employee!.id);
+      if (!hasAccess) {
+        res.status(403).json({
+          error: 'TIMESHEET_ACCESS_DENIED',
+          message: 'You do not have access to this timesheet',
+        });
+        return;
+      }
+
+      const preview = await previewEntryCompliance(timesheetId, req.body);
+
+      res.json(preview);
+    } catch (error) {
+      if (error instanceof TimesheetError || error instanceof TimesheetEntryError) {
+        const statusCode =
+          error.code === 'TIMESHEET_NOT_FOUND'
+            ? 404
+            : error.code === 'TASK_CODE_NOT_FOUND'
+              ? 404
+              : 400;
+        res.status(statusCode).json({
+          error: error.code,
+          message: error.message,
+        });
+        return;
+      }
+      throw error;
+    }
+  }
+);
 
 /**
  * PATCH /api/timesheets/:id/entries/:entryId
