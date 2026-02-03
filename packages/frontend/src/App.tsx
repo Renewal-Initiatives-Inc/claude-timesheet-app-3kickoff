@@ -1,11 +1,12 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet, Link } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth.js';
-import { usePendingReviewCount } from './hooks/useReviewQueue.js';
+import { ReviewCountProvider, useReviewCount } from './contexts/ReviewCountContext.js';
 import './App.css';
 
 // Eagerly loaded pages (needed immediately)
 import { Login } from './pages/Login.js';
+import { Callback } from './pages/Callback.js';
 import { ChangePassword } from './pages/ChangePassword.js';
 import { Dashboard } from './pages/Dashboard.js';
 import { Timesheet } from './pages/Timesheet.js';
@@ -74,7 +75,7 @@ function PageLoader() {
  */
 function AppLayout() {
   const { user, logout, isSupervisor } = useAuth();
-  const { count: pendingReviewCount } = usePendingReviewCount();
+  const { count: pendingReviewCount } = useReviewCount();
 
   return (
     <div className="app-layout">
@@ -165,6 +166,11 @@ function ProtectedRoute({ requireSupervisor = false }: { requireSupervisor?: boo
   }
 
   if (!isAuthenticated) {
+    // Store current path so Login can redirect back after authentication
+    const currentPath = window.location.pathname;
+    if (currentPath !== '/login' && currentPath !== '/callback') {
+      sessionStorage.setItem('returnTo', currentPath);
+    }
     return <Navigate to="/login" replace />;
   }
 
@@ -185,10 +191,12 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
+        <ReviewCountProvider>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
             {/* Public routes */}
             <Route path="/login" element={<Login />} />
+            <Route path="/callback" element={<Callback />} />
 
             {/* Password change - protected but no layout (special page) */}
             <Route element={<ProtectedRoute />}>
@@ -243,8 +251,9 @@ function App() {
                 </div>
               }
             />
-          </Routes>
-        </Suspense>
+            </Routes>
+          </Suspense>
+        </ReviewCountProvider>
       </AuthProvider>
     </BrowserRouter>
   );

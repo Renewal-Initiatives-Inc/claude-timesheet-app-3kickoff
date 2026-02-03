@@ -1,12 +1,7 @@
 import { useState, useEffect, useCallback, createContext, useContext, ReactNode } from 'react';
-import type { EmployeePublic, LoginRequest, LoginResponse } from '@renewal/types';
-import {
-  login as loginApi,
-  logout as logoutApi,
-  getCurrentUser,
-  isAuthenticated as checkAuth,
-  ApiRequestError,
-} from '../api/client.js';
+import { useAuth as useOidcAuth } from 'react-oidc-context';
+import type { EmployeePublic } from '@renewal/types';
+import { getCurrentUser } from '../api/client.js';
 
 interface AuthContextValue {
   user: EmployeePublic | null;
@@ -14,9 +9,11 @@ interface AuthContextValue {
   error: string | null;
   isAuthenticated: boolean;
   isSupervisor: boolean;
-  login: (data: LoginRequest) => Promise<LoginResponse>;
+  login: () => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
+  /** The raw Zitadel access token for API calls */
+  accessToken: string | null;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -25,73 +22,98 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+/**
+ * Extract roles from Zitadel token claims.
+ * Roles are in the format: { "role_name": { "org_id": "org_name" } }
+ */
+function extractRoles(user: ReturnType<typeof useOidcAuth>['user']): string[] {
+  if (!user?.profile) return [];
+  const rolesClaim = user.profile['urn:zitadel:iam:org:project:roles'] as
+    | Record<string, unknown>
+    | undefined;
+  return rolesClaim ? Object.keys(rolesClaim) : [];
+}
+
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<EmployeePublic | null>(null);
-  const [loading, setLoading] = useState(true);
+  const oidcAuth = useOidcAuth();
+  const [employee, setEmployee] = useState<EmployeePublic | null>(null);
+  const [employeeLoading, setEmployeeLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Check for existing auth on mount
+  // Extract roles and check for admin (admin = supervisor)
+  const roles = extractRoles(oidcAuth.user);
+  const isAdmin = roles.includes('admin');
+
+  // Sync Zitadel token to localStorage for API client
   useEffect(() => {
-    const initAuth = async () => {
-      if (!checkAuth()) {
-        setLoading(false);
+    if (oidcAuth.user?.access_token) {
+      localStorage.setItem('token', oidcAuth.user.access_token);
+    } else if (!oidcAuth.isLoading) {
+      localStorage.removeItem('token');
+    }
+  }, [oidcAuth.user?.access_token, oidcAuth.isLoading]);
+
+  // Fetch employee data when OIDC auth completes
+  useEffect(() => {
+    const fetchEmployee = async () => {
+      if (!oidcAuth.isAuthenticated || !oidcAuth.user?.access_token) {
+        setEmployee(null);
         return;
       }
 
+      setEmployeeLoading(true);
       try {
         const response = await getCurrentUser();
-        setUser(response.employee);
-      } catch {
-        // Token invalid, clear it
-        setUser(null);
+        setEmployee(response.employee);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to fetch employee:', err);
+        setError('Failed to load user data');
+        setEmployee(null);
       } finally {
-        setLoading(false);
+        setEmployeeLoading(false);
       }
     };
 
-    initAuth();
-  }, []);
+    fetchEmployee();
+  }, [oidcAuth.isAuthenticated, oidcAuth.user?.access_token]);
 
-  const login = useCallback(async (data: LoginRequest): Promise<LoginResponse> => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await loginApi(data);
-      setUser(response.employee);
-      return response;
-    } catch (err) {
-      if (err instanceof ApiRequestError) {
-        setError(err.message);
-      } else {
-        setError('Login failed');
-      }
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const login = useCallback(async () => {
+    // Store current location for redirect after auth
+    sessionStorage.setItem('returnTo', window.location.pathname);
+    await oidcAuth.signinRedirect();
+  }, [oidcAuth]);
 
   const logout = useCallback(async () => {
-    try {
-      await logoutApi();
-    } finally {
-      setUser(null);
-    }
-  }, []);
+    setEmployee(null);
+    await oidcAuth.signoutRedirect();
+  }, [oidcAuth]);
 
   const clearError = useCallback(() => {
     setError(null);
   }, []);
 
+  // We're loading if OIDC is loading, employee is being fetched,
+  // or we're authenticated but haven't fetched employee data yet (closes race condition gap)
+  const awaitingEmployee = oidcAuth.isAuthenticated && !employee && !error;
+  const loading = oidcAuth.isLoading || employeeLoading || awaitingEmployee;
+
+  // User is authenticated only if OIDC is authenticated AND we have employee data
+  const isAuthenticated = oidcAuth.isAuthenticated && !!employee;
+
+  // Supervisor = admin role from Zitadel OR isSupervisor flag from employee record
+  const isSupervisor = isAdmin || (employee?.isSupervisor ?? false);
+
   const value: AuthContextValue = {
-    user,
+    user: employee,
     loading,
-    error,
-    isAuthenticated: !!user,
-    isSupervisor: user?.isSupervisor ?? false,
+    error: error || (oidcAuth.error?.message ?? null),
+    isAuthenticated,
+    isSupervisor,
     login,
     logout,
     clearError,
+    accessToken: oidcAuth.user?.access_token ?? null,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

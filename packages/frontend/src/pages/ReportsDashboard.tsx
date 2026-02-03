@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { getDashboardStats, ApiRequestError } from '../api/client.js';
 import './ReportsDashboard.css';
 
@@ -66,8 +67,8 @@ export function ReportsDashboard() {
 
       {/* Report Cards */}
       <div className="reports-dashboard-cards">
-        <a
-          href="/reports/payroll"
+        <Link
+          to="/reports/payroll"
           className="report-card"
           data-testid="reports-dashboard-payroll-card"
         >
@@ -77,10 +78,10 @@ export function ReportsDashboard() {
             <p>View earnings, hours worked, and export payroll data for approved timesheets.</p>
           </div>
           <div className="report-card-arrow">&#8594;</div>
-        </a>
+        </Link>
 
-        <a
-          href="/reports/compliance-audit"
+        <Link
+          to="/reports/compliance-audit"
           className="report-card"
           data-testid="reports-dashboard-compliance-card"
         >
@@ -93,10 +94,10 @@ export function ReportsDashboard() {
             </p>
           </div>
           <div className="report-card-arrow">&#8594;</div>
-        </a>
+        </Link>
 
-        <a
-          href="/reports/timesheet-history"
+        <Link
+          to="/reports/timesheet-history"
           className="report-card"
           data-testid="reports-dashboard-timesheet-card"
         >
@@ -109,7 +110,7 @@ export function ReportsDashboard() {
             </p>
           </div>
           <div className="report-card-arrow">&#8594;</div>
-        </a>
+        </Link>
       </div>
 
       {/* Information Section */}

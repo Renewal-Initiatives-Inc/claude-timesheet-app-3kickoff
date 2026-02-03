@@ -1,30 +1,29 @@
-import { useState, FormEvent } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.js';
 import './Login.css';
 
 export function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const { login, loading, error, clearError } = useAuth();
+  const { login, loading, error, clearError, isAuthenticated, isSupervisor } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const authError = searchParams.get('error');
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Check for stored return path (from ProtectedRoute redirect)
+      const returnTo = sessionStorage.getItem('returnTo');
+      sessionStorage.removeItem('returnTo');
+
+      const defaultPath = isSupervisor ? '/dashboard' : '/timesheet';
+      navigate(returnTo || defaultPath, { replace: true });
+    }
+  }, [isAuthenticated, isSupervisor, navigate]);
+
+  const handleSignIn = async () => {
     try {
-      const response = await login({ email, password });
-
-      // Check if password change is required (new employee with temp password)
-      if (response.requiresPasswordChange) {
-        navigate('/change-password', { replace: true });
-        return;
-      }
-
-      // Role-based default redirect: employees go to timesheet, supervisors go to dashboard
-      const defaultPath = response.employee.isSupervisor ? '/dashboard' : '/timesheet';
-      const from = (location.state as { from?: string })?.from || defaultPath;
-      navigate(from, { replace: true });
+      await login();
     } catch {
       // Error is handled by useAuth
     }
@@ -36,10 +35,10 @@ export function Login() {
         <h1>Renewal Initiatives</h1>
         <p className="login-subtitle">Timesheet Management System</p>
 
-        <form onSubmit={handleSubmit} className="login-form">
-          {error && (
+        <div className="login-form">
+          {(error || authError) && (
             <div className="login-error">
-              {error}
+              {error || (authError === 'auth_failed' ? 'Authentication failed. Please try again.' : authError)}
               <button
                 type="button"
                 onClick={clearError}
@@ -51,48 +50,18 @@ export function Login() {
             </div>
           )}
 
-          <div className="login-field">
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-              disabled={loading}
-              data-testid="field-email"
-            />
-          </div>
-
-          <div className="login-field">
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-              disabled={loading}
-              data-testid="field-password"
-            />
-          </div>
+          <p className="login-info">
+            Sign in with your Renewal Initiatives account to access the timesheet system.
+          </p>
 
           <button
-            type="submit"
+            onClick={handleSignIn}
             disabled={loading}
             className="login-button"
             data-testid="login-submit-button"
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? 'Redirecting...' : 'Sign in with Renewal Initiatives'}
           </button>
-        </form>
-
-        <div className="login-footer">
-          <Link to="/password-reset" data-testid="login-forgot-password-link">
-            Forgot password?
-          </Link>
         </div>
       </div>
     </div>
