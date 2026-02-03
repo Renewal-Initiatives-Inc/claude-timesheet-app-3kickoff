@@ -23,6 +23,8 @@ export const employees = pgTable('employees', {
   requiresPasswordChange: boolean('requires_password_change').notNull().default(false),
   failedLoginAttempts: integer('failed_login_attempts').default(0),
   lockedUntil: timestamp('locked_until', { withTimezone: true }),
+  // Zitadel SSO integration (Phase 7)
+  zitadelId: varchar('zitadel_id', { length: 255 }).unique(),
   // Timestamps
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),

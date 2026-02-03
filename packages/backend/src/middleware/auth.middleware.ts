@@ -1,15 +1,82 @@
 import { Request, Response, NextFunction } from 'express';
-import { verifyToken } from '../utils/jwt.js';
-import { getActiveSession } from '../services/session.service.js';
-import { getEmployeeById, EmployeePublic } from '../services/auth.service.js';
+import { createRemoteJWKSet, jwtVerify, JWTPayload } from 'jose';
+import { getEmployeeByEmail, EmployeePublic } from '../services/auth.service.js';
+import { db } from '../db/index.js';
+import { employees } from '../db/schema/index.js';
+import { eq } from 'drizzle-orm';
 
-// Extend Express Request to include employee
+// Zitadel configuration
+// Trim to remove any accidental newlines from environment variables (common with Vercel)
+const ZITADEL_ISSUER_RAW = process.env['ZITADEL_ISSUER'];
+const ZITADEL_ISSUER = ZITADEL_ISSUER_RAW?.trim();
+if (!ZITADEL_ISSUER) {
+  console.warn('ZITADEL_ISSUER not set - auth will fail');
+} else if (ZITADEL_ISSUER !== ZITADEL_ISSUER_RAW) {
+  console.warn('ZITADEL_ISSUER had whitespace trimmed (check env var for accidental newlines)');
+}
+
+// Create JWKS client for token verification
+// Zitadel uses /oauth/v2/keys instead of /.well-known/jwks.json
+const JWKS = ZITADEL_ISSUER
+  ? createRemoteJWKSet(new URL(`${ZITADEL_ISSUER}/oauth/v2/keys`))
+  : null;
+
+// Extended JWT payload with Zitadel-specific claims
+interface ZitadelJWTPayload extends JWTPayload {
+  email?: string;
+  email_verified?: boolean;
+  name?: string;
+  'urn:zitadel:iam:org:project:roles'?: Record<string, unknown>;
+}
+
+// Userinfo response from Zitadel
+interface ZitadelUserInfo {
+  sub: string;
+  email?: string;
+  email_verified?: boolean;
+  name?: string;
+  preferred_username?: string;
+}
+
+/**
+ * Fetch user info from Zitadel userinfo endpoint.
+ * Used when email is not included in the access token.
+ */
+async function fetchUserInfo(accessToken: string): Promise<ZitadelUserInfo | null> {
+  if (!ZITADEL_ISSUER) return null;
+
+  try {
+    const response = await fetch(`${ZITADEL_ISSUER}/oidc/v1/userinfo`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      console.error('Failed to fetch userinfo:', response.status, response.statusText);
+      return null;
+    }
+
+    return (await response.json()) as ZitadelUserInfo;
+  } catch (error) {
+    console.error('Error fetching userinfo:', error);
+    return null;
+  }
+}
+
+// Extend Express Request to include employee and Zitadel user info
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       employee?: EmployeePublic;
-      token?: string;
+      zitadelUser?: {
+        sub: string;
+        email?: string;
+        name?: string;
+        roles: string[];
+        isAdmin: boolean;
+      };
     }
   }
 }
@@ -26,9 +93,58 @@ function extractToken(req: Request): string | null {
 }
 
 /**
- * Middleware that requires a valid authentication token.
- * Attaches employee to req.employee on success.
- * Returns 401 if token is invalid or session doesn't exist.
+ * Get employee by Zitadel ID, or link by email if not yet linked.
+ */
+async function getEmployeeByZitadelId(
+  zitadelSub: string,
+  email?: string
+): Promise<EmployeePublic | null> {
+  // First, try to find by zitadel_id
+  const [employeeByZitadel] = await db
+    .select()
+    .from(employees)
+    .where(eq(employees.zitadelId, zitadelSub))
+    .limit(1);
+
+  if (employeeByZitadel) {
+    return {
+      id: employeeByZitadel.id,
+      name: employeeByZitadel.name,
+      email: employeeByZitadel.email,
+      dateOfBirth: employeeByZitadel.dateOfBirth,
+      status: employeeByZitadel.status,
+      isSupervisor: employeeByZitadel.isSupervisor,
+      createdAt: employeeByZitadel.createdAt,
+      zitadelId: employeeByZitadel.zitadelId,
+    };
+  }
+
+  // If not found by zitadel_id, try to link by email
+  if (email) {
+    const employeeByEmail = await getEmployeeByEmail(email);
+    if (employeeByEmail && !employeeByEmail.zitadelId) {
+      // Link this employee to the Zitadel account
+      await db
+        .update(employees)
+        .set({ zitadelId: zitadelSub })
+        .where(eq(employees.id, employeeByEmail.id));
+
+      console.log(`Linked employee ${employeeByEmail.id} to Zitadel user ${zitadelSub}`);
+      return employeeByEmail;
+    }
+    // Return the employee even if already linked to a different Zitadel account
+    // (edge case - could indicate duplicate accounts)
+    if (employeeByEmail) {
+      return employeeByEmail;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Middleware that requires a valid Zitadel authentication token.
+ * Validates the JWT against Zitadel's JWKS and links to employee record.
  */
 export async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
   const token = extractToken(req);
@@ -41,50 +157,89 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     return;
   }
 
-  // Verify JWT signature and expiration
-  const payload = verifyToken(token);
-  if (!payload) {
+  if (!JWKS || !ZITADEL_ISSUER) {
+    res.status(500).json({
+      error: 'Configuration Error',
+      message: 'Authentication service not configured',
+    });
+    return;
+  }
+
+  try {
+    // Verify JWT signature and claims against Zitadel
+    const { payload } = await jwtVerify(token, JWKS, {
+      issuer: ZITADEL_ISSUER,
+    });
+
+    const zitadelPayload = payload as ZitadelJWTPayload;
+
+    // Extract roles from Zitadel claims
+    const rolesClaim = zitadelPayload['urn:zitadel:iam:org:project:roles'] || {};
+    const roles = Object.keys(rolesClaim);
+    const isAdmin = roles.includes('admin');
+
+    // Get email from token or fetch from userinfo endpoint
+    let email = zitadelPayload.email;
+    let name = zitadelPayload.name;
+
+    if (!email) {
+      // Email not in access token - fetch from userinfo endpoint
+      const userInfo = await fetchUserInfo(token);
+      if (userInfo) {
+        email = userInfo.email;
+        name = name || userInfo.name;
+      }
+    }
+
+    // Attach Zitadel user info to request
+    req.zitadelUser = {
+      sub: zitadelPayload.sub!,
+      email,
+      name,
+      roles,
+      isAdmin,
+    };
+
+    // Get or link employee record
+    const employee = await getEmployeeByZitadelId(zitadelPayload.sub!, email);
+
+    if (!employee) {
+      res.status(403).json({
+        error: 'Forbidden',
+        message: 'No employee record found. Please contact your supervisor.',
+      });
+      return;
+    }
+
+    // Check if employee is still active
+    if (employee.status !== 'active') {
+      res.status(401).json({
+        error: 'Unauthorized',
+        message: 'Account is not active',
+      });
+      return;
+    }
+
+    // Attach employee to request
+    // Override isSupervisor with admin role from Zitadel
+    req.employee = {
+      ...employee,
+      isSupervisor: employee.isSupervisor || isAdmin,
+    };
+
+    next();
+  } catch (error) {
+    const err = error as Error;
+    console.error('Token verification failed:', {
+      name: err.name,
+      message: err.message,
+      issuer: ZITADEL_ISSUER,
+    });
     res.status(401).json({
       error: 'Unauthorized',
       message: 'Invalid or expired token',
     });
-    return;
   }
-
-  // Verify session exists in database (not revoked)
-  const session = await getActiveSession(token);
-  if (!session) {
-    res.status(401).json({
-      error: 'Unauthorized',
-      message: 'Session expired or revoked',
-    });
-    return;
-  }
-
-  // Get fresh employee data
-  const employee = await getEmployeeById(payload.employeeId);
-  if (!employee) {
-    res.status(401).json({
-      error: 'Unauthorized',
-      message: 'User not found',
-    });
-    return;
-  }
-
-  // Check if employee is still active
-  if (employee.status !== 'active') {
-    res.status(401).json({
-      error: 'Unauthorized',
-      message: 'Account is not active',
-    });
-    return;
-  }
-
-  // Attach employee and token to request
-  req.employee = employee;
-  req.token = token;
-
-  next();
 }
 
 /**
@@ -104,7 +259,10 @@ export async function requireSupervisor(
     return;
   }
 
-  if (!req.employee.isSupervisor) {
+  // Check both employee.isSupervisor and Zitadel admin role
+  const isSupervisor = req.employee.isSupervisor || req.zitadelUser?.isAdmin;
+
+  if (!isSupervisor) {
     res.status(403).json({
       error: 'Forbidden',
       message: 'Supervisor access required',
@@ -118,35 +276,55 @@ export async function requireSupervisor(
 /**
  * Middleware that optionally attaches authentication.
  * Does not fail if no token is present.
- * Useful for endpoints that behave differently for authenticated users.
  */
-export async function optionalAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function optionalAuth(req: Request, _res: Response, next: NextFunction): Promise<void> {
   const token = extractToken(req);
 
-  if (!token) {
+  if (!token || !JWKS || !ZITADEL_ISSUER) {
     next();
     return;
   }
 
-  // Verify JWT
-  const payload = verifyToken(token);
-  if (!payload) {
-    next();
-    return;
-  }
+  try {
+    const { payload } = await jwtVerify(token, JWKS, {
+      issuer: ZITADEL_ISSUER,
+    });
 
-  // Verify session exists in database
-  const session = await getActiveSession(token);
-  if (!session) {
-    next();
-    return;
-  }
+    const zitadelPayload = payload as ZitadelJWTPayload;
+    const rolesClaim = zitadelPayload['urn:zitadel:iam:org:project:roles'] || {};
+    const roles = Object.keys(rolesClaim);
+    const isAdmin = roles.includes('admin');
 
-  // Get employee data
-  const employee = await getEmployeeById(payload.employeeId);
-  if (employee && employee.status === 'active') {
-    req.employee = employee;
-    req.token = token;
+    // Get email from token or fetch from userinfo endpoint
+    let email = zitadelPayload.email;
+    let name = zitadelPayload.name;
+
+    if (!email) {
+      const userInfo = await fetchUserInfo(token);
+      if (userInfo) {
+        email = userInfo.email;
+        name = name || userInfo.name;
+      }
+    }
+
+    req.zitadelUser = {
+      sub: zitadelPayload.sub!,
+      email,
+      name,
+      roles,
+      isAdmin,
+    };
+
+    const employee = await getEmployeeByZitadelId(zitadelPayload.sub!, email);
+
+    if (employee && employee.status === 'active') {
+      req.employee = {
+        ...employee,
+        isSupervisor: employee.isSupervisor || isAdmin,
+      };
+    }
+  } catch {
+    // Token invalid, continue without auth
   }
 
   next();

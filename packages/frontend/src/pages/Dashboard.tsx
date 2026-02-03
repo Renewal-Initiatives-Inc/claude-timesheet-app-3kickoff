@@ -158,51 +158,6 @@ export function Dashboard() {
         )}
       </section>
 
-      {stats && (
-        <section className="dashboard-section">
-          <h2>Age Distribution</h2>
-          <div className="age-distribution">
-            <div className="age-bar-container">
-              <div className="age-bar">
-                <div
-                  className="age-bar-fill age-band-12-13"
-                  style={{ width: `${(stats.byAgeBand['12-13'] / stats.totalEmployees) * 100}%` }}
-                />
-                <div
-                  className="age-bar-fill age-band-14-15"
-                  style={{ width: `${(stats.byAgeBand['14-15'] / stats.totalEmployees) * 100}%` }}
-                />
-                <div
-                  className="age-bar-fill age-band-16-17"
-                  style={{ width: `${(stats.byAgeBand['16-17'] / stats.totalEmployees) * 100}%` }}
-                />
-                <div
-                  className="age-bar-fill age-band-18plus"
-                  style={{ width: `${(stats.byAgeBand['18+'] / stats.totalEmployees) * 100}%` }}
-                />
-              </div>
-            </div>
-            <div className="age-legend">
-              <span className="age-legend-item">
-                <span className="age-legend-color age-band-12-13"></span>
-                12-13: {stats.byAgeBand['12-13']}
-              </span>
-              <span className="age-legend-item">
-                <span className="age-legend-color age-band-14-15"></span>
-                14-15: {stats.byAgeBand['14-15']}
-              </span>
-              <span className="age-legend-item">
-                <span className="age-legend-color age-band-16-17"></span>
-                16-17: {stats.byAgeBand['16-17']}
-              </span>
-              <span className="age-legend-item">
-                <span className="age-legend-color age-band-18plus"></span>
-                18+: {stats.byAgeBand['18+']}
-              </span>
-            </div>
-          </div>
-        </section>
-      )}
     </div>
   );
 }

@@ -11,7 +11,7 @@ import {
   getTaskCodesForEmployee,
   TaskCodeError,
 } from '../services/task-code.service.js';
-import { validate } from '../validation/auth.schema.js';
+import { validate } from '../validation/common.js';
 import {
   createTaskCodeSchema,
   updateTaskCodeSchema,

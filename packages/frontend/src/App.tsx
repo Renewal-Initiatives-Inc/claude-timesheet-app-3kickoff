@@ -7,7 +7,6 @@ import './App.css';
 // Eagerly loaded pages (needed immediately)
 import { Login } from './pages/Login.js';
 import { Callback } from './pages/Callback.js';
-import { ChangePassword } from './pages/ChangePassword.js';
 import { Dashboard } from './pages/Dashboard.js';
 import { Timesheet } from './pages/Timesheet.js';
 
@@ -17,9 +16,6 @@ const EmployeeList = lazy(() =>
 );
 const EmployeeDetail = lazy(() =>
   import('./pages/EmployeeDetail.js').then((m) => ({ default: m.EmployeeDetail }))
-);
-const AddEmployee = lazy(() =>
-  import('./pages/AddEmployee.js').then((m) => ({ default: m.AddEmployee }))
 );
 const TaskCodeList = lazy(() =>
   import('./pages/TaskCodeList.js').then((m) => ({ default: m.TaskCodeList }))
@@ -198,11 +194,6 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/callback" element={<Callback />} />
 
-            {/* Password change - protected but no layout (special page) */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/change-password" element={<ChangePassword />} />
-            </Route>
-
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
               <Route element={<AppLayout />}>
@@ -223,7 +214,6 @@ function App() {
                 {/* Supervisor-only routes (lazy loaded) */}
                 <Route element={<ProtectedRoute requireSupervisor />}>
                   <Route path="/employees" element={<EmployeeList />} />
-                  <Route path="/employees/add" element={<AddEmployee />} />
                   <Route path="/employees/:id" element={<EmployeeDetail />} />
                   <Route path="/task-codes" element={<TaskCodeList />} />
                   <Route path="/task-codes/new" element={<TaskCodeForm mode="create" />} />

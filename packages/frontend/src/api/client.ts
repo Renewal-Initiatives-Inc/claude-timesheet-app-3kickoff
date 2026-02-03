@@ -1,7 +1,4 @@
 import type {
-  LoginRequest,
-  LoginResponse,
-  RegisterRequest,
   EmployeePublic,
   EmployeeDetailResponse,
   EmployeeListResponse,
@@ -256,16 +253,6 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
 // Auth API
 // ============================================================================
 
-export async function login(data: LoginRequest): Promise<LoginResponse> {
-  const response = await apiRequest<LoginResponse>('/auth/login', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
-
-  setAuthToken(response.token);
-  return response;
-}
-
 export async function logout(): Promise<void> {
   try {
     await apiRequest('/auth/logout', { method: 'POST' });
@@ -276,27 +263,6 @@ export async function logout(): Promise<void> {
 
 export async function getCurrentUser(): Promise<{ employee: EmployeePublic }> {
   return apiRequest('/auth/me');
-}
-
-export async function registerEmployee(data: RegisterRequest): Promise<{
-  message: string;
-  employee: EmployeePublic;
-  requiredDocuments: RequiredDocuments;
-}> {
-  return apiRequest('/auth/register', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
-}
-
-export async function changePassword(
-  currentPassword: string,
-  newPassword: string
-): Promise<{ message: string }> {
-  return apiRequest('/auth/change-password', {
-    method: 'POST',
-    body: JSON.stringify({ currentPassword, newPassword }),
-  });
 }
 
 // ============================================================================

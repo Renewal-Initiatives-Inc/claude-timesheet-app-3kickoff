@@ -11,7 +11,7 @@ import {
 } from '../services/employee.service.js';
 import { getDocumentationStatus } from '../services/documentation-status.service.js';
 import { updateEmployeeSchema, employeeListQuerySchema } from '../validation/employee.schema.js';
-import { validate } from '../validation/auth.schema.js';
+import { validate } from '../validation/common.js';
 
 const router: Router = Router();
 

@@ -1,5 +1,6 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useReviewDetail } from '../hooks/useReviewQueue.js';
+import { useReviewCount } from '../contexts/ReviewCountContext.js';
 import { TimelineView } from '../components/TimelineView.js';
 import { ComplianceSummary } from '../components/ComplianceSummary.js';
 import { ReviewActions } from '../components/ReviewActions.js';
@@ -56,10 +57,12 @@ export function ReviewDetail() {
   const navigate = useNavigate();
   const { reviewData, loading, error, approving, rejecting, approve, reject, refresh } =
     useReviewDetail(timesheetId);
+  const { refresh: refreshReviewCount } = useReviewCount();
 
   const handleApprove = async (notes?: string): Promise<boolean> => {
     const success = await approve(notes);
     if (success) {
+      refreshReviewCount();
       navigate('/review');
     }
     return success;
@@ -68,6 +71,7 @@ export function ReviewDetail() {
   const handleReject = async (notes: string): Promise<boolean> => {
     const success = await reject(notes);
     if (success) {
+      refreshReviewCount();
       navigate('/review');
     }
     return success;

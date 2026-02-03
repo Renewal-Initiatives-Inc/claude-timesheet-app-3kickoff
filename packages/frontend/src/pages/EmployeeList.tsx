@@ -13,9 +13,6 @@ export function EmployeeList() {
     <div className="employee-list-page">
       <header className="page-header">
         <h1>Employees</h1>
-        <Link to="/employees/add" className="add-button" data-testid="employee-list-add-button">
-          + Add Employee
-        </Link>
       </header>
 
       <div className="filters">

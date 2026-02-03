@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { requireAuth } from '../middleware/auth.middleware.js';
-import { validate } from '../validation/auth.schema.js';
+import { validate } from '../validation/common.js';
 import {
   getOrCreateTimesheet,
   getTimesheetById,

@@ -8,22 +8,14 @@ const envSchema = z.object({
   DATABASE_URL: z.string().url('DATABASE_URL must be a valid PostgreSQL URL').optional(),
   FRONTEND_URL: z.string().default('http://localhost:5173'),
 
-  // Authentication
-  JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
-  JWT_EXPIRES_IN: z.string().default('7d'),
+  // Zitadel OIDC Configuration
+  ZITADEL_ISSUER: z.string().url('ZITADEL_ISSUER must be a valid URL'),
 
   // Email (Postmark)
   POSTMARK_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().email().default('noreply@renewal.org'),
 
-  // Password reset
-  PASSWORD_RESET_EXPIRES_HOURS: z.coerce.number().default(24),
-
-  // Account lockout
-  MAX_LOGIN_ATTEMPTS: z.coerce.number().default(5),
-  LOCKOUT_DURATION_MINUTES: z.coerce.number().default(30),
-
-  // App URL for password reset links
+  // App URL for email links
   APP_URL: z.string().url().default('http://localhost:5173'),
 
   // Vercel Blob storage

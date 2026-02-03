@@ -1,11 +1,9 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { AuthProvider as OidcProvider } from 'react-oidc-context';
 import App from './App';
 import './App.css';
-import { initializeCsrfToken } from './api/client.js';
-
-// Initialize CSRF token before rendering to prevent CSRF errors on first login
-initializeCsrfToken();
+import { oidcConfig } from './auth/oidc-config.js';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -14,6 +12,8 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <App />
+    <OidcProvider {...oidcConfig}>
+      <App />
+    </OidcProvider>
   </StrictMode>
 );
