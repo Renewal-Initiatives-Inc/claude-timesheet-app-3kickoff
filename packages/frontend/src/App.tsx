@@ -114,7 +114,7 @@ function AppLayout() {
                   </span>
                 )}
               </Link>
-              <Link to="/employees" role="menuitem">
+              <Link to="/employees" role="menuitem" data-testid="nav-employees">
                 Employees
               </Link>
               <Link to="/task-codes" role="menuitem">
@@ -127,7 +127,7 @@ function AppLayout() {
           )}
         </div>
         <div className="nav-user">
-          <span className="user-name" aria-label={`Logged in as ${user?.name}`}>
+          <span className="user-name" aria-label={`Logged in as ${user?.name}`} data-testid="nav-user-name">
             {user?.name}
           </span>
           <button

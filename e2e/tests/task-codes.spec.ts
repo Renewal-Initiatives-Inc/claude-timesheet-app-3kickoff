@@ -3,37 +3,49 @@ import { test, expect } from '@playwright/test';
 /**
  * E2E tests for Task Code Management.
  *
- * Test credentials (from seed data):
- * - Supervisor: sarah.supervisor@renewal.org / TestPass123!
- * - Employees: [name].age[XX]@renewal.org / TestPass123!
+ * These tests require an authenticated session. With SSO (Zitadel), authentication
+ * must be handled via Playwright storage state.
+ *
+ * To enable these tests:
+ * 1. Create an auth setup script that logs in via Zitadel and saves storage state
+ * 2. Configure playwright.config.ts to use the storage state for this test file
+ * 3. Remove the .skip modifier below
+ *
+ * Test accounts (in Zitadel):
+ * - Supervisor: sarah.supervisor@renewal.org
+ * - Employees: [name].age[XX]@renewal.org
  */
 
-const SUPERVISOR_EMAIL = 'sarah.supervisor@renewal.org';
-const SUPERVISOR_PASSWORD = 'TestPass123!';
+/**
+ * Access control tests - these can run without authentication.
+ */
+test.describe('Task Code - Access Control (Unauthenticated)', () => {
+  test('unauthenticated user is redirected to login when accessing task codes', async ({
+    page,
+  }) => {
+    await page.goto('/task-codes');
 
-// Helper to login
-async function login(
-  page: ReturnType<(typeof test)['fn']>['page'],
-  email: string,
-  password: string
-) {
-  await page.goto('/login');
-  await page.fill('input[type="email"]', email);
-  await page.fill('input[type="password"]', password);
-  await page.click('button[type="submit"]');
-  await page.waitForURL('/dashboard');
-}
-
-test.describe('Task Code Management', () => {
-  test.beforeEach(async ({ page }) => {
-    // Login as supervisor before each test
-    await login(page, SUPERVISOR_EMAIL, SUPERVISOR_PASSWORD);
+    // Should redirect to login
+    await expect(page).toHaveURL(/login/);
   });
 
+  test('unauthenticated user is redirected to login when accessing task code creation', async ({
+    page,
+  }) => {
+    await page.goto('/task-codes/new');
+
+    // Should redirect to login
+    await expect(page).toHaveURL(/login/);
+  });
+});
+
+/**
+ * Task Code Management tests - require authenticated supervisor session.
+ */
+test.describe.skip('Task Code Management (requires authenticated storage state)', () => {
   test('supervisor can view task codes list', async ({ page }) => {
     // Navigate to task codes
-    await page.getByRole('link', { name: /task codes/i }).click();
-    await page.waitForURL('/task-codes');
+    await page.goto('/task-codes');
 
     // Verify page loaded
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Task Codes');
@@ -258,26 +270,26 @@ test.describe('Task Code Management', () => {
   });
 });
 
-test.describe('Task Code Access Control', () => {
-  test('non-supervisor sees access denied on task codes page', async ({ page }) => {
-    // Login as regular employee
-    await login(page, 'casey.age14@renewal.org', SUPERVISOR_PASSWORD);
+/**
+ * Task Code Access Control tests - require authenticated employee session.
+ */
+test.describe.skip(
+  'Task Code Access Control (requires authenticated employee storage state)',
+  () => {
+    test('non-supervisor sees access denied on task codes page', async ({ page }) => {
+      // Navigate to task codes - but since it's supervisor-only, expect access denied
+      await page.goto('/task-codes');
 
-    // Navigate to task codes - but since it's supervisor-only, expect access denied
-    await page.goto('/task-codes');
+      // Should see access denied message (not the task codes list)
+      await expect(page.getByText('Access Denied')).toBeVisible();
+    });
 
-    // Should see access denied message (not the task codes list)
-    await expect(page.getByText('Access Denied')).toBeVisible();
-  });
+    test('non-supervisor sees access denied on task code creation page', async ({ page }) => {
+      // Try to navigate directly to create page
+      await page.goto('/task-codes/new');
 
-  test('non-supervisor sees access denied on task code creation page', async ({ page }) => {
-    // Login as regular employee
-    await login(page, 'casey.age14@renewal.org', SUPERVISOR_PASSWORD);
-
-    // Try to navigate directly to create page
-    await page.goto('/task-codes/new');
-
-    // Should see access denied message
-    await expect(page.getByText('Access Denied')).toBeVisible();
-  });
-});
+      // Should see access denied message
+      await expect(page.getByText('Access Denied')).toBeVisible();
+    });
+  }
+);

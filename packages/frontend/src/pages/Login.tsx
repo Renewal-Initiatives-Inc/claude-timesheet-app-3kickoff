@@ -37,7 +37,7 @@ export function Login() {
 
         <div className="login-form">
           {(error || authError) && (
-            <div className="login-error">
+            <div className="login-error" data-testid="login-error">
               {error || (authError === 'auth_failed' ? 'Authentication failed. Please try again.' : authError)}
               <button
                 type="button"

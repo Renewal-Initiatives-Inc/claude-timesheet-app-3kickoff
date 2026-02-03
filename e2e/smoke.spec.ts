@@ -8,12 +8,11 @@ test.describe('Smoke Tests', () => {
     await expect(page.getByText('Timesheet Management System')).toBeVisible();
   });
 
-  test('login page displays login form', async ({ page }) => {
+  test('login page displays SSO login button', async ({ page }) => {
     await page.goto('/login');
 
-    // Check login form elements are present
-    await expect(page.locator('input[type="email"]')).toBeVisible();
-    await expect(page.locator('input[type="password"]')).toBeVisible();
+    // Check SSO login button is present (this is an SSO-based app, not email/password)
+    await expect(page.locator('[data-testid="login-submit-button"]')).toBeVisible();
     await expect(page.getByRole('button', { name: /sign in/i })).toBeVisible();
   });
 
