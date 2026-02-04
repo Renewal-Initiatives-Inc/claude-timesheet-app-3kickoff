@@ -378,6 +378,9 @@ async function syncTaskCodes() {
     for (const tc of missingCodes) {
       const { rate, ...taskCodeData } = tc;
       const [inserted] = await db.insert(taskCodes).values(taskCodeData).returning();
+      if (!inserted) {
+        throw new Error(`Failed to insert task code: ${tc.code}`);
+      }
       console.log(`   Created: ${inserted.code}`);
 
       // Create rate record
@@ -422,13 +425,17 @@ async function syncTaskCodes() {
   // Create new rate records for rate changes
   if (rateChanges.length > 0) {
     console.log('Creating new rate records...');
-    const effectiveDate = new Date().toISOString().split('T')[0]; // Today's date
+    const effectiveDate = new Date().toISOString().split('T')[0]!; // Today's date (YYYY-MM-DD)
 
     for (const rc of rateChanges) {
-      const existing = existingByCode.get(rc.code)!;
+      const existing = existingByCode.get(rc.code);
+      const taskCodeId = existing?.id;
+      if (!taskCodeId) {
+        throw new Error(`Task code not found: ${rc.code}`);
+      }
 
       await db.insert(taskCodeRates).values({
-        taskCodeId: existing.id,
+        taskCodeId,
         hourlyRate: rc.expectedRate,
         effectiveDate,
         justificationNotes: 'Rate Card v2.0 (Jan 2026) - Sync update',

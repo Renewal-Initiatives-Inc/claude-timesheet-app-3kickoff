@@ -1,8 +1,8 @@
 import { UserManagerSettings, WebStorageStateStore } from 'oidc-client-ts';
 
-const ZITADEL_ISSUER = import.meta.env.VITE_ZITADEL_ISSUER;
-const ZITADEL_CLIENT_ID = import.meta.env.VITE_ZITADEL_CLIENT_ID;
-const APP_URL = import.meta.env.VITE_APP_URL || window.location.origin;
+const ZITADEL_ISSUER = import.meta.env['VITE_ZITADEL_ISSUER'];
+const ZITADEL_CLIENT_ID = import.meta.env['VITE_ZITADEL_CLIENT_ID'];
+const APP_URL = import.meta.env['VITE_APP_URL'] || window.location.origin;
 
 // App Portal project ID - needed for JWT access tokens
 const ZITADEL_PROJECT_ID = '358210659915177779';
