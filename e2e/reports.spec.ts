@@ -443,7 +443,7 @@ test.describe.skip(
 
 test.describe.skip('Reports - Navigation Links (requires authenticated storage state)', () => {
   test('reports link visible in navigation for supervisors', async ({ page }) => {
-    await page.goto('/dashboard');
+    await page.goto('/timesheet');
 
     // Should see Reports link in nav
     await expect(page.locator('nav a[href="/reports"]')).toBeVisible();
@@ -454,7 +454,7 @@ test.describe.skip(
   'Reports - Navigation Links (requires authenticated employee storage state)',
   () => {
     test('reports link not visible for regular employees', async ({ page }) => {
-      await page.goto('/dashboard');
+      await page.goto('/timesheet');
 
       // Should NOT see Reports link in nav
       await expect(page.locator('nav a[href="/reports"]')).not.toBeVisible();

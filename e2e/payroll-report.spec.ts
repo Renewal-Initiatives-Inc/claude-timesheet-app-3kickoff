@@ -239,7 +239,7 @@ test.describe.skip('Payroll Report - Error Handling (requires authenticated stor
 
 test.describe.skip('Payroll Report - Navigation (requires authenticated storage state)', () => {
   test('payroll link visible in navigation for supervisors', async ({ page }) => {
-    await page.goto('/dashboard');
+    await page.goto('/timesheet');
 
     // Should see Payroll link in nav
     await expect(page.locator('nav a[href="/payroll"]')).toBeVisible();
@@ -250,7 +250,7 @@ test.describe.skip(
   'Payroll Report - Employee Navigation (requires authenticated employee storage state)',
   () => {
     test('payroll link not visible for regular employees', async ({ page }) => {
-      await page.goto('/dashboard');
+      await page.goto('/timesheet');
 
       // Should NOT see Payroll link in nav
       await expect(page.locator('nav a[href="/payroll"]')).not.toBeVisible();

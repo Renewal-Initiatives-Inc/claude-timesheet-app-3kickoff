@@ -73,7 +73,6 @@ export function TimeBlock({
   disabled,
 }: TimeBlockProps) {
   const [showActions, setShowActions] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
 
   // Handle click - select first, then edit on double-click or action button
   const handleClick = (e: React.MouseEvent) => {
@@ -117,14 +116,7 @@ export function TimeBlock({
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirmDelete) {
-      onDelete();
-      setConfirmDelete(false);
-    } else {
-      setConfirmDelete(true);
-      // Reset confirm after 3 seconds
-      setTimeout(() => setConfirmDelete(false), 3000);
-    }
+    onDelete();
   };
 
   // Build accessible label for screen readers
@@ -144,10 +136,7 @@ export function TimeBlock({
       onClick={handleClick}
       onKeyDown={(e) => onKeyDown?.(e, entry.id)}
       onMouseEnter={() => setShowActions(true)}
-      onMouseLeave={() => {
-        setShowActions(false);
-        setConfirmDelete(false);
-      }}
+      onMouseLeave={() => setShowActions(false)}
       title={`${entry.taskCode.name}\n${formatTime(entry.startTime)} - ${formatTime(entry.endTime)}\n${hours.toFixed(1)} hours\n$${entry.taskCode.currentRate.toFixed(2)}/hr`}
       tabIndex={disabled ? -1 : tabIndex}
       role="button"
@@ -198,12 +187,12 @@ export function TimeBlock({
             ✎
           </button>
           <button
-            className={`block-action-btn delete ${confirmDelete ? 'confirm' : ''}`}
+            className="block-action-btn delete"
             onClick={handleDeleteClick}
-            title={confirmDelete ? 'Click to confirm' : 'Delete'}
+            title="Delete"
             data-testid={`time-block-delete-${entry.id}`}
           >
-            {confirmDelete ? '?' : '×'}
+            ×
           </button>
         </div>
       )}

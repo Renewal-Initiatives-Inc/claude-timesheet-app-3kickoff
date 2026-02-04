@@ -60,11 +60,6 @@ test.describe('Login Page (SSO)', () => {
 });
 
 test.describe('Protected Routes (Unauthenticated)', () => {
-  test('should redirect to login when accessing dashboard unauthenticated', async ({ page }) => {
-    await page.goto('/dashboard');
-    await expect(page).toHaveURL(/login/);
-  });
-
   test('should redirect to login when accessing timesheet unauthenticated', async ({ page }) => {
     await page.goto('/timesheet');
     await expect(page).toHaveURL(/login/);

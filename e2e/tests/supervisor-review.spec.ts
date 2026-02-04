@@ -264,12 +264,12 @@ test.describe('Review Actions API - Authenticated', () => {
  */
 test.describe.skip('Supervisor Review UI (requires authenticated storage state)', () => {
   test('should display Review Queue in navigation for supervisors', async ({ page }) => {
-    await page.goto('/dashboard');
+    await page.goto('/timesheet');
     await expect(page.locator('a:has-text("Review Queue")')).toBeVisible();
   });
 
   test('should show pending count badge when timesheets pending', async ({ page }) => {
-    await page.goto('/dashboard');
+    await page.goto('/timesheet');
 
     // Badge may or may not be visible depending on data
     const badge = page.locator('[data-testid="review-queue-badge"]');
@@ -282,7 +282,7 @@ test.describe.skip('Supervisor Review UI (requires authenticated storage state)'
   });
 
   test('should navigate to Review Queue page', async ({ page }) => {
-    await page.goto('/dashboard');
+    await page.goto('/timesheet');
     await page.click('a:has-text("Review Queue")');
     await expect(page).toHaveURL(/review/);
   });

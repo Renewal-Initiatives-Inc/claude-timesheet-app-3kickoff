@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth.js';
 import './Login.css';
 
 export function Login() {
-  const { login, loading, error, clearError, isAuthenticated, isSupervisor } = useAuth();
+  const { login, loading, error, clearError, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const authError = searchParams.get('error');
@@ -16,10 +16,9 @@ export function Login() {
       const returnTo = sessionStorage.getItem('returnTo');
       sessionStorage.removeItem('returnTo');
 
-      const defaultPath = isSupervisor ? '/dashboard' : '/timesheet';
-      navigate(returnTo || defaultPath, { replace: true });
+      navigate(returnTo || '/timesheet', { replace: true });
     }
-  }, [isAuthenticated, isSupervisor, navigate]);
+  }, [isAuthenticated, navigate]);
 
   const handleSignIn = async () => {
     try {

@@ -10,7 +10,7 @@ export function Callback() {
     if (!auth.isLoading) {
       if (auth.isAuthenticated) {
         // Get the return URL from session storage, or use default
-        const returnTo = sessionStorage.getItem('returnTo') || '/dashboard';
+        const returnTo = sessionStorage.getItem('returnTo') || '/timesheet';
         sessionStorage.removeItem('returnTo');
         navigate(returnTo, { replace: true });
       } else if (auth.error) {

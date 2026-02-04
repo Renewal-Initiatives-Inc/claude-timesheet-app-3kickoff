@@ -18,7 +18,8 @@
     "db:seed": "tsx --env-file=../../.env.local src/db/seed.ts",
     "db:seed:production": "tsx --env-file=../../.env.local src/db/seed-production.ts",
     "db:create-admin": "tsx --env-file=../../.env.local src/db/create-admin.ts",
-    "db:fix-rates": "tsx --env-file=../../.env.local src/db/fix-rate-effective-dates.ts"
+    "db:fix-rates": "tsx --env-file=../../.env.local src/db/fix-rate-effective-dates.ts",
+    "db:sync-task-codes": "tsx --env-file=../../.env.local src/db/sync-task-codes.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",

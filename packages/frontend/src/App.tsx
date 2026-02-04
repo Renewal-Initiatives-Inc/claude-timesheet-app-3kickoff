@@ -7,7 +7,6 @@ import './App.css';
 // Eagerly loaded pages (needed immediately)
 import { Login } from './pages/Login.js';
 import { Callback } from './pages/Callback.js';
-import { Dashboard } from './pages/Dashboard.js';
 import { Timesheet } from './pages/Timesheet.js';
 
 // Lazy loaded pages (supervisor features, loaded on demand)
@@ -81,7 +80,7 @@ function AppLayout() {
       </a>
       <nav className="app-nav" aria-label="Main navigation">
         <div className="nav-brand">
-          <Link to="/dashboard" aria-label="Renewal Initiatives Home">
+          <Link to="/timesheet" aria-label="Renewal Initiatives Home">
             Renewal Initiatives
           </Link>
         </div>
@@ -94,9 +93,6 @@ function AppLayout() {
           </Link>
           {isSupervisor && (
             <>
-              <Link to="/dashboard" role="menuitem">
-                Dashboard
-              </Link>
               <Link
                 to="/review"
                 className="nav-link-with-badge"
@@ -175,7 +171,7 @@ function ProtectedRoute({ requireSupervisor = false }: { requireSupervisor?: boo
       <div className="forbidden-screen" role="alert">
         <h1>Access Denied</h1>
         <p>You need supervisor privileges to access this page.</p>
-        <Link to="/dashboard">Go to Dashboard</Link>
+        <Link to="/timesheet">Go to My Timesheet</Link>
       </div>
     );
   }
@@ -197,11 +193,8 @@ function App() {
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
               <Route element={<AppLayout />}>
-                {/* Redirect root to dashboard */}
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-
-                {/* Dashboard - accessible to all authenticated users */}
-                <Route path="/dashboard" element={<Dashboard />} />
+                {/* Redirect root to timesheet */}
+                <Route path="/" element={<Navigate to="/timesheet" replace />} />
 
                 {/* Timesheet - accessible to all authenticated users */}
                 <Route path="/timesheet" element={<Timesheet />} />
@@ -237,7 +230,7 @@ function App() {
               element={
                 <div className="not-found">
                   <h1>Page Not Found</h1>
-                  <Link to="/dashboard">Go to Dashboard</Link>
+                  <Link to="/timesheet">Go to My Timesheet</Link>
                 </div>
               }
             />

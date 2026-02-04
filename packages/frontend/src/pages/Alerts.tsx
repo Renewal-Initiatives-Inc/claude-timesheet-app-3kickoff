@@ -58,8 +58,8 @@ export function Alerts() {
           <h1>All Alerts</h1>
           <p>Manage compliance alerts for all employees</p>
         </div>
-        <Link to="/dashboard" className="alerts-back-link" data-testid="alerts-back-to-dashboard">
-          Back to Dashboard
+        <Link to="/timesheet" className="alerts-back-link" data-testid="alerts-back-link">
+          Back to Timesheet
         </Link>
       </header>
 
