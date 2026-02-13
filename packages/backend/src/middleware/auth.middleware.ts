@@ -178,6 +178,15 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     const roles = Object.keys(rolesClaim);
     const isAdmin = roles.includes('admin');
 
+    // Deny access unless user has required Zitadel role
+    if (!isAdmin && !roles.includes('app:renewal-timesheets')) {
+      res.status(403).json({
+        error: 'Forbidden',
+        message: 'You do not have access to this application.',
+      });
+      return;
+    }
+
     // Get email from token or fetch from userinfo endpoint
     let email = zitadelPayload.email;
     let name = zitadelPayload.name;
@@ -200,32 +209,16 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
       isAdmin,
     };
 
-    // Get or link employee record
+    // Best-effort employee record lookup (non-blocking)
     const employee = await getEmployeeByZitadelId(zitadelPayload.sub!, email);
 
-    if (!employee) {
-      res.status(403).json({
-        error: 'Forbidden',
-        message: 'No employee record found. Please contact your supervisor.',
-      });
-      return;
+    if (employee) {
+      // Attach employee to request, override isSupervisor with admin role from Zitadel
+      req.employee = {
+        ...employee,
+        isSupervisor: employee.isSupervisor || isAdmin,
+      };
     }
-
-    // Check if employee is still active
-    if (employee.status !== 'active') {
-      res.status(401).json({
-        error: 'Unauthorized',
-        message: 'Account is not active',
-      });
-      return;
-    }
-
-    // Attach employee to request
-    // Override isSupervisor with admin role from Zitadel
-    req.employee = {
-      ...employee,
-      isSupervisor: employee.isSupervisor || isAdmin,
-    };
 
     next();
   } catch (error) {

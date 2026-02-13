@@ -1,0 +1,105 @@
+.multi-select-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.multi-select-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  min-width: 160px;
+  background: var(--color-background);
+  color: var(--color-text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.multi-select-dropdown-trigger:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.1);
+}
+
+.multi-select-dropdown-trigger--open {
+  border-color: var(--color-primary);
+}
+
+.multi-select-dropdown-trigger-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.multi-select-dropdown-arrow {
+  font-size: 0.625rem;
+  color: var(--color-text-secondary);
+}
+
+.multi-select-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 100;
+  margin-top: 2px;
+  padding: 0.25rem 0;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-height: 240px;
+  overflow-y: auto;
+  min-width: 280px;
+  white-space: nowrap;
+}
+
+.multi-select-dropdown-clear {
+  display: block;
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  background: none;
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.multi-select-dropdown-clear:hover {
+  background: var(--color-surface);
+}
+
+.multi-select-dropdown-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.multi-select-dropdown-option:hover {
+  background: var(--color-surface);
+}
+
+.multi-select-dropdown-option input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.multi-select-dropdown-option-label {
+  flex: 1;
+}
+
+.multi-select-dropdown-empty {
+  padding: 0.75rem;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}

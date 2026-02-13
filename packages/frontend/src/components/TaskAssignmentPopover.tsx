@@ -18,7 +18,8 @@ interface TaskAssignmentPopoverProps {
   onAssign: (
     taskCodeId: string,
     supervisorName?: string,
-    mealBreakConfirmed?: boolean
+    mealBreakConfirmed?: boolean,
+    notes?: string
   ) => Promise<void>;
   onClose: () => void;
 }
@@ -59,6 +60,7 @@ export function TaskAssignmentPopover({
   const [selectedTaskId, setSelectedTaskId] = useState('');
   const [supervisorName, setSupervisorName] = useState('');
   const [mealBreakConfirmed, setMealBreakConfirmed] = useState(false);
+  const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -157,7 +159,8 @@ export function TaskAssignmentPopover({
       await onAssign(
         selectedTaskId,
         needsSupervisor ? supervisorName : undefined,
-        needsMealBreak ? mealBreakConfirmed : undefined
+        needsMealBreak ? mealBreakConfirmed : undefined,
+        notes.trim() || undefined
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create entry');
@@ -352,6 +355,22 @@ export function TaskAssignmentPopover({
             </span>
           </div>
         )}
+
+        <div className="form-group">
+          <label htmlFor="popover-notes">Notes</label>
+          <textarea
+            id="popover-notes"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Optional — e.g., invoice reference, task description"
+            maxLength={500}
+            rows={2}
+            data-testid="popover-notes"
+          />
+          {notes.length > 0 && (
+            <span className="help-text">{notes.length}/500</span>
+          )}
+        </div>
 
         <div className="popover-actions">
           <button

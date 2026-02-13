@@ -194,6 +194,7 @@ export async function getTimesheetWithEntries(
     schoolDayOverrideNote: entry.schoolDayOverrideNote,
     supervisorPresentName: entry.supervisorPresentName,
     mealBreakConfirmed: entry.mealBreakConfirmed,
+    notes: entry.notes,
     createdAt: entry.createdAt.toISOString(),
     taskCode: {
       id: entry.taskCode.id,
@@ -328,6 +329,7 @@ export interface TimesheetEntryWithTaskCode {
   schoolDayOverrideNote: string | null;
   supervisorPresentName: string | null;
   mealBreakConfirmed: boolean | null;
+  notes: string | null;
   createdAt: string;
   taskCode: {
     id: string;

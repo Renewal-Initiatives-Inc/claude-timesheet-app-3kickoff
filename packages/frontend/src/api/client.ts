@@ -551,6 +551,36 @@ export async function deleteTimesheetEntry(timesheetId: string, entryId: string)
 }
 
 /**
+ * Export timesheet entries as CSV.
+ * Returns the CSV content as a Blob for download.
+ */
+export async function exportTimesheetEntries(timesheetId: string): Promise<Blob> {
+  const token = getAuthToken();
+  const headers: Record<string, string> = {};
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${API_BASE}/timesheets/${timesheetId}/entries/export`, {
+    method: 'GET',
+    headers,
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const error = (await response.json().catch(() => ({
+      error: 'Unknown error',
+      message: response.statusText,
+    }))) as ApiError;
+
+    throw new ApiRequestError(error.message || 'Export failed', response.status, error.error);
+  }
+
+  return response.blob();
+}
+
+/**
  * Get totals for a timesheet.
  */
 export async function getTimesheetTotals(timesheetId: string): Promise<TimesheetTotals> {

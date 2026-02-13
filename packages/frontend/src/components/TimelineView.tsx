@@ -19,6 +19,7 @@ type EntryData = {
   isSchoolDay: boolean;
   supervisorPresentName?: string | null;
   mealBreakConfirmed?: boolean | null;
+  notes?: string | null;
 };
 
 interface TimelineViewProps {
@@ -461,7 +462,8 @@ export function TimelineView({
   const handleTaskAssignment = async (
     taskCodeId: string,
     supervisorName?: string,
-    mealBreakConfirmed?: boolean
+    mealBreakConfirmed?: boolean,
+    notes?: string
   ) => {
     // Build entries for each selected day
     const entries: EntryData[] = popover.dayIndices.map((dayIndex) => ({
@@ -472,6 +474,7 @@ export function TimelineView({
       isSchoolDay: schoolDayStatus[dayIndex]!,
       supervisorPresentName: supervisorName ?? null,
       mealBreakConfirmed: mealBreakConfirmed ?? null,
+      notes: notes ?? null,
     }));
 
     // Use bulk endpoint if available and multiple days, otherwise create one at a time

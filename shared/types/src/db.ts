@@ -87,6 +87,7 @@ export interface TimesheetEntry {
   schoolDayOverrideNote: string | null;
   supervisorPresentName: string | null;
   mealBreakConfirmed: boolean | null;
+  notes: string | null;
   createdAt: string;
 }
 

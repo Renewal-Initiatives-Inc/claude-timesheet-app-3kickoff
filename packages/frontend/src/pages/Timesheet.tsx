@@ -12,7 +12,7 @@ import {
   ComplianceErrorDisplay,
   type ComplianceViolation,
 } from '../components/ComplianceErrorDisplay.js';
-import { submitTimesheet, ApiRequestError } from '../api/client.js';
+import { submitTimesheet, exportTimesheetEntries, ApiRequestError } from '../api/client.js';
 import type {
   CreateEntryRequest,
   UpdateEntryRequest,
@@ -197,6 +197,23 @@ export function Timesheet() {
       refresh();
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleExportEntries = async () => {
+    if (!timesheet) return;
+    try {
+      const blob = await exportTimesheetEntries(timesheet.id);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `timesheet-entries-${timesheet.weekStartDate}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch {
+      // Silently fail - the CSV isn't critical enough to show an error banner
     }
   };
 
@@ -405,6 +422,19 @@ export function Timesheet() {
           <p className="submit-hint">
             Once submitted, your timesheet will be reviewed by your supervisor.
           </p>
+        </div>
+      )}
+
+      {timesheet.entries.length > 0 && (
+        <div className="timesheet-export">
+          <button
+            className="export-button"
+            onClick={handleExportEntries}
+            disabled={submitting}
+            data-testid="export-entries-button"
+          >
+            Export Entries CSV
+          </button>
         </div>
       )}
 

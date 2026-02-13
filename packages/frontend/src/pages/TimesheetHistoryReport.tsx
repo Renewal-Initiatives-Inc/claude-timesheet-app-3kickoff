@@ -2,11 +2,14 @@ import { useState, useCallback } from 'react';
 import { getEmployees, ApiRequestError } from '../api/client.js';
 import {
   getTimesheetHistoryReport,
+  exportTimesheetHistoryXLSX,
   type TimesheetHistoryRecord,
   type TimesheetHistorySummary,
   type AgeBand,
 } from '../api/reports.js';
+import { useTaskCodes } from '../hooks/useTaskCodes.js';
 import { Breadcrumb } from '../components/Breadcrumb.js';
+import { MultiSelectDropdown } from '../components/MultiSelectDropdown.js';
 import './TimesheetHistoryReport.css';
 
 /**
@@ -85,6 +88,12 @@ export function TimesheetHistoryReport() {
   const [ageBand, setAgeBand] = useState<string>('');
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [employeesLoaded, setEmployeesLoaded] = useState(false);
+  const [selectedTaskCodes, setSelectedTaskCodes] = useState<string[]>([]);
+  const { taskCodes: allTaskCodes } = useTaskCodes();
+
+  // Export state
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   // Data state
   const [timesheets, setTimesheets] = useState<TimesheetHistoryRecord[]>([]);
@@ -120,6 +129,7 @@ export function TimesheetHistoryReport() {
         employeeId: employeeId || undefined,
         status: (status as 'open' | 'submitted' | 'approved') || undefined,
         ageBand: (ageBand as AgeBand) || undefined,
+        taskCodes: selectedTaskCodes.length > 0 ? selectedTaskCodes : undefined,
       });
       setTimesheets(response.timesheets);
       setSummary(response.summary);
@@ -132,12 +142,45 @@ export function TimesheetHistoryReport() {
     } finally {
       setLoading(false);
     }
-  }, [startDate, endDate, employeeId, status, ageBand]);
+  }, [startDate, endDate, employeeId, status, ageBand, selectedTaskCodes]);
 
   // Handle filter form submission
   const handleApplyFilters = (e: React.FormEvent) => {
     e.preventDefault();
     fetchReport();
+  };
+
+  // Handle XLSX export
+  const handleExportXLSX = async () => {
+    setExporting(true);
+    setExportError(null);
+    try {
+      const blob = await exportTimesheetHistoryXLSX({
+        startDate,
+        endDate,
+        employeeId: employeeId || undefined,
+        status: (status as 'open' | 'submitted' | 'approved') || undefined,
+        ageBand: (ageBand as AgeBand) || undefined,
+        taskCodes: selectedTaskCodes.length > 0 ? selectedTaskCodes : undefined,
+      });
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `timesheet-history-${startDate}-to-${endDate}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      if (err instanceof ApiRequestError) {
+        setExportError(err.message);
+      } else {
+        setExportError('Failed to export timesheet history');
+      }
+    } finally {
+      setExporting(false);
+    }
   };
 
   // Toggle row expansion
@@ -258,6 +301,19 @@ export function TimesheetHistoryReport() {
               <option value="18+">18+</option>
             </select>
           </div>
+          <div className="filter-field">
+            <label htmlFor="taskCodes">Task Codes</label>
+            <MultiSelectDropdown
+              options={allTaskCodes.map((tc) => ({
+                value: tc.code,
+                label: `${tc.code} - ${tc.name}`,
+              }))}
+              selected={selectedTaskCodes}
+              onChange={setSelectedTaskCodes}
+              placeholder="All Task Codes"
+              testIdPrefix="timesheet-history-task-code"
+            />
+          </div>
           <div className="filter-actions">
             <button
               type="submit"
@@ -267,6 +323,17 @@ export function TimesheetHistoryReport() {
             >
               {loading ? 'Loading...' : 'Search'}
             </button>
+            {hasSearched && timesheets.length > 0 && (
+              <button
+                type="button"
+                className="export-button"
+                onClick={handleExportXLSX}
+                disabled={exporting || loading}
+                data-testid="timesheet-history-export-button"
+              >
+                {exporting ? 'Exporting...' : 'Export XLSX'}
+              </button>
+            )}
           </div>
         </div>
       </form>
@@ -275,6 +342,11 @@ export function TimesheetHistoryReport() {
       {error && (
         <div className="timesheet-history-report-error" data-testid="error-timesheet-history">
           <p>{error}</p>
+        </div>
+      )}
+      {exportError && (
+        <div className="timesheet-history-report-error" data-testid="error-export">
+          <p>{exportError}</p>
         </div>
       )}
 
@@ -349,16 +421,14 @@ export function TimesheetHistoryReport() {
                     <>
                       <tr key={ts.id} data-testid={`timesheet-history-row-${ts.id}`}>
                         <td>
-                          {(ts.supervisorNotes || ts.complianceFailCount > 0) && (
-                            <button
-                              className="expand-button"
-                              onClick={() => toggleRowExpansion(ts.id)}
-                              aria-label={expandedRows.has(ts.id) ? 'Collapse' : 'Expand'}
-                              data-testid={`timesheet-history-expand-button-${ts.id}`}
-                            >
-                              {expandedRows.has(ts.id) ? '−' : '+'}
-                            </button>
-                          )}
+                          <button
+                            className="expand-button"
+                            onClick={() => toggleRowExpansion(ts.id)}
+                            aria-label={expandedRows.has(ts.id) ? 'Collapse' : 'Expand'}
+                            data-testid={`timesheet-history-expand-button-${ts.id}`}
+                          >
+                            {expandedRows.has(ts.id) ? '−' : '+'}
+                          </button>
                         </td>
                         <td className="week">{formatWeekRange(ts.weekStartDate)}</td>
                         <td className="employee-name">{ts.employeeName}</td>
@@ -399,6 +469,33 @@ export function TimesheetHistoryReport() {
                                 <div className="detail-item compliance">
                                   <strong>Compliance:</strong> {ts.complianceFailCount} of{' '}
                                   {ts.complianceCheckCount} checks failed
+                                </div>
+                              )}
+                              {ts.entries.length > 0 && (
+                                <div className="detail-item entry-log">
+                                  <strong>Entries:</strong>
+                                  <table className="entry-log-table">
+                                    <thead>
+                                      <tr>
+                                        <th>Date</th>
+                                        <th>Task</th>
+                                        <th>Time</th>
+                                        <th>Hours</th>
+                                        <th>Notes</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {ts.entries.map((entry, i) => (
+                                        <tr key={i}>
+                                          <td>{entry.workDate}</td>
+                                          <td>{entry.taskCode} - {entry.taskName}</td>
+                                          <td>{entry.startTime} - {entry.endTime}</td>
+                                          <td>{parseFloat(entry.hours).toFixed(2)}</td>
+                                          <td className="entry-notes-cell">{entry.notes || '-'}</td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
                                 </div>
                               )}
                             </div>

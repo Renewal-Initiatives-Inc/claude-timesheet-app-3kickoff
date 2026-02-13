@@ -57,6 +57,7 @@ export const timesheetEntries = pgTable('timesheet_entries', {
   schoolDayOverrideNote: text('school_day_override_note'),
   supervisorPresentName: text('supervisor_present_name'),
   mealBreakConfirmed: boolean('meal_break_confirmed'),
+  notes: text('notes'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 

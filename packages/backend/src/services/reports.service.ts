@@ -3,7 +3,7 @@ import { db, schema } from '../db/index.js';
 import { getAgeBand, type AgeBand } from '../utils/age.js';
 import type { ComplianceDetails } from '../db/schema/compliance.js';
 
-const { complianceCheckLogs, timesheets, employees, payrollRecords } = schema;
+const { complianceCheckLogs, timesheets, employees, payrollRecords, taskCodeRates } = schema;
 
 /**
  * Error codes for report operations.
@@ -82,6 +82,21 @@ export interface TimesheetHistoryFilters {
   employeeId?: string;
   status?: 'open' | 'submitted' | 'approved' | 'rejected';
   ageBand?: AgeBand;
+  taskCodes?: string[];
+}
+
+/**
+ * A lightweight entry summary for report views.
+ */
+export interface EntryLogItem {
+  workDate: string;
+  taskCode: string;
+  taskName: string;
+  startTime: string;
+  endTime: string;
+  hours: string;
+  rate: string | null;
+  notes: string | null;
 }
 
 /**
@@ -101,6 +116,7 @@ export interface TimesheetHistoryRecord {
   complianceCheckCount: number;
   complianceFailCount: number;
   totalEarnings: string | null;
+  entries: EntryLogItem[];
 }
 
 /**
@@ -219,7 +235,10 @@ export async function getTimesheetHistoryReport(
     where: and(...conditions),
     with: {
       employee: true,
-      entries: true,
+      entries: {
+        with: { taskCode: true },
+        orderBy: (entries, { asc }) => [asc(entries.workDate), asc(entries.startTime)],
+      },
     },
     orderBy: [desc(timesheets.weekStartDate)],
   });
@@ -266,9 +285,45 @@ export async function getTimesheetHistoryReport(
     }
   }
 
-  // Build records
+  // Look up effective rates for all entries
+  const allEntries = timesheetResults.flatMap((t) => t.entries);
+  const uniqueTaskCodeIds = [...new Set(allEntries.map((e) => e.taskCodeId))];
+
+  const allRates =
+    uniqueTaskCodeIds.length > 0
+      ? await db.query.taskCodeRates.findMany({
+          where: inArray(taskCodeRates.taskCodeId, uniqueTaskCodeIds),
+          orderBy: [desc(taskCodeRates.effectiveDate)],
+        })
+      : [];
+
+  const ratesByTaskCode = new Map<string, (typeof allRates)>();
+  for (const rate of allRates) {
+    const existing = ratesByTaskCode.get(rate.taskCodeId) ?? [];
+    existing.push(rate);
+    ratesByTaskCode.set(rate.taskCodeId, existing);
+  }
+
+  function findEffectiveRate(taskCodeId: string, workDate: string): string | null {
+    const rates = ratesByTaskCode.get(taskCodeId) ?? [];
+    for (const rate of rates) {
+      if (rate.effectiveDate <= workDate) {
+        return rate.hourlyRate;
+      }
+    }
+    return null;
+  }
+
+  // Build records with task code filtering and rate enrichment
   let records: TimesheetHistoryRecord[] = timesheetResults.map((t) => {
-    const totalHours = t.entries.reduce((sum, entry) => sum + parseFloat(entry.hours), 0);
+    const filteredEntries = t.entries.filter((e) => {
+      if (filters.taskCodes && filters.taskCodes.length > 0) {
+        return filters.taskCodes.includes(e.taskCode.code);
+      }
+      return true;
+    });
+
+    const totalHours = filteredEntries.reduce((sum, entry) => sum + parseFloat(entry.hours), 0);
 
     return {
       id: t.id,
@@ -284,9 +339,24 @@ export async function getTimesheetHistoryReport(
       complianceCheckCount: complianceCounts[t.id]?.total ?? 0,
       complianceFailCount: complianceCounts[t.id]?.failed ?? 0,
       totalEarnings: payrollMap[t.id] ?? null,
+      entries: filteredEntries.map((e) => ({
+        workDate: e.workDate,
+        taskCode: e.taskCode.code,
+        taskName: e.taskCode.name,
+        startTime: e.startTime,
+        endTime: e.endTime,
+        hours: e.hours,
+        rate: findEffectiveRate(e.taskCodeId, e.workDate),
+        notes: e.notes,
+      })),
       dateOfBirth: t.employee.dateOfBirth,
     };
   });
+
+  // Remove timesheets with no matching entries after task code filtering
+  if (filters.taskCodes && filters.taskCodes.length > 0) {
+    records = records.filter((r) => r.entries.length > 0);
+  }
 
   // Filter by age band if specified
   if (filters.ageBand) {

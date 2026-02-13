@@ -120,7 +120,7 @@ export function TimeBlock({
   };
 
   // Build accessible label for screen readers
-  const accessibleLabel = `${entry.taskCode.name}, ${formatTime(entry.startTime)} to ${formatTime(entry.endTime)}, ${hours.toFixed(1)} hours`;
+  const accessibleLabel = `${entry.taskCode.name}, ${formatTime(entry.startTime)} to ${formatTime(entry.endTime)}, ${hours.toFixed(1)} hours${entry.notes ? `, Notes: ${entry.notes}` : ''}`;
 
   return (
     <div
@@ -137,7 +137,7 @@ export function TimeBlock({
       onKeyDown={(e) => onKeyDown?.(e, entry.id)}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
-      title={`${entry.taskCode.name}\n${formatTime(entry.startTime)} - ${formatTime(entry.endTime)}\n${hours.toFixed(1)} hours\n$${entry.taskCode.currentRate.toFixed(2)}/hr`}
+      title={`${entry.taskCode.name}\n${formatTime(entry.startTime)} - ${formatTime(entry.endTime)}\n${hours.toFixed(1)} hours\n$${entry.taskCode.currentRate.toFixed(2)}/hr${entry.notes ? `\n---\n${entry.notes}` : ''}`}
       tabIndex={disabled ? -1 : tabIndex}
       role="button"
       aria-label={accessibleLabel}

@@ -54,6 +54,7 @@ interface EntryFormData {
   endTime: string;
   supervisorPresentName: string;
   mealBreakConfirmed: boolean | null;
+  notes: string;
 }
 
 interface FormErrors {
@@ -62,6 +63,7 @@ interface FormErrors {
   endTime?: string;
   supervisorPresentName?: string;
   mealBreakConfirmed?: string;
+  notes?: string;
   submit?: string;
 }
 
@@ -82,6 +84,7 @@ export function EntryFormModal({
     endTime: '',
     supervisorPresentName: '',
     mealBreakConfirmed: null,
+    notes: '',
   });
   const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
@@ -91,10 +94,11 @@ export function EntryFormModal({
     if (entry) {
       setFormData({
         taskCodeId: entry.taskCodeId,
-        startTime: entry.startTime,
-        endTime: entry.endTime,
+        startTime: entry.startTime.slice(0, 5),
+        endTime: entry.endTime.slice(0, 5),
         supervisorPresentName: entry.supervisorPresentName || '',
         mealBreakConfirmed: entry.mealBreakConfirmed,
+        notes: entry.notes || '',
       });
     } else {
       setFormData({
@@ -103,6 +107,7 @@ export function EntryFormModal({
         endTime: '',
         supervisorPresentName: '',
         mealBreakConfirmed: null,
+        notes: '',
       });
     }
     setFieldErrors({});
@@ -160,6 +165,7 @@ export function EntryFormModal({
               ? formData.supervisorPresentName
               : null,
             mealBreakConfirmed: needsMealBreakConfirmation ? formData.mealBreakConfirmed : null,
+            notes: formData.notes.trim() || null,
           }
         : {
             workDate: date,
@@ -171,6 +177,7 @@ export function EntryFormModal({
               ? formData.supervisorPresentName
               : null,
             mealBreakConfirmed: needsMealBreakConfirmation ? formData.mealBreakConfirmed : null,
+            notes: formData.notes.trim() || null,
           };
 
       await onSubmit(data);
@@ -308,6 +315,25 @@ export function EntryFormModal({
               )}
             </div>
           )}
+
+          <div className="form-group">
+            <label htmlFor="notes">Notes</label>
+            <textarea
+              id="notes"
+              value={formData.notes}
+              onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
+              placeholder="Optional — e.g., invoice reference, task description"
+              maxLength={500}
+              rows={2}
+              data-testid="field-notes"
+            />
+            {formData.notes.length > 0 && (
+              <span className="help-text">{formData.notes.length}/500</span>
+            )}
+            {fieldErrors.notes && (
+              <span className="field-error">{fieldErrors.notes}</span>
+            )}
+          </div>
 
           <div className="modal-actions">
             <button

@@ -24,8 +24,8 @@ export const getTimesheetSchema = z.object({
 export const createEntrySchema = z.object({
   workDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
   taskCodeId: z.string().uuid('Invalid task code ID'),
-  startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:MM)'),
-  endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:MM)'),
+  startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/, 'Invalid time format (HH:MM)'),
+  endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/, 'Invalid time format (HH:MM)'),
   isSchoolDay: z.boolean(),
   schoolDayOverrideNote: z
     .string()
@@ -40,6 +40,7 @@ export const createEntrySchema = z.object({
     .optional()
     .nullable(),
   mealBreakConfirmed: z.boolean().optional().nullable(),
+  notes: z.string().max(500, 'Notes must be 500 characters or less').optional().nullable(),
 });
 
 /**
@@ -48,11 +49,11 @@ export const createEntrySchema = z.object({
 export const updateEntrySchema = z.object({
   startTime: z
     .string()
-    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:MM)')
+    .regex(/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/, 'Invalid time format (HH:MM)')
     .optional(),
   endTime: z
     .string()
-    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:MM)')
+    .regex(/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/, 'Invalid time format (HH:MM)')
     .optional(),
   taskCodeId: z.string().uuid('Invalid task code ID').optional(),
   isSchoolDay: z.boolean().optional(),
@@ -69,6 +70,7 @@ export const updateEntrySchema = z.object({
     .optional()
     .nullable(),
   mealBreakConfirmed: z.boolean().optional().nullable(),
+  notes: z.string().max(500, 'Notes must be 500 characters or less').optional().nullable(),
 });
 
 /**
@@ -106,8 +108,8 @@ export const bulkCreateEntriesSchema = z.object({
 export const previewEntrySchema = z.object({
   workDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
   taskCodeId: z.string().uuid('Invalid task code ID'),
-  startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:MM)'),
-  endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:MM)'),
+  startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/, 'Invalid time format (HH:MM)'),
+  endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/, 'Invalid time format (HH:MM)'),
   isSchoolDay: z.boolean(),
 });
 

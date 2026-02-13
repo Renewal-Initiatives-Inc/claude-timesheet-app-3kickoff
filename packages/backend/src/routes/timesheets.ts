@@ -35,6 +35,7 @@ import { calculateAge, checkBirthdayInWeek, getWeeklyAges } from '../utils/age.j
 import { db, schema } from '../db/index.js';
 import { eq } from 'drizzle-orm';
 import type { TimesheetStatus } from '@renewal/types';
+import { generateEntryCSV, generateEntryFilename, type EntryExportRow } from '../utils/entry-export.js';
 
 const router: Router = Router();
 
@@ -526,6 +527,77 @@ router.delete('/:id/entries/:entryId', async (req: Request, res: Response) => {
             : error.code === 'TIMESHEET_NOT_EDITABLE'
               ? 400
               : 400;
+      res.status(statusCode).json({
+        error: error.code,
+        message: error.message,
+      });
+      return;
+    }
+    throw error;
+  }
+});
+
+/**
+ * GET /api/timesheets/:id/entries/export
+ * Export timesheet entries as CSV with notes.
+ */
+router.get('/:id/entries/export', async (req: Request, res: Response) => {
+  try {
+    const timesheetId = req.params['id'] as string;
+
+    // Verify access
+    const hasAccess = await validateTimesheetAccess(timesheetId, req.employee!.id);
+    if (!hasAccess) {
+      res.status(403).json({
+        error: 'TIMESHEET_ACCESS_DENIED',
+        message: 'You do not have access to this timesheet',
+      });
+      return;
+    }
+
+    const withEntries = await getTimesheetWithEntries(timesheetId);
+    if (!withEntries) {
+      res.status(404).json({
+        error: 'TIMESHEET_NOT_FOUND',
+        message: 'Timesheet not found',
+      });
+      return;
+    }
+
+    if (withEntries.entries.length === 0) {
+      res.status(404).json({
+        error: 'NO_ENTRIES',
+        message: 'No entries to export',
+      });
+      return;
+    }
+
+    // Map entries to export rows
+    const rows: EntryExportRow[] = withEntries.entries.map((entry) => {
+      const hours = parseFloat(entry.hours);
+      const rate = entry.taskCode.currentRate;
+      return {
+        workDate: entry.workDate,
+        taskCode: entry.taskCode.code,
+        taskName: entry.taskCode.name,
+        startTime: entry.startTime,
+        endTime: entry.endTime,
+        hours: entry.hours,
+        rate: rate.toFixed(2),
+        earnings: (hours * rate).toFixed(2),
+        notes: entry.notes,
+      };
+    });
+
+    const csv = generateEntryCSV(rows);
+    const filename = generateEntryFilename(withEntries.weekStartDate);
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(csv);
+  } catch (error) {
+    if (error instanceof TimesheetError) {
+      const statusCode = error.code === 'TIMESHEET_NOT_FOUND' ? 404 : 400;
       res.status(statusCode).json({
         error: error.code,
         message: error.message,

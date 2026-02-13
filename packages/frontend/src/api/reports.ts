@@ -102,6 +102,18 @@ export interface TimesheetHistoryFilters {
   employeeId?: string;
   status?: 'open' | 'submitted' | 'approved' | 'rejected';
   ageBand?: AgeBand;
+  taskCodes?: string[];
+}
+
+export interface EntryLogItem {
+  workDate: string;
+  taskCode: string;
+  taskName: string;
+  startTime: string;
+  endTime: string;
+  hours: string;
+  rate: string | null;
+  notes: string | null;
 }
 
 export interface TimesheetHistoryRecord {
@@ -118,6 +130,7 @@ export interface TimesheetHistoryRecord {
   complianceCheckCount: number;
   complianceFailCount: number;
   totalEarnings: string | null;
+  entries: EntryLogItem[];
 }
 
 export interface TimesheetHistorySummary {
@@ -198,8 +211,56 @@ export async function getTimesheetHistoryReport(
   if (filters.employeeId) params.set('employeeId', filters.employeeId);
   if (filters.status) params.set('status', filters.status);
   if (filters.ageBand) params.set('ageBand', filters.ageBand);
+  if (filters.taskCodes && filters.taskCodes.length > 0) {
+    params.set('taskCodes', filters.taskCodes.join(','));
+  }
 
   return apiRequest(`/reports/timesheet-history?${params.toString()}`);
+}
+
+/**
+ * Export timesheet history as XLSX.
+ * Returns the XLSX content as a Blob for download.
+ */
+export async function exportTimesheetHistoryXLSX(
+  filters: TimesheetHistoryFilters
+): Promise<Blob> {
+  const token = getAuthToken();
+  const headers: Record<string, string> = {};
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const params = new URLSearchParams();
+  params.set('startDate', filters.startDate);
+  params.set('endDate', filters.endDate);
+  if (filters.employeeId) params.set('employeeId', filters.employeeId);
+  if (filters.status) params.set('status', filters.status);
+  if (filters.ageBand) params.set('ageBand', filters.ageBand);
+  if (filters.taskCodes && filters.taskCodes.length > 0) {
+    params.set('taskCodes', filters.taskCodes.join(','));
+  }
+
+  const response = await fetch(
+    `${API_BASE}/reports/timesheet-history/export?${params.toString()}`,
+    {
+      method: 'GET',
+      headers,
+      credentials: 'include',
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({
+      error: 'Unknown error',
+      message: response.statusText,
+    }));
+
+    throw new ApiRequestError(error.message || 'Export failed', response.status, error.error);
+  }
+
+  return response.blob();
 }
 
 /**

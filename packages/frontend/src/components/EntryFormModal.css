@@ -94,7 +94,8 @@
 }
 
 .entry-form-modal .form-group input,
-.entry-form-modal .form-group select {
+.entry-form-modal .form-group select,
+.entry-form-modal .form-group textarea {
   padding: 0.625rem 0.75rem;
   font-size: 1rem;
   border: 1px solid #d1d5db;
@@ -102,8 +103,14 @@
   background-color: white;
 }
 
+.entry-form-modal .form-group textarea {
+  resize: vertical;
+  font-family: inherit;
+}
+
 .entry-form-modal .form-group input:focus,
-.entry-form-modal .form-group select:focus {
+.entry-form-modal .form-group select:focus,
+.entry-form-modal .form-group textarea:focus {
   outline: none;
   border-color: #4f46e5;
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);

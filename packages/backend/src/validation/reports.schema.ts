@@ -43,6 +43,7 @@ export const timesheetHistoryQuerySchema = z.object({
   employeeId: z.string().uuid('Invalid employee ID').optional(),
   status: z.enum(['open', 'submitted', 'approved', 'rejected']).optional(),
   ageBand: ageBandEnum.optional(),
+  taskCodes: z.string().optional(),
 });
 
 // Export types

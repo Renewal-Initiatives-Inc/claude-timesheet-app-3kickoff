@@ -51,6 +51,7 @@ function toPublicEntry(row: TimesheetEntryRow): TimesheetEntry {
     schoolDayOverrideNote: row.schoolDayOverrideNote,
     supervisorPresentName: row.supervisorPresentName,
     mealBreakConfirmed: row.mealBreakConfirmed,
+    notes: row.notes,
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -191,6 +192,7 @@ export interface CreateEntryInput {
   schoolDayOverrideNote?: string | null;
   supervisorPresentName?: string | null;
   mealBreakConfirmed?: boolean | null;
+  notes?: string | null;
 }
 
 /**
@@ -261,6 +263,7 @@ export async function createEntry(
       schoolDayOverrideNote: input.schoolDayOverrideNote ?? null,
       supervisorPresentName: input.supervisorPresentName ?? null,
       mealBreakConfirmed: input.mealBreakConfirmed ?? null,
+      notes: input.notes ?? null,
     })
     .returning();
 
@@ -346,6 +349,7 @@ export async function createMultipleEntries(
           schoolDayOverrideNote: input.schoolDayOverrideNote ?? null,
           supervisorPresentName: input.supervisorPresentName ?? null,
           mealBreakConfirmed: input.mealBreakConfirmed ?? null,
+          notes: input.notes ?? null,
         })
         .returning();
 
@@ -375,6 +379,7 @@ export interface UpdateEntryInput {
   schoolDayOverrideNote?: string | null;
   supervisorPresentName?: string | null;
   mealBreakConfirmed?: boolean | null;
+  notes?: string | null;
 }
 
 /**
@@ -449,6 +454,7 @@ export async function updateEntry(
   if (input.supervisorPresentName !== undefined)
     updates.supervisorPresentName = input.supervisorPresentName;
   if (input.mealBreakConfirmed !== undefined) updates.mealBreakConfirmed = input.mealBreakConfirmed;
+  if (input.notes !== undefined) updates.notes = input.notes;
 
   const [updated] = await db
     .update(timesheetEntries)

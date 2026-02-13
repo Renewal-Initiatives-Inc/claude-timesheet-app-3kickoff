@@ -460,6 +460,7 @@ export interface CreateEntryRequest {
   schoolDayOverrideNote?: string | null;
   supervisorPresentName?: string | null;
   mealBreakConfirmed?: boolean | null;
+  notes?: string | null;
 }
 
 /**
@@ -473,6 +474,7 @@ export interface UpdateEntryRequest {
   schoolDayOverrideNote?: string | null;
   supervisorPresentName?: string | null;
   mealBreakConfirmed?: boolean | null;
+  notes?: string | null;
 }
 
 /**

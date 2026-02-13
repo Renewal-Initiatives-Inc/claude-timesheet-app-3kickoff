@@ -11,6 +11,10 @@ import {
   timesheetHistoryQuerySchema,
 } from '../validation/reports.schema.js';
 import { generateComplianceAuditCSV } from '../utils/compliance-export.js';
+import {
+  generateTimesheetHistoryXLSX,
+  generateTimesheetHistoryFilename,
+} from '../utils/timesheet-history-export.js';
 
 const router: Router = Router();
 
@@ -40,9 +44,13 @@ router.get('/my/timesheet-history', async (req: Request, res: Response) => {
     }
 
     // Force filter to current employee's data only
+    const { taskCodes: taskCodesParam, ...restData } = queryResult.data;
     const filters = {
-      ...queryResult.data,
+      ...restData,
       employeeId: req.employee!.id,
+      taskCodes: taskCodesParam
+        ? taskCodesParam.split(',').map((s) => s.trim()).filter(Boolean)
+        : undefined,
     };
     const report = await getTimesheetHistoryReport(filters);
 
@@ -164,10 +172,78 @@ router.get('/timesheet-history', async (req: Request, res: Response) => {
       return;
     }
 
-    const filters = queryResult.data;
+    const { taskCodes: taskCodesParam, ...restFilters } = queryResult.data;
+    const filters = {
+      ...restFilters,
+      taskCodes: taskCodesParam
+        ? taskCodesParam.split(',').map((s) => s.trim()).filter(Boolean)
+        : undefined,
+    };
     const report = await getTimesheetHistoryReport(filters);
 
     res.json(report);
+  } catch (error) {
+    if (error instanceof ReportError) {
+      const statusCode = getStatusCodeForError(error.code);
+      res.status(statusCode).json({
+        error: error.code,
+        message: error.message,
+      });
+      return;
+    }
+    throw error;
+  }
+});
+
+/**
+ * GET /api/reports/timesheet-history/export
+ * Export timesheet history as XLSX.
+ * Query params: same as /timesheet-history
+ */
+router.get('/timesheet-history/export', async (req: Request, res: Response) => {
+  try {
+    const queryResult = timesheetHistoryQuerySchema.safeParse(req.query);
+    if (!queryResult.success) {
+      res.status(400).json({
+        error: 'Validation Error',
+        message: 'Invalid query parameters',
+        details: queryResult.error.errors,
+      });
+      return;
+    }
+
+    const { taskCodes: taskCodesParam, ...restFilters } = queryResult.data;
+    const taskCodes = taskCodesParam
+      ? taskCodesParam.split(',').map((s) => s.trim()).filter(Boolean)
+      : undefined;
+    const filters = { ...restFilters, taskCodes };
+
+    const report = await getTimesheetHistoryReport(filters);
+
+    if (report.timesheets.length === 0) {
+      res.status(404).json({
+        error: 'NO_DATA_FOUND',
+        message: 'No timesheet history records found for the specified filters',
+      });
+      return;
+    }
+
+    const buffer = await generateTimesheetHistoryXLSX(
+      report.timesheets,
+      report.summary,
+      { startDate: restFilters.startDate, endDate: restFilters.endDate, taskCodes }
+    );
+    const filename = generateTimesheetHistoryFilename(
+      restFilters.startDate,
+      restFilters.endDate
+    );
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(buffer);
   } catch (error) {
     if (error instanceof ReportError) {
       const statusCode = getStatusCodeForError(error.code);

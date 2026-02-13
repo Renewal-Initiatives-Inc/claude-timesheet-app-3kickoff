@@ -280,16 +280,14 @@ export function MyTimesheetHistory() {
                     <>
                       <tr key={ts.id} data-testid={`my-timesheet-history-row-${ts.id}`}>
                         <td>
-                          {(ts.supervisorNotes || ts.complianceFailCount > 0) && (
-                            <button
-                              className="expand-button"
-                              onClick={() => toggleRowExpansion(ts.id)}
-                              aria-label={expandedRows.has(ts.id) ? 'Collapse' : 'Expand'}
-                              data-testid={`my-timesheet-history-expand-button-${ts.id}`}
-                            >
-                              {expandedRows.has(ts.id) ? '−' : '+'}
-                            </button>
-                          )}
+                          <button
+                            className="expand-button"
+                            onClick={() => toggleRowExpansion(ts.id)}
+                            aria-label={expandedRows.has(ts.id) ? 'Collapse' : 'Expand'}
+                            data-testid={`my-timesheet-history-expand-button-${ts.id}`}
+                          >
+                            {expandedRows.has(ts.id) ? '−' : '+'}
+                          </button>
                         </td>
                         <td className="week">{formatWeekRange(ts.weekStartDate)}</td>
                         <td>
@@ -329,6 +327,33 @@ export function MyTimesheetHistory() {
                                 <div className="detail-item compliance">
                                   <strong>Compliance:</strong> {ts.complianceFailCount} of{' '}
                                   {ts.complianceCheckCount} checks failed
+                                </div>
+                              )}
+                              {ts.entries.length > 0 && (
+                                <div className="detail-item entry-log">
+                                  <strong>Entries:</strong>
+                                  <table className="entry-log-table">
+                                    <thead>
+                                      <tr>
+                                        <th>Date</th>
+                                        <th>Task</th>
+                                        <th>Time</th>
+                                        <th>Hours</th>
+                                        <th>Notes</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {ts.entries.map((entry, i) => (
+                                        <tr key={i}>
+                                          <td>{entry.workDate}</td>
+                                          <td>{entry.taskCode} - {entry.taskName}</td>
+                                          <td>{entry.startTime} - {entry.endTime}</td>
+                                          <td>{parseFloat(entry.hours).toFixed(2)}</td>
+                                          <td className="entry-notes-cell">{entry.notes || '-'}</td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
                                 </div>
                               )}
                             </div>
