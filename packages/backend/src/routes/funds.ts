@@ -24,7 +24,7 @@ router.get('/', requireAuth, async (_req: Request, res: Response) => {
  * Sync funds from financial-system into local cache.
  * Supervisor-only (admin action).
  */
-router.post('/sync', requireSupervisor, async (_req: Request, res: Response) => {
+router.post('/sync', requireAuth, requireSupervisor, async (_req: Request, res: Response) => {
   try {
     const synced = await syncFundsFromFinancialSystem();
     res.json({ synced, message: `Synced ${synced} funds from financial-system` });
