@@ -3,6 +3,7 @@ import { db, schema } from '../db/index.js';
 import type { PayrollRecord } from '@renewal/types';
 import Decimal from 'decimal.js';
 import { getAgeBand, type AgeBand } from '../utils/age.js';
+import { getSalariedWeeklyPay, type ExemptStatus } from './compensation.service.js';
 
 // Type alias for Decimal instances
 type DecimalValue = InstanceType<typeof Decimal>;
@@ -179,58 +180,100 @@ export async function calculatePayrollForTimesheet(timesheetId: string): Promise
   periodEndDate.setDate(periodEndDate.getDate() + 6);
   const periodEnd = periodEndDate.toISOString().split('T')[0]!;
 
-  // Initialize accumulators using Decimal for precision
+  // Check if employee has salaried compensation from app-portal
+  let salariedData: Awaited<ReturnType<typeof getSalariedWeeklyPay>> = null;
+
+  try {
+    salariedData = await getSalariedWeeklyPay(timesheet.employeeId);
+  } catch (error) {
+    // Log but don't block payroll — fall back to task_code_rates
+    console.warn(
+      `Compensation lookup failed for employee ${timesheet.employeeId}, using task_code_rates:`,
+      error instanceof Error ? error.message : error
+    );
+  }
+
+  // Initialize accumulators
   let agriculturalHours = new Decimal(0);
   let agriculturalEarnings = new Decimal(0);
   let nonAgriculturalHours = new Decimal(0);
   let nonAgriculturalEarnings = new Decimal(0);
-  const warnings: string[] = [];
-
-  // Process each entry
-  for (const entry of timesheet.entries) {
-    const hours = new Decimal(entry.hours);
-
-    // Get effective rate for the work date
-    const rate = await getEffectiveRateForDate(entry.taskCodeId, entry.workDate);
-
-    // Validate minimum wage
-    const warning = validateMinimumWage(rate, entry.taskCode.isAgricultural, entry.taskCode.code);
-    if (warning) {
-      warnings.push(warning);
-    }
-
-    const earnings = hours.times(rate);
-
-    if (entry.taskCode.isAgricultural) {
-      agriculturalHours = agriculturalHours.plus(hours);
-      agriculturalEarnings = agriculturalEarnings.plus(earnings);
-    } else {
-      nonAgriculturalHours = nonAgriculturalHours.plus(hours);
-      nonAgriculturalEarnings = nonAgriculturalEarnings.plus(earnings);
-    }
-  }
-
-  // Calculate overtime (non-agricultural only, hours > 40)
   let overtimeHours = new Decimal(0);
   let overtimeEarnings = new Decimal(0);
+  let totalEarnings: DecimalValue;
+  const warnings: string[] = [];
 
-  if (nonAgriculturalHours.greaterThan(OVERTIME_THRESHOLD_HOURS)) {
-    overtimeHours = nonAgriculturalHours.minus(OVERTIME_THRESHOLD_HOURS);
+  if (salariedData) {
+    // ── SALARIED PATH ──────────────────────────────────────────────
+    // Fixed weekly pay = annual_salary / 52, regardless of hours.
+    // Hours determine fund allocation (Phase 4) and overtime eligibility.
+    // ag/non-ag distinction is irrelevant for salaried adults — all
+    // earnings go to nonAgriculturalEarnings for the payroll record.
+    const { weeklyPay, exemptStatus } = salariedData;
+    warnings.push(...salariedData.warnings);
 
-    // Calculate weighted average regular rate
-    // Weighted rate = total non-ag earnings / total non-ag hours
-    if (nonAgriculturalHours.greaterThan(0)) {
-      const weightedRate = nonAgriculturalEarnings.dividedBy(nonAgriculturalHours);
-
-      // OT premium = overtime hours × (weighted rate × 0.5)
-      // (The 1.0× is already included in the regular earnings)
-      const overtimePremium = overtimeHours.times(weightedRate.times(new Decimal('0.5')));
-      overtimeEarnings = overtimePremium;
+    // Tally total hours (task type doesn't affect salaried pay)
+    let totalHours = new Decimal(0);
+    for (const entry of timesheet.entries) {
+      totalHours = totalHours.plus(new Decimal(entry.hours));
     }
-  }
 
-  // Calculate total earnings
-  const totalEarnings = agriculturalEarnings.plus(nonAgriculturalEarnings).plus(overtimeEarnings);
+    // All salaried earnings recorded as non-agricultural
+    nonAgriculturalHours = totalHours;
+    nonAgriculturalEarnings = weeklyPay;
+
+    // Overtime for NON_EXEMPT salaried employees (FLSA fluctuating workweek)
+    // OT premium = (weeklyPay / actual hours) × 0.5 × overtime hours
+    if (
+      exemptStatus !== 'EXEMPT' &&
+      totalHours.greaterThan(OVERTIME_THRESHOLD_HOURS)
+    ) {
+      overtimeHours = totalHours.minus(OVERTIME_THRESHOLD_HOURS);
+      const regularRate = weeklyPay.dividedBy(totalHours);
+      overtimeEarnings = overtimeHours.times(regularRate).times(new Decimal('0.5'));
+    }
+
+    totalEarnings = weeklyPay.plus(overtimeEarnings);
+  } else {
+    // ── PER_TASK PATH (unchanged) ──────────────────────────────────
+    // Each entry: hours × task_code_rate (date-effective)
+    for (const entry of timesheet.entries) {
+      const hours = new Decimal(entry.hours);
+      const rate = await getEffectiveRateForDate(entry.taskCodeId, entry.workDate);
+
+      // Validate minimum wage
+      const warning = validateMinimumWage(
+        rate,
+        entry.taskCode.isAgricultural,
+        entry.taskCode.code
+      );
+      if (warning) {
+        warnings.push(warning);
+      }
+
+      const earnings = hours.times(rate);
+
+      if (entry.taskCode.isAgricultural) {
+        agriculturalHours = agriculturalHours.plus(hours);
+        agriculturalEarnings = agriculturalEarnings.plus(earnings);
+      } else {
+        nonAgriculturalHours = nonAgriculturalHours.plus(hours);
+        nonAgriculturalEarnings = nonAgriculturalEarnings.plus(earnings);
+      }
+    }
+
+    // Overtime for PER_TASK: non-agricultural hours > 40
+    if (nonAgriculturalHours.greaterThan(OVERTIME_THRESHOLD_HOURS)) {
+      overtimeHours = nonAgriculturalHours.minus(OVERTIME_THRESHOLD_HOURS);
+
+      if (nonAgriculturalHours.greaterThan(0)) {
+        const weightedRate = nonAgriculturalEarnings.dividedBy(nonAgriculturalHours);
+        overtimeEarnings = overtimeHours.times(weightedRate.times(new Decimal('0.5')));
+      }
+    }
+
+    totalEarnings = agriculturalEarnings.plus(nonAgriculturalEarnings).plus(overtimeEarnings);
+  }
 
   // Log warnings if any
   if (warnings.length > 0) {

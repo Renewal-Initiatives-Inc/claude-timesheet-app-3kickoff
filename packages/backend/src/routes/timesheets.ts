@@ -36,6 +36,7 @@ import { db, schema } from '../db/index.js';
 import { eq } from 'drizzle-orm';
 import type { TimesheetStatus } from '@renewal/types';
 import { generateEntryCSV, generateEntryFilename, type EntryExportRow } from '../utils/entry-export.js';
+import { getTimesheetStagingStatus, refreshStagingStatus } from '../services/staging.service.js';
 
 const router: Router = Router();
 
@@ -736,6 +737,41 @@ router.get('/:id/week-info', async (req: Request, res: Response) => {
         error: error.code,
         message: error.message,
       });
+      return;
+    }
+    throw error;
+  }
+});
+
+/**
+ * GET /api/timesheets/:id/financial-status
+ * Get financial system staging status for a timesheet.
+ * Shows per-fund submission status (received → posted → paid).
+ */
+router.get('/:id/financial-status', async (req: Request, res: Response) => {
+  try {
+    const id = req.params['id'] as string;
+
+    // Verify access (owner or supervisor)
+    const hasAccess = await validateTimesheetAccess(id, req.employee!.id);
+    if (!hasAccess && !req.employee!.isSupervisor) {
+      res.status(403).json({
+        error: 'TIMESHEET_ACCESS_DENIED',
+        message: 'You do not have access to this timesheet',
+      });
+      return;
+    }
+
+    // Optionally refresh from financial-system
+    if (req.query['refresh'] === 'true') {
+      await refreshStagingStatus(id);
+    }
+
+    const status = await getTimesheetStagingStatus(id);
+    res.json({ timesheetId: id, ...status });
+  } catch (error) {
+    if (error instanceof TimesheetError) {
+      res.status(404).json({ error: error.code, message: error.message });
       return;
     }
     throw error;

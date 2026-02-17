@@ -4,6 +4,7 @@ import { useReviewCount } from '../contexts/ReviewCountContext.js';
 import { TimelineView } from '../components/TimelineView.js';
 import { ComplianceSummary } from '../components/ComplianceSummary.js';
 import { ReviewActions } from '../components/ReviewActions.js';
+import { FinancialStatusBadge } from '../components/FinancialStatusBadge.js';
 import './ReviewDetail.css';
 
 /**
@@ -133,6 +134,12 @@ export function ReviewDetail() {
               </span>
             </div>
           </div>
+          {timesheetId && (
+            <FinancialStatusBadge
+              timesheetId={timesheetId}
+              timesheetStatus={timesheet.status}
+            />
+          )}
         </div>
       </section>
 

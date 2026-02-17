@@ -147,13 +147,19 @@ router.post(
 
       const result = await approveTimesheet(id, req.employee!.id, notes);
 
+      const messages: string[] = [];
+      if (result.payrollError) messages.push('payroll calculation failed');
+      if (result.stagingError) messages.push('financial staging failed');
+
       res.json({
         success: true,
         timesheet: result.timesheet,
         payroll: result.payroll,
         payrollError: result.payrollError,
-        message: result.payrollError
-          ? 'Timesheet approved but payroll calculation failed'
+        staging: result.staging,
+        stagingError: result.stagingError,
+        message: messages.length > 0
+          ? `Timesheet approved but ${messages.join(' and ')}`
           : 'Timesheet approved and payroll calculated successfully',
       });
     } catch (error) {

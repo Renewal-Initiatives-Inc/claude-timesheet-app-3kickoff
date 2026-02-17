@@ -52,6 +52,7 @@ function toPublicEntry(row: TimesheetEntryRow): TimesheetEntry {
     supervisorPresentName: row.supervisorPresentName,
     mealBreakConfirmed: row.mealBreakConfirmed,
     notes: row.notes,
+    fundId: row.fundId,
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -193,6 +194,7 @@ export interface CreateEntryInput {
   supervisorPresentName?: string | null;
   mealBreakConfirmed?: boolean | null;
   notes?: string | null;
+  fundId?: number | null;
 }
 
 /**
@@ -264,6 +266,7 @@ export async function createEntry(
       supervisorPresentName: input.supervisorPresentName ?? null,
       mealBreakConfirmed: input.mealBreakConfirmed ?? null,
       notes: input.notes ?? null,
+      fundId: input.fundId ?? null,
     })
     .returning();
 
@@ -350,6 +353,7 @@ export async function createMultipleEntries(
           supervisorPresentName: input.supervisorPresentName ?? null,
           mealBreakConfirmed: input.mealBreakConfirmed ?? null,
           notes: input.notes ?? null,
+          fundId: input.fundId ?? null,
         })
         .returning();
 
@@ -380,6 +384,7 @@ export interface UpdateEntryInput {
   supervisorPresentName?: string | null;
   mealBreakConfirmed?: boolean | null;
   notes?: string | null;
+  fundId?: number | null;
 }
 
 /**
@@ -455,6 +460,7 @@ export async function updateEntry(
     updates.supervisorPresentName = input.supervisorPresentName;
   if (input.mealBreakConfirmed !== undefined) updates.mealBreakConfirmed = input.mealBreakConfirmed;
   if (input.notes !== undefined) updates.notes = input.notes;
+  if (input.fundId !== undefined) updates.fundId = input.fundId;
 
   const [updated] = await db
     .update(timesheetEntries)

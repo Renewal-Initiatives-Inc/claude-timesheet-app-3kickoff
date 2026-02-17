@@ -5,6 +5,7 @@ import type {
   TimesheetEntryWithTaskCode,
 } from '@renewal/types';
 import { useTaskCodesForEmployee } from '../hooks/useTaskCodes.js';
+import { useFunds } from '../hooks/useFunds.js';
 import './EntryFormModal.css';
 
 interface EntryFormModalProps {
@@ -55,6 +56,7 @@ interface EntryFormData {
   supervisorPresentName: string;
   mealBreakConfirmed: boolean | null;
   notes: string;
+  fundId: string; // '' = General Fund (default), otherwise fund.id as string
 }
 
 interface FormErrors {
@@ -78,6 +80,7 @@ export function EntryFormModal({
   isSchoolDay,
 }: EntryFormModalProps) {
   const { taskCodes, loading: loadingTasks } = useTaskCodesForEmployee(employeeId, date);
+  const { funds, loading: loadingFunds } = useFunds();
   const [formData, setFormData] = useState<EntryFormData>({
     taskCodeId: '',
     startTime: '',
@@ -85,6 +88,7 @@ export function EntryFormModal({
     supervisorPresentName: '',
     mealBreakConfirmed: null,
     notes: '',
+    fundId: '',
   });
   const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
@@ -99,6 +103,7 @@ export function EntryFormModal({
         supervisorPresentName: entry.supervisorPresentName || '',
         mealBreakConfirmed: entry.mealBreakConfirmed,
         notes: entry.notes || '',
+        fundId: entry.fundId != null ? String(entry.fundId) : '',
       });
     } else {
       setFormData({
@@ -108,6 +113,7 @@ export function EntryFormModal({
         supervisorPresentName: '',
         mealBreakConfirmed: null,
         notes: '',
+        fundId: '',
       });
     }
     setFieldErrors({});
@@ -156,6 +162,7 @@ export function EntryFormModal({
 
     setSubmitting(true);
     try {
+      const parsedFundId = formData.fundId ? Number(formData.fundId) : null;
       const data: CreateEntryRequest | UpdateEntryRequest = entry
         ? {
             startTime: formData.startTime,
@@ -166,6 +173,7 @@ export function EntryFormModal({
               : null,
             mealBreakConfirmed: needsMealBreakConfirmation ? formData.mealBreakConfirmed : null,
             notes: formData.notes.trim() || null,
+            fundId: parsedFundId,
           }
         : {
             workDate: date,
@@ -178,6 +186,7 @@ export function EntryFormModal({
               : null,
             mealBreakConfirmed: needsMealBreakConfirmation ? formData.mealBreakConfirmed : null,
             notes: formData.notes.trim() || null,
+            fundId: parsedFundId,
           };
 
       await onSubmit(data);
@@ -236,6 +245,29 @@ export function EntryFormModal({
               <span className="field-error">{fieldErrors.taskCodeId}</span>
             )}
           </div>
+
+          {funds.length > 0 && (
+            <div className="form-group">
+              <label htmlFor="fundId">Fund</label>
+              {loadingFunds ? (
+                <div className="loading-tasks">Loading funds...</div>
+              ) : (
+                <select
+                  id="fundId"
+                  value={formData.fundId}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, fundId: e.target.value }))}
+                  data-testid="field-fundId"
+                >
+                  <option value="">General Fund (Default)</option>
+                  {funds.map((fund) => (
+                    <option key={fund.id} value={fund.id}>
+                      {fund.fundCode} - {fund.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+          )}
 
           <div className="form-row">
             <div className="form-group">

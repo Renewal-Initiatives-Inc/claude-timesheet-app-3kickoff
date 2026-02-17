@@ -88,7 +88,38 @@ export interface TimesheetEntry {
   supervisorPresentName: string | null;
   mealBreakConfirmed: boolean | null;
   notes: string | null;
+  fundId: number | null; // references financial-system funds.id; NULL = General Fund
   createdAt: string;
+}
+
+// Fund (cached from financial-system)
+export interface CachedFund {
+  id: number;
+  name: string;
+  fundCode: string;
+  isActive: boolean;
+}
+
+// Staging Sync Status (local tracking of financial-system submissions)
+export type StagingSyncStatusValue = 'received' | 'posted' | 'matched_to_payment' | 'paid' | 'error';
+
+export interface StagingSyncRecord {
+  id: string;
+  timesheetId: string;
+  sourceRecordId: string;
+  fundId: number;
+  amount: string; // Decimal as string
+  status: StagingSyncStatusValue;
+  metadata: StagingMetadata | null;
+  syncedAt: string;
+  lastCheckedAt: string | null;
+}
+
+export interface StagingMetadata {
+  regularHours: string;
+  overtimeHours: string;
+  regularEarnings: string;
+  overtimeEarnings: string;
 }
 
 // Compliance

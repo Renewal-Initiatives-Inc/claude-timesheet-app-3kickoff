@@ -11,6 +11,7 @@ import type {
 } from '@renewal/types';
 import { getTimesheetWithEntries } from './timesheet.service.js';
 import { calculatePayrollForTimesheet } from './payroll.service.js';
+import { submitStagingRecords, type StagingSubmitResult } from './staging.service.js';
 
 const { timesheets, employees, complianceCheckLogs } = schema;
 
@@ -193,6 +194,8 @@ export interface ApproveTimesheetResult {
   timesheet: Timesheet;
   payroll?: PayrollRecord;
   payrollError?: string;
+  staging?: StagingSubmitResult;
+  stagingError?: string;
 }
 
 /**
@@ -237,17 +240,28 @@ export async function approveTimesheet(
   const approvedTimesheet = toPublicTimesheet(updated!);
 
   // Calculate payroll
+  let payroll: PayrollRecord | undefined;
+  let payrollError: string | undefined;
+
   try {
-    const payroll = await calculatePayrollForTimesheet(timesheetId);
-    return { timesheet: approvedTimesheet, payroll };
+    payroll = await calculatePayrollForTimesheet(timesheetId);
   } catch (error) {
-    // Log error but don't block approval
     console.error('Payroll calculation failed for timesheet', timesheetId, error);
-    return {
-      timesheet: approvedTimesheet,
-      payrollError: 'Payroll calculation pending - manual recalculation required',
-    };
+    payrollError = 'Payroll calculation pending - manual recalculation required';
   }
+
+  // Submit staging records to financial-system (non-blocking)
+  let staging: StagingSubmitResult | undefined;
+  let stagingError: string | undefined;
+
+  try {
+    staging = await submitStagingRecords(timesheetId);
+  } catch (error) {
+    console.error('Staging submission failed for timesheet', timesheetId, error);
+    stagingError = error instanceof Error ? error.message : 'Staging submission failed';
+  }
+
+  return { timesheet: approvedTimesheet, payroll, payrollError, staging, stagingError };
 }
 
 /**

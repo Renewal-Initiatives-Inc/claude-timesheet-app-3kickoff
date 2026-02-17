@@ -20,6 +20,7 @@ import timesheetsRouter from './routes/timesheets.js';
 import supervisorRouter from './routes/supervisor.js';
 import payrollRouter from './routes/payroll.js';
 import reportsRouter from './routes/reports.js';
+import fundsRouter from './routes/funds.js';
 
 const app: Express = express();
 
@@ -99,6 +100,7 @@ app.use('/api/timesheets', timesheetsRouter);
 app.use('/api/supervisor', supervisorRouter);
 app.use('/api/payroll', payrollRouter);
 app.use('/api/reports', reportsRouter);
+app.use('/api/funds', fundsRouter);
 // Document upload endpoint is nested under employees
 app.use('/api', documentsRouter);
 

@@ -195,6 +195,7 @@ export async function getTimesheetWithEntries(
     supervisorPresentName: entry.supervisorPresentName,
     mealBreakConfirmed: entry.mealBreakConfirmed,
     notes: entry.notes,
+    fundId: entry.fundId,
     createdAt: entry.createdAt.toISOString(),
     taskCode: {
       id: entry.taskCode.id,
@@ -330,6 +331,7 @@ export interface TimesheetEntryWithTaskCode {
   supervisorPresentName: string | null;
   mealBreakConfirmed: boolean | null;
   notes: string | null;
+  fundId: number | null;
   createdAt: string;
   taskCode: {
     id: string;

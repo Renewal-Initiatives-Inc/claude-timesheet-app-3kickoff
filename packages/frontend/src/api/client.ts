@@ -24,6 +24,8 @@ import type {
   UpdateEntryRequest,
   TimesheetTotals,
   WeekInfo,
+  FundListResponse,
+  FundSyncResponse,
 } from '@renewal/types';
 
 const API_BASE = '/api';
@@ -884,4 +886,52 @@ export async function approveTimesheetWithPayroll(
     method: 'POST',
     body: JSON.stringify({ notes }),
   });
+}
+
+// ============================================================================
+// Funds (financial-system integration)
+// ============================================================================
+
+// ============================================================================
+// Financial Status API (staging sync)
+// ============================================================================
+
+export interface FinancialStatusRecord {
+  id: string;
+  sourceRecordId: string;
+  fundId: number;
+  amount: string;
+  status: string;
+  syncedAt: string;
+  lastCheckedAt: string | null;
+  metadata: unknown;
+}
+
+export interface TimesheetFinancialStatusResponse {
+  timesheetId: string;
+  records: FinancialStatusRecord[];
+  allPosted: boolean;
+}
+
+/**
+ * Get financial system staging status for a timesheet.
+ */
+export async function getTimesheetFinancialStatus(
+  timesheetId: string,
+  refresh = false
+): Promise<TimesheetFinancialStatusResponse> {
+  const params = refresh ? '?refresh=true' : '';
+  return apiRequest(`/timesheets/${timesheetId}/financial-status${params}`);
+}
+
+// ============================================================================
+// Funds (financial-system integration)
+// ============================================================================
+
+export async function getFunds(): Promise<FundListResponse> {
+  return apiRequest('/funds');
+}
+
+export async function syncFunds(): Promise<FundSyncResponse> {
+  return apiRequest('/funds/sync', { method: 'POST' });
 }

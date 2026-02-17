@@ -6,6 +6,7 @@ import {
   type TimesheetHistorySummary,
 } from '../api/reports.js';
 import { Breadcrumb } from '../components/Breadcrumb.js';
+import { FinancialStatusBadge } from '../components/FinancialStatusBadge.js';
 import './TimesheetHistoryReport.css';
 
 /**
@@ -271,6 +272,7 @@ export function MyTimesheetHistory() {
                     <th className="numeric">Hours</th>
                     <th className="numeric">Earnings</th>
                     <th>Compliance</th>
+                    <th>Financial</th>
                     <th>Reviewed</th>
                     <th>Actions</th>
                   </tr>
@@ -307,6 +309,13 @@ export function MyTimesheetHistory() {
                             <span className="compliance-ok">OK</span>
                           )}
                         </td>
+                        <td>
+                          <FinancialStatusBadge
+                            timesheetId={ts.id}
+                            timesheetStatus={ts.status}
+                            compact
+                          />
+                        </td>
                         <td className="reviewed">{formatTimestamp(ts.reviewedAt)}</td>
                         <td>
                           <a href={`/timesheet/${ts.weekStartDate}`} className="view-link">
@@ -316,7 +325,7 @@ export function MyTimesheetHistory() {
                       </tr>
                       {expandedRows.has(ts.id) && (
                         <tr key={`${ts.id}-details`} className="details-row">
-                          <td colSpan={8}>
+                          <td colSpan={9}>
                             <div className="details-content">
                               {ts.supervisorNotes && (
                                 <div className="detail-item notes">

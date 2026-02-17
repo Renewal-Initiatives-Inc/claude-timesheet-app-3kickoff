@@ -5,6 +5,7 @@
 
 import type {
   AgeBand,
+  CachedFund,
   DocumentType,
   EmployeeDocument,
   SupervisorRequired,
@@ -398,6 +399,52 @@ export type TaskCodeErrorCode =
   | 'EMPLOYEE_NOT_FOUND';
 
 // ============================================================================
+// Fund Types (financial-system integration)
+// ============================================================================
+
+/**
+ * Fund list response (from local cache).
+ */
+export interface FundListResponse {
+  funds: CachedFund[];
+}
+
+/**
+ * Fund sync response.
+ */
+export interface FundSyncResponse {
+  synced: number;
+  message: string;
+}
+
+// ============================================================================
+// Staging Record Types (financial-system integration)
+// ============================================================================
+
+import type { StagingSyncRecord } from './db.js';
+
+/**
+ * Result of submitting staging records on approval.
+ */
+export interface StagingSubmitResult {
+  submitted: number;
+  records: Array<{
+    sourceRecordId: string;
+    fundId: number;
+    amount: string;
+  }>;
+}
+
+/**
+ * Financial status for a timesheet (per-fund staging status).
+ */
+export interface TimesheetFinancialStatus {
+  timesheetId: string;
+  records: StagingSyncRecord[];
+  allPosted: boolean;
+}
+
+// ============================================================================
 // Timesheet Types
 // ============================================================================
 
@@ -461,6 +508,7 @@ export interface CreateEntryRequest {
   supervisorPresentName?: string | null;
   mealBreakConfirmed?: boolean | null;
   notes?: string | null;
+  fundId?: number | null; // references financial-system funds.id; omit or null = General Fund
 }
 
 /**
@@ -475,6 +523,7 @@ export interface UpdateEntryRequest {
   supervisorPresentName?: string | null;
   mealBreakConfirmed?: boolean | null;
   notes?: string | null;
+  fundId?: number | null;
 }
 
 /**

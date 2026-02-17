@@ -1,6 +1,8 @@
 import {
   pgTable,
   uuid,
+  integer,
+  varchar,
   date,
   time,
   decimal,
@@ -8,6 +10,7 @@ import {
   text,
   timestamp,
   index,
+  jsonb,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { timesheetStatusEnum } from './enums.js';
@@ -58,6 +61,7 @@ export const timesheetEntries = pgTable('timesheet_entries', {
   supervisorPresentName: text('supervisor_present_name'),
   mealBreakConfirmed: boolean('meal_break_confirmed'),
   notes: text('notes'),
+  fundId: integer('fund_id'), // nullable — NULL means General Fund; references financial-system funds table (not a local FK)
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -82,5 +86,36 @@ export const timesheetEntriesRelations = relations(timesheetEntries, ({ one }) =
   taskCode: one(taskCodes, {
     fields: [timesheetEntries.taskCodeId],
     references: [taskCodes.id],
+  }),
+}));
+
+// Local cache of financial-system funds (for dropdown rendering)
+export const fundsCache = pgTable('funds_cache', {
+  id: integer('id').primaryKey(), // mirrors financial-system funds.id
+  name: varchar('name', { length: 255 }).notNull(),
+  fundCode: varchar('fund_code', { length: 20 }).notNull(),
+  isActive: boolean('is_active').notNull().default(true),
+  cachedAt: timestamp('cached_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Local tracking of staging_records submitted to financial-system
+export const stagingSyncStatus = pgTable('staging_sync_status', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  timesheetId: uuid('timesheet_id')
+    .notNull()
+    .references(() => timesheets.id, { onDelete: 'restrict' }),
+  sourceRecordId: varchar('source_record_id', { length: 255 }).notNull(),
+  fundId: integer('fund_id').notNull(),
+  amount: decimal('amount', { precision: 12, scale: 2 }).notNull(),
+  status: varchar('status', { length: 20 }).notNull().default('received'),
+  metadata: jsonb('metadata'),
+  syncedAt: timestamp('synced_at', { withTimezone: true }).notNull().defaultNow(),
+  lastCheckedAt: timestamp('last_checked_at', { withTimezone: true }),
+});
+
+export const stagingSyncStatusRelations = relations(stagingSyncStatus, ({ one }) => ({
+  timesheet: one(timesheets, {
+    fields: [stagingSyncStatus.timesheetId],
+    references: [timesheets.id],
   }),
 }));
