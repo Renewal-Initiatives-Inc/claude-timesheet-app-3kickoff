@@ -93,7 +93,6 @@ export const timesheetEntriesRelations = relations(timesheetEntries, ({ one }) =
 export const fundsCache = pgTable('funds_cache', {
   id: integer('id').primaryKey(), // mirrors financial-system funds.id
   name: varchar('name', { length: 255 }).notNull(),
-  fundCode: varchar('fund_code', { length: 20 }).notNull(),
   isActive: boolean('is_active').notNull().default(true),
   cachedAt: timestamp('cached_at', { withTimezone: true }).notNull().defaultNow(),
 });

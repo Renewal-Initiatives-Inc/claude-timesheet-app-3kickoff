@@ -96,7 +96,6 @@ export interface TimesheetEntry {
 export interface CachedFund {
   id: number;
   name: string;
-  fundCode: string;
   isActive: boolean;
 }
 

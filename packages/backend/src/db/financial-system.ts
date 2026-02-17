@@ -34,8 +34,9 @@ const { Pool } = pg;
 export const funds = pgTable('funds', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
-  fundCode: varchar('fund_code', { length: 20 }).notNull(),
+  restrictionType: varchar('restriction_type', { length: 20 }).notNull(),
   isActive: boolean('is_active').notNull().default(true),
+  description: text('description'),
 });
 
 export const accounts = pgTable('accounts', {

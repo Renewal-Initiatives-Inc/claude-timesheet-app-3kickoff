@@ -261,7 +261,7 @@ export function EntryFormModal({
                   <option value="">General Fund (Default)</option>
                   {funds.map((fund) => (
                     <option key={fund.id} value={fund.id}>
-                      {fund.fundCode} - {fund.name}
+                      {fund.name}
                     </option>
                   ))}
                 </select>

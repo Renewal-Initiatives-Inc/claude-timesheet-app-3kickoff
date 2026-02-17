@@ -21,12 +21,11 @@ export async function syncFundsFromFinancialSystem(): Promise<number> {
     );
   }
 
-  // Read all active funds from financial-system
+  // Read all funds from financial-system
   const remoteFunds = await financialDb
     .select({
       id: externalFunds.id,
       name: externalFunds.name,
-      fundCode: externalFunds.fundCode,
       isActive: externalFunds.isActive,
     })
     .from(externalFunds);
@@ -42,7 +41,6 @@ export async function syncFundsFromFinancialSystem(): Promise<number> {
         .update(fundsCache)
         .set({
           name: fund.name,
-          fundCode: fund.fundCode,
           isActive: fund.isActive,
           cachedAt: new Date(),
         })
@@ -51,7 +49,6 @@ export async function syncFundsFromFinancialSystem(): Promise<number> {
       await db.insert(fundsCache).values({
         id: fund.id,
         name: fund.name,
-        fundCode: fund.fundCode,
         isActive: fund.isActive,
         cachedAt: new Date(),
       });
@@ -85,7 +82,6 @@ export async function getCachedFunds(includeInactive = false): Promise<{
     funds: filtered.map((f) => ({
       id: f.id,
       name: f.name,
-      fundCode: f.fundCode,
       isActive: f.isActive,
     })),
     lastSyncedAt,
