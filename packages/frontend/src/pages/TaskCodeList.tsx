@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTaskCodes } from '../hooks/useTaskCodes.js';
+import { getFunds, syncFunds } from '../api/client.js';
 import './TaskCodeList.css';
 
 export function TaskCodeList() {
@@ -8,6 +9,13 @@ export function TaskCodeList() {
   const [isHazardous, setIsHazardous] = useState<'true' | 'false' | ''>('');
   const [includeInactive, setIncludeInactive] = useState<'true' | 'false'>('false');
   const [search, setSearch] = useState('');
+  const [syncing, setSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState('');
+  const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
+
+  useEffect(() => {
+    getFunds().then((res) => setLastSyncedAt(res.lastSyncedAt)).catch(() => {});
+  }, []);
 
   const { taskCodes, loading, error, refetch } = useTaskCodes({
     isAgricultural: isAgricultural || undefined,
@@ -20,10 +28,47 @@ export function TaskCodeList() {
     <div className="task-code-list-page">
       <header className="page-header">
         <h1>Task Codes</h1>
-        <Link to="/task-codes/new" className="add-button" data-testid="task-code-add-button">
-          + Add Task Code
-        </Link>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem' }}>
+            <button
+              className="sync-funds-button"
+              data-testid="sync-funds-button"
+              disabled={syncing}
+              onClick={async () => {
+                setSyncing(true);
+                setSyncMessage('');
+                try {
+                  const result = await syncFunds();
+                  setSyncMessage(`Synced ${result.synced} funds`);
+                  setLastSyncedAt(new Date().toISOString());
+                  setTimeout(() => setSyncMessage(''), 4000);
+                } catch (err) {
+                  setSyncMessage(err instanceof Error ? err.message : 'Sync failed');
+                  setTimeout(() => setSyncMessage(''), 6000);
+                } finally {
+                  setSyncing(false);
+                }
+              }}
+            >
+              {syncing ? 'Syncing...' : 'Sync Funds'}
+            </button>
+            {lastSyncedAt && (
+              <span className="sync-timestamp" data-testid="sync-timestamp">
+                Last: {new Date(lastSyncedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}{' '}
+                {new Date(lastSyncedAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
+              </span>
+            )}
+          </div>
+          <Link to="/task-codes/new" className="add-button" data-testid="task-code-add-button">
+            + Add Task Code
+          </Link>
+        </div>
       </header>
+      {syncMessage && (
+        <div style={{ padding: '0.5rem 1rem', marginBottom: '1rem', background: syncMessage.includes('failed') || syncMessage.includes('Failed') ? '#fef2f2' : '#f0fdf4', border: `1px solid ${syncMessage.includes('failed') || syncMessage.includes('Failed') ? '#fecaca' : '#bbf7d0'}`, borderRadius: '6px', fontSize: '0.875rem' }}>
+          {syncMessage}
+        </div>
+      )}
 
       <div className="filters">
         <div className="filter-group">

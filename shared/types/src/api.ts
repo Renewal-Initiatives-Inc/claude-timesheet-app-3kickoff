@@ -407,6 +407,7 @@ export type TaskCodeErrorCode =
  */
 export interface FundListResponse {
   funds: CachedFund[];
+  lastSyncedAt: string | null;
 }
 
 /**

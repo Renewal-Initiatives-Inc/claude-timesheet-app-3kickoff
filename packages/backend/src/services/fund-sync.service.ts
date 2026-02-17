@@ -64,15 +64,30 @@ export async function syncFundsFromFinancialSystem(): Promise<number> {
 /**
  * Get all cached funds (active only by default).
  */
-export async function getCachedFunds(includeInactive = false): Promise<CachedFund[]> {
+export async function getCachedFunds(includeInactive = false): Promise<{
+  funds: CachedFund[];
+  lastSyncedAt: string | null;
+}> {
   const allFunds = await db.query.fundsCache.findMany();
 
   const filtered = includeInactive ? allFunds : allFunds.filter((f) => f.isActive);
 
-  return filtered.map((f) => ({
-    id: f.id,
-    name: f.name,
-    fundCode: f.fundCode,
-    isActive: f.isActive,
-  }));
+  // Find the most recent cached_at timestamp
+  let lastSyncedAt: string | null = null;
+  if (allFunds.length > 0) {
+    const latest = allFunds.reduce((max, f) =>
+      f.cachedAt > max.cachedAt ? f : max
+    );
+    lastSyncedAt = latest.cachedAt.toISOString();
+  }
+
+  return {
+    funds: filtered.map((f) => ({
+      id: f.id,
+      name: f.name,
+      fundCode: f.fundCode,
+      isActive: f.isActive,
+    })),
+    lastSyncedAt,
+  };
 }

@@ -492,7 +492,28 @@ Supervisor approves timesheet
 - [x] MyTimesheetHistory: new "Financial" column with compact status badges
 - [x] TypeScript build passes cleanly
 
+### Session 5: 2026-02-17 (Phase 6 — Testing + Sync Funds UI)
+
+**Completed:**
+- [x] Unit tests: `staging.service.test.ts` (20 tests) — aggregation, pro-rata distribution, idempotency, error codes
+- [x] Unit tests: `compensation.service.test.ts` (19 tests) — SALARIED/PER_TASK, FLSA compliance, graceful degradation
+- [x] All 39 tests passing, TypeScript build clean
+- [x] Committed + pushed: `14afa5d` → deployed to Vercel production (build succeeded)
+- [x] Verified: all Vercel env vars present (FINANCIAL_SYSTEM_DATABASE_URL, PEOPLE_DATABASE_URL, both Production + Preview)
+- [x] Verified: migrations 0005 + 0006 already applied to production DB
+- [x] Added "Sync Funds" button to Task Codes page (blue, next to green "+ Add Task Code") — NOT YET COMMITTED
+
+### Session 6: 2026-02-17 (Sync Funds Timestamp + Deploy)
+
+**Completed:**
+- [x] Added `lastSyncedAt` to `GET /api/funds` response (max `cached_at` from `funds_cache`)
+- [x] Updated `FundListResponse` type with `lastSyncedAt: string | null`
+- [x] Added timestamp display below Sync Funds button (e.g., "Last: Feb 17, 4:30 PM")
+- [x] Updated after sync: shows current time immediately
+
 **Remaining:**
-- [ ] Phase 6: Testing & Verification
-- [ ] Smoke test: approve a timesheet → verify staging records appear in financial-system
-- [ ] Verify status read-back works end-to-end
+- [ ] Smoke test: click "Sync Funds" on Task Codes page → verify funds populate
+- [ ] Smoke test: fund dropdown appears in entry form after sync
+- [ ] Smoke test: approve timesheet → staging records appear in financial-system
+- [ ] Smoke test: financial status badges on MyTimesheetHistory + ReviewDetail
+- [ ] Verify status read-back end-to-end

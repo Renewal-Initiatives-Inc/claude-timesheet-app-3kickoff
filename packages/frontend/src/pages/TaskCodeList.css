@@ -28,6 +28,32 @@
   background: #1e3c21;
 }
 
+.sync-funds-button {
+  padding: 0.75rem 1.5rem;
+  background: #1e40af;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: inherit;
+}
+
+.sync-funds-button:hover {
+  background: #1e3a8a;
+}
+
+.sync-funds-button:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+}
+
+.sync-timestamp {
+  font-size: 0.6875rem;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
 .filters {
   display: flex;
   gap: 1rem;

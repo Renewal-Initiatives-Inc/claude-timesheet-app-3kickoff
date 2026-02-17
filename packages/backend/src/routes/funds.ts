@@ -11,8 +11,8 @@ const router: Router = Router();
  */
 router.get('/', requireAuth, async (_req: Request, res: Response) => {
   try {
-    const funds = await getCachedFunds();
-    res.json({ funds });
+    const { funds, lastSyncedAt } = await getCachedFunds();
+    res.json({ funds, lastSyncedAt });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Failed to fetch funds';
     res.status(500).json({ error: 'FETCH_FUNDS_FAILED', message });
