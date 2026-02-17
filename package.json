@@ -12,7 +12,7 @@
     "dev": "concurrently \"npm run dev -w @renewal/backend\" \"npm run dev -w @renewal/frontend\"",
     "dev:backend": "npm run dev -w @renewal/backend",
     "dev:frontend": "npm run dev -w @renewal/frontend",
-    "build": "npm run build -w @renewal/backend && npm run build -w @renewal/frontend",
+    "build": "npm run build -w @renewal/types && npm run build -w @renewal/backend && npm run build -w @renewal/frontend",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
