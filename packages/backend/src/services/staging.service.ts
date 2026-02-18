@@ -127,6 +127,21 @@ export async function submitStagingRecords(
     );
   }
 
+  // Resolve the employee's Zitadel ID for cross-system identity
+  const employee = await db.query.employees.findFirst({
+    where: eq(schema.employees.id, timesheet.employeeId),
+    columns: { zitadelId: true },
+  });
+
+  if (!employee?.zitadelId) {
+    throw new StagingError(
+      `Employee ${timesheet.employeeId} has no Zitadel ID — cannot submit staging records`,
+      'STAGING_INSERT_FAILED'
+    );
+  }
+
+  const zitadelEmployeeId = employee.zitadelId;
+
   // Get payroll record for earnings data
   const payrollRecord = await db.query.payrollRecords.findFirst({
     where: eq(schema.payrollRecords.timesheetId, timesheetId),
@@ -230,7 +245,7 @@ export async function submitStagingRecords(
       sourceApp: 'timesheets' as const,
       sourceRecordId,
       recordType: 'timesheet_fund_summary' as const,
-      employeeId: timesheet.employeeId,
+      employeeId: zitadelEmployeeId,
       referenceId: timesheetId,
       dateIncurred,
       amount: agg.totalAmount.toFixed(2),
