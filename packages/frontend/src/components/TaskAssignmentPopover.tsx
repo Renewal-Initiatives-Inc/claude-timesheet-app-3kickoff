@@ -4,6 +4,7 @@ import type {
   EntryPreviewRequest,
   EntryCompliancePreview,
 } from '@renewal/types';
+import { useFunds } from '../hooks/useFunds.js';
 import './TaskAssignmentPopover.css';
 
 interface TaskAssignmentPopoverProps {
@@ -19,7 +20,8 @@ interface TaskAssignmentPopoverProps {
     taskCodeId: string,
     supervisorName?: string,
     mealBreakConfirmed?: boolean,
-    notes?: string
+    notes?: string,
+    fundId?: number | null
   ) => Promise<void>;
   onClose: () => void;
 }
@@ -58,11 +60,13 @@ export function TaskAssignmentPopover({
   onClose,
 }: TaskAssignmentPopoverProps) {
   const [selectedTaskId, setSelectedTaskId] = useState('');
+  const [selectedFundId, setSelectedFundId] = useState('');
   const [supervisorName, setSupervisorName] = useState('');
   const [mealBreakConfirmed, setMealBreakConfirmed] = useState(false);
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { funds, loading: loadingFunds } = useFunds();
 
   // Compliance preview state
   const [preview, setPreview] = useState<EntryCompliancePreview | null>(null);
@@ -160,7 +164,8 @@ export function TaskAssignmentPopover({
         selectedTaskId,
         needsSupervisor ? supervisorName : undefined,
         needsMealBreak ? mealBreakConfirmed : undefined,
-        notes.trim() || undefined
+        notes.trim() || undefined,
+        selectedFundId ? Number(selectedFundId) : null
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create entry');
@@ -316,6 +321,29 @@ export function TaskAssignmentPopover({
             ))}
           </select>
         </div>
+
+        {funds.length > 0 && (
+          <div className="form-group">
+            <label htmlFor="fundId">Fund</label>
+            {loadingFunds ? (
+              <div className="loading-tasks">Loading funds...</div>
+            ) : (
+              <select
+                id="fundId"
+                value={selectedFundId}
+                onChange={(e) => setSelectedFundId(e.target.value)}
+                data-testid="popover-fund-select"
+              >
+                <option value="">General Fund (Default)</option>
+                {funds.map((fund) => (
+                  <option key={fund.id} value={fund.id}>
+                    {fund.name}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+        )}
 
         {needsSupervisor && (
           <div className="form-group">

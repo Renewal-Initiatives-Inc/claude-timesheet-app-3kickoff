@@ -116,6 +116,8 @@ export function Timesheet() {
     isSchoolDay: boolean;
     supervisorPresentName?: string | null;
     mealBreakConfirmed?: boolean | null;
+    notes?: string | null;
+    fundId?: number | null;
   }) => {
     await addEntry(entry as CreateEntryRequest);
   };
@@ -130,6 +132,8 @@ export function Timesheet() {
       isSchoolDay: boolean;
       supervisorPresentName?: string | null;
       mealBreakConfirmed?: boolean | null;
+      notes?: string | null;
+      fundId?: number | null;
     }>
   ) => {
     await addMultipleEntries(entries as CreateEntryRequest[]);
