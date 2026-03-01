@@ -33,7 +33,7 @@
     "drizzle-kit": "^0.31.8",
     "drizzle-orm": "^0.45.1",
     "exceljs": "^4.4.0",
-    "express": "^4.21.2",
+    "express": "^5.2.1",
     "express-rate-limit": "^8.2.1",
     "helmet": "^8.0.0",
     "jose": "^6.1.3",
