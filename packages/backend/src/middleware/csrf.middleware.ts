@@ -34,7 +34,7 @@ export function setCsrfToken(res: Response): string {
 
   res.cookie(CSRF_COOKIE_NAME, token, {
     httpOnly: false, // Must be readable by JavaScript
-    secure: process.env['NODE_ENV'] === 'production',
+    secure: process.env['DISABLE_SECURE_COOKIES'] !== 'true',
     sameSite: 'strict',
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
     path: '/',
@@ -50,8 +50,8 @@ export function setCsrfToken(res: Response): string {
  * GET, HEAD, OPTIONS are safe methods and don't require CSRF protection.
  */
 export function csrfProtection(req: Request, res: Response, next: NextFunction): void {
-  // Skip in test environment
-  if (process.env['NODE_ENV'] === 'test') {
+  // Skip only when explicitly disabled (e.g., in test harness)
+  if (process.env['DISABLE_CSRF'] === 'true') {
     return next();
   }
 
@@ -92,8 +92,8 @@ export function csrfProtection(req: Request, res: Response, next: NextFunction):
  * Use this on successful authentication.
  */
 export function csrfTokenGenerator(req: Request, res: Response, next: NextFunction): void {
-  // Skip in test environment
-  if (process.env['NODE_ENV'] === 'test') {
+  // Skip only when explicitly disabled (e.g., in test harness)
+  if (process.env['DISABLE_CSRF'] === 'true') {
     return next();
   }
 

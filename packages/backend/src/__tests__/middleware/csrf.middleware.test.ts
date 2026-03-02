@@ -11,17 +11,23 @@ import {
 } from '../../middleware/csrf.middleware.js';
 
 describe('CSRF Middleware', () => {
-  // Store original NODE_ENV
+  // Store original env vars
   const originalEnv = process.env.NODE_ENV;
+  const originalDisableCsrf = process.env.DISABLE_CSRF;
+  const originalDisableSecure = process.env.DISABLE_SECURE_COOKIES;
 
   beforeEach(() => {
-    // Reset to development for testing
     process.env.NODE_ENV = 'development';
+    delete process.env.DISABLE_CSRF;
+    delete process.env.DISABLE_SECURE_COOKIES;
   });
 
   afterEach(() => {
-    // Restore original NODE_ENV
     process.env.NODE_ENV = originalEnv;
+    if (originalDisableCsrf !== undefined) process.env.DISABLE_CSRF = originalDisableCsrf;
+    else delete process.env.DISABLE_CSRF;
+    if (originalDisableSecure !== undefined) process.env.DISABLE_SECURE_COOKIES = originalDisableSecure;
+    else delete process.env.DISABLE_SECURE_COOKIES;
   });
 
   describe('csrfTokenEndpoint', () => {
@@ -42,9 +48,7 @@ describe('CSRF Middleware', () => {
       expect(cookies[0]).toContain('_csrf=');
     });
 
-    it('should set secure cookie in production', async () => {
-      process.env.NODE_ENV = 'production';
-
+    it('should set secure cookie by default', async () => {
       const app = express();
       app.use(cookieParser());
       app.get('/csrf-token', csrfTokenEndpoint);
@@ -53,6 +57,19 @@ describe('CSRF Middleware', () => {
 
       const cookies = response.headers['set-cookie'];
       expect(cookies[0]).toContain('Secure');
+    });
+
+    it('should allow non-secure cookie when DISABLE_SECURE_COOKIES is set', async () => {
+      process.env.DISABLE_SECURE_COOKIES = 'true';
+
+      const app = express();
+      app.use(cookieParser());
+      app.get('/csrf-token', csrfTokenEndpoint);
+
+      const response = await request(app).get('/csrf-token');
+
+      const cookies = response.headers['set-cookie'];
+      expect(cookies[0]).not.toContain('Secure');
     });
   });
 
@@ -191,15 +208,15 @@ describe('CSRF Middleware', () => {
       expect(response.status).toBe(200);
     });
 
-    it('should skip CSRF protection in test environment', async () => {
-      process.env.NODE_ENV = 'test';
+    it('should skip CSRF protection when DISABLE_CSRF is set', async () => {
+      process.env.DISABLE_CSRF = 'true';
 
       const app = express();
       app.use(cookieParser());
       app.use(csrfProtection);
       app.post('/test', (req, res) => res.json({ success: true }));
 
-      // No CSRF token provided, but should still succeed in test env
+      // No CSRF token provided, but should still succeed when disabled
       const response = await request(app).post('/test');
 
       expect(response.status).toBe(200);
@@ -237,8 +254,8 @@ describe('CSRF Middleware', () => {
       expect(cookies).toBeUndefined();
     });
 
-    it('should skip in test environment', async () => {
-      process.env.NODE_ENV = 'test';
+    it('should skip when DISABLE_CSRF is set', async () => {
+      process.env.DISABLE_CSRF = 'true';
 
       const app = express();
       app.use(cookieParser());
@@ -248,7 +265,7 @@ describe('CSRF Middleware', () => {
       const response = await request(app).get('/test');
 
       expect(response.status).toBe(200);
-      // Should not set any cookies in test env
+      // Should not set any cookies when disabled
       const cookies = response.headers['set-cookie'];
       expect(cookies).toBeUndefined();
     });

@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction, ErrorRequestHandler } from 'express';
 import { ZodError } from 'zod';
-import { sanitizeForErrorMessage } from '../utils/sanitization.js';
 
 /**
  * Known application error codes and their HTTP status codes.
@@ -140,7 +139,6 @@ export const errorHandler: ErrorRequestHandler = (
     res.status(error.statusCode).json({
       error: error.code,
       message: error.message,
-      ...(error.details && !isProduction() ? { details: error.details } : {}),
     });
     return;
   }
@@ -166,21 +164,10 @@ export const errorHandler: ErrorRequestHandler = (
     return;
   }
 
-  // Handle unknown errors
-  // In production, don't expose error details
-  if (isProduction()) {
-    res.status(500).json({
-      error: 'INTERNAL_ERROR',
-      message: 'An unexpected error occurred. Please try again later.',
-    });
-    return;
-  }
-
-  // In development, include more details for debugging
+  // Never expose internal error details to clients
   res.status(500).json({
     error: 'INTERNAL_ERROR',
-    message: sanitizeForErrorMessage(error.message),
-    stack: error.stack?.split('\n').slice(0, 5).join('\n'),
+    message: 'An unexpected error occurred. Please try again later.',
   });
 };
 
