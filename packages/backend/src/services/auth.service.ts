@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { db, schema } from '../db/index.js';
+import { decryptDob } from '../utils/encryption.js';
 
 const { employees } = schema;
 
@@ -35,7 +36,7 @@ function toPublic(employee: Employee): EmployeePublic {
     name: employee.name,
     email: employee.email,
     isSupervisor: employee.isSupervisor,
-    dateOfBirth: employee.dateOfBirth,
+    dateOfBirth: decryptDob(employee.dateOfBirth),
     status: employee.status,
     createdAt: employee.createdAt,
     zitadelId: employee.zitadelId,

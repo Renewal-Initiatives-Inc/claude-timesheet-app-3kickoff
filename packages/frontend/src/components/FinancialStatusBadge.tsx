@@ -70,7 +70,7 @@ export function FinancialStatusBadge({
           color: 'white',
           backgroundColor: color,
         }}
-        title={`Financial: ${records.length} fund(s) — ${label}`}
+        title={`Financial: ${records.length} funding source(s) — ${label}`}
       >
         {label}
       </span>
@@ -93,9 +93,9 @@ export function FinancialStatusBadge({
               color: 'white',
               backgroundColor: STATUS_COLORS[r.status] || '#6b7280',
             }}
-            title={`Fund ${r.fundId}: $${parseFloat(r.amount).toFixed(2)}`}
+            title={`Funding Source ${r.fundId}: $${parseFloat(r.amount).toFixed(2)}`}
           >
-            Fund {r.fundId}: {STATUS_LABELS[r.status] || r.status}
+            Funding Source {r.fundId}: {STATUS_LABELS[r.status] || r.status}
           </span>
         ))}
       </div>

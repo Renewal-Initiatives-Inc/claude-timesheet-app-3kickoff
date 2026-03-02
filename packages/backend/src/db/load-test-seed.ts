@@ -15,6 +15,7 @@
 
 import { db, schema } from './index.js';
 import { eq } from 'drizzle-orm';
+import { encryptDob } from '../utils/encryption.js';
 
 const {
   employees,
@@ -33,16 +34,13 @@ const CONFIG = {
   entriesPerDay: { min: 1, max: 3 },
 };
 
-// Test password hash (same as seed.ts)
-const TEST_PASSWORD_HASH = '$2b$12$eXD7Gz0FwU1UynGfWCwN6..RwH.jHzEK/tPCKf6LoyPOE3LlR0uPa';
-
 // Helper functions
 function dobForAge(age: number): string {
   const today = new Date();
   const year = today.getFullYear() - age;
   const month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
   const day = String(Math.floor(Math.random() * 28) + 1).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  return encryptDob(`${year}-${month}-${day}`);
 }
 
 function randomInt(min: number, max: number): number {
@@ -183,7 +181,6 @@ async function loadTestSeed() {
       email: `loadtest.employee${i + 1}@renewal.org`,
       dateOfBirth: dobForAge(age),
       isSupervisor: false,
-      passwordHash: TEST_PASSWORD_HASH,
       failedLoginAttempts: 0,
     });
   }
