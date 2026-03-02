@@ -4,15 +4,20 @@ import { getEmployeeByEmail, EmployeePublic } from '../services/auth.service.js'
 import { db } from '../db/index.js';
 import { employees } from '../db/schema/index.js';
 import { eq } from 'drizzle-orm';
+import { decryptDob } from '../utils/encryption.js';
 
 // Zitadel configuration
 // Trim to remove any accidental newlines from environment variables (common with Vercel)
 const ZITADEL_ISSUER_RAW = process.env['ZITADEL_ISSUER'];
 const ZITADEL_ISSUER = ZITADEL_ISSUER_RAW?.trim();
+const ZITADEL_PROJECT_ID = process.env['ZITADEL_PROJECT_ID']?.trim();
 if (!ZITADEL_ISSUER) {
   console.warn('ZITADEL_ISSUER not set - auth will fail');
 } else if (ZITADEL_ISSUER !== ZITADEL_ISSUER_RAW) {
   console.warn('ZITADEL_ISSUER had whitespace trimmed (check env var for accidental newlines)');
+}
+if (!ZITADEL_PROJECT_ID) {
+  console.warn('ZITADEL_PROJECT_ID not set - JWT audience validation disabled');
 }
 
 // Create JWKS client for token verification
@@ -111,7 +116,7 @@ async function getEmployeeByZitadelId(
       id: employeeByZitadel.id,
       name: employeeByZitadel.name,
       email: employeeByZitadel.email,
-      dateOfBirth: employeeByZitadel.dateOfBirth,
+      dateOfBirth: decryptDob(employeeByZitadel.dateOfBirth),
       status: employeeByZitadel.status,
       isSupervisor: employeeByZitadel.isSupervisor,
       createdAt: employeeByZitadel.createdAt,
@@ -169,6 +174,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     // Verify JWT signature and claims against Zitadel
     const { payload } = await jwtVerify(token, JWKS, {
       issuer: ZITADEL_ISSUER,
+      audience: ZITADEL_PROJECT_ID || undefined,
     });
 
     const zitadelPayload = payload as ZitadelJWTPayload;
@@ -281,6 +287,7 @@ export async function optionalAuth(req: Request, _res: Response, next: NextFunct
   try {
     const { payload } = await jwtVerify(token, JWKS, {
       issuer: ZITADEL_ISSUER,
+      audience: ZITADEL_PROJECT_ID || undefined,
     });
 
     const zitadelPayload = payload as ZitadelJWTPayload;

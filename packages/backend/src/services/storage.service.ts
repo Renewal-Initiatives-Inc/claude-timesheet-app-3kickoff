@@ -35,10 +35,11 @@ export async function uploadDocument(
 
   try {
     const timestamp = Date.now();
-    const path = `documents/${employeeId}/${documentType}/${timestamp}-${filename}`;
+    const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 255);
+    const path = `documents/${employeeId}/${documentType}/${timestamp}-${safeName}`;
 
     const blob = await put(path, file, {
-      access: 'public', // We'll use signed URLs for actual access control
+      access: 'public', // Vercel Blob v2 limitation; addRandomSuffix makes URLs non-guessable
       addRandomSuffix: true,
       token: env.BLOB_READ_WRITE_TOKEN,
     });

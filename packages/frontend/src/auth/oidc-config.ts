@@ -13,8 +13,10 @@ export const oidcConfig: UserManagerSettings = {
   redirect_uri: `${APP_URL}/callback`,
   post_logout_redirect_uri: APP_URL,
   response_type: 'code',
-  scope: `openid profile email urn:zitadel:iam:org:project:roles urn:zitadel:iam:org:project:id:${ZITADEL_PROJECT_ID}:aud`,
+  scope: `openid profile email urn:zitadel:iam:org:projects:roles urn:zitadel:iam:org:project:id:${ZITADEL_PROJECT_ID}:aud`,
   userStore: new WebStorageStateStore({ store: window.localStorage }),
+  // PKCE with S256 is enabled by default; explicitly confirm it's not disabled
+  disablePKCE: false,
   // Disable automatic silent renew - it causes issues before first login
   automaticSilentRenew: false,
 };

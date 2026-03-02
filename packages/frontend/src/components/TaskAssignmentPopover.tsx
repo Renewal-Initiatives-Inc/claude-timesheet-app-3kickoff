@@ -324,7 +324,7 @@ export function TaskAssignmentPopover({
 
         {funds.length > 0 && (
           <div className="form-group">
-            <label htmlFor="fundId">Fund</label>
+            <label htmlFor="fundId">Funding Source</label>
             {loadingFunds ? (
               <div className="loading-tasks">Loading funds...</div>
             ) : (

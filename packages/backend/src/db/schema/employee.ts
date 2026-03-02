@@ -15,11 +15,10 @@ export const employees = pgTable('employees', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
   email: varchar('email', { length: 255 }).notNull().unique(),
-  dateOfBirth: date('date_of_birth').notNull(),
+  dateOfBirth: text('date_of_birth').notNull(), // AES-256-GCM encrypted
   isSupervisor: boolean('is_supervisor').notNull().default(false),
   status: employeeStatusEnum('status').notNull().default('active'),
-  // Auth fields (for Phase 3)
-  passwordHash: varchar('password_hash', { length: 255 }),
+  // Legacy auth fields (password_hash dropped — auth handled by Zitadel SSO)
   requiresPasswordChange: boolean('requires_password_change').notNull().default(false),
   failedLoginAttempts: integer('failed_login_attempts').default(0),
   lockedUntil: timestamp('locked_until', { withTimezone: true }),

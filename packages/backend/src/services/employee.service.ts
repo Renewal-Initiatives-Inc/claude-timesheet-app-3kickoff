@@ -1,6 +1,7 @@
 import { eq, and, like, or, ne } from 'drizzle-orm';
 import { db, schema } from '../db/index.js';
 import { calculateAge, getAgeBand, type AgeBand } from '../utils/age.js';
+import { decryptDob } from '../utils/encryption.js';
 import type { RequiredDocuments, EmployeePublic, EmployeeWithDocStatus } from '@renewal/types';
 
 const { employees, employeeDocuments } = schema;
@@ -36,7 +37,7 @@ function toPublic(employee: Employee): EmployeePublic {
     name: employee.name,
     email: employee.email,
     isSupervisor: employee.isSupervisor,
-    dateOfBirth: employee.dateOfBirth,
+    dateOfBirth: decryptDob(employee.dateOfBirth),
     status: employee.status,
     createdAt: employee.createdAt.toISOString(),
   };
@@ -148,7 +149,8 @@ export async function listEmployees(options: {
   const results: EmployeeWithDocStatus[] = [];
 
   for (const employee of employeeList) {
-    const age = calculateAge(employee.dateOfBirth, new Date().toISOString().split('T')[0]!);
+    const dob = decryptDob(employee.dateOfBirth);
+    const age = calculateAge(dob, new Date().toISOString().split('T')[0]!);
     const ageBand = age >= MIN_EMPLOYMENT_AGE ? getAgeBand(age) : '18+'; // Fallback for edge cases
     const required =
       age >= MIN_EMPLOYMENT_AGE ? getRequiredDocuments(age) : getRequiredDocuments(18);
@@ -214,7 +216,8 @@ export async function getEmployeeById(employeeId: string): Promise<EmployeeWithD
     return null;
   }
 
-  const age = calculateAge(employee.dateOfBirth, new Date().toISOString().split('T')[0]!);
+  const dob = decryptDob(employee.dateOfBirth);
+  const age = calculateAge(dob, new Date().toISOString().split('T')[0]!);
   const ageBand = age >= MIN_EMPLOYMENT_AGE ? getAgeBand(age) : '18+';
   const required = age >= MIN_EMPLOYMENT_AGE ? getRequiredDocuments(age) : getRequiredDocuments(18);
 

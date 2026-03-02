@@ -6,28 +6,20 @@
  *
  * Run with: npm run db:seed
  *
- * Test credentials after seeding:
- *   - Supervisor: sarah.supervisor@renewal.org / TestPass123!
- *   - All other employees: [email] / TestPass123!
+ * Auth is handled by Zitadel SSO — no local credentials.
  */
 
 import { db, schema } from './index.js';
 import { eq } from 'drizzle-orm';
+import { encryptDob } from '../utils/encryption.js';
 
 const { employees, employeeDocuments, taskCodes, taskCodeRates } = schema;
 
-// Test password for all seeded employees
-const TEST_PASSWORD = 'TestPass123!';
-// Pre-computed bcrypt hash (12 rounds) for TestPass123! - using fixed hash ensures
-// consistency across multiple seed runs for E2E testing
-const TEST_PASSWORD_HASH = '$2b$12$eXD7Gz0FwU1UynGfWCwN6..RwH.jHzEK/tPCKf6LoyPOE3LlR0uPa';
-
-// Calculate date of birth for a target age
+// Calculate date of birth for a target age, encrypted for storage
 function dobForAge(age: number): string {
   const today = new Date();
   const year = today.getFullYear() - age;
-  // Use Jan 15 for most test employees
-  return `${year}-01-15`;
+  return encryptDob(`${year}-01-15`);
 }
 
 // Calculate DOB for someone who will turn 14 in 2 weeks (for age transition testing)
@@ -37,7 +29,7 @@ function dobForUpcomingBirthday(): string {
   const year = today.getFullYear() - 14;
   const month = String(today.getMonth() + 1).padStart(2, '0');
   const day = String(today.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  return encryptDob(`${year}-${month}-${day}`);
 }
 
 async function seed() {
@@ -59,16 +51,12 @@ async function seed() {
   // Create employees across all age bands
   console.log('Creating test employees...');
 
-  // Use pre-computed password hash for consistency across seed runs
-  const passwordHash = TEST_PASSWORD_HASH;
-
   const testEmployees = [
     {
       name: 'Sarah Supervisor',
       email: 'sarah.supervisor@renewal.org',
       dateOfBirth: dobForAge(35),
       isSupervisor: true,
-      passwordHash,
       failedLoginAttempts: 0,
     },
     {
@@ -76,7 +64,6 @@ async function seed() {
       email: 'alex.age12@renewal.org',
       dateOfBirth: dobForAge(12),
       isSupervisor: false,
-      passwordHash,
       failedLoginAttempts: 0,
     },
     {
@@ -84,7 +71,6 @@ async function seed() {
       email: 'blake.age13@renewal.org',
       dateOfBirth: dobForAge(13),
       isSupervisor: false,
-      passwordHash,
       failedLoginAttempts: 0,
     },
     {
@@ -92,7 +78,6 @@ async function seed() {
       email: 'casey.age14@renewal.org',
       dateOfBirth: dobForAge(14),
       isSupervisor: false,
-      passwordHash,
       failedLoginAttempts: 0,
     },
     {
@@ -100,7 +85,6 @@ async function seed() {
       email: 'dana.age15@renewal.org',
       dateOfBirth: dobForAge(15),
       isSupervisor: false,
-      passwordHash,
       failedLoginAttempts: 0,
     },
     {
@@ -108,7 +92,6 @@ async function seed() {
       email: 'ellis.age16@renewal.org',
       dateOfBirth: dobForAge(16),
       isSupervisor: false,
-      passwordHash,
       failedLoginAttempts: 0,
     },
     {
@@ -116,7 +99,6 @@ async function seed() {
       email: 'finley.age17@renewal.org',
       dateOfBirth: dobForAge(17),
       isSupervisor: false,
-      passwordHash,
       failedLoginAttempts: 0,
     },
     {
@@ -124,7 +106,6 @@ async function seed() {
       email: 'gray.adult@renewal.org',
       dateOfBirth: dobForAge(22),
       isSupervisor: false,
-      passwordHash,
       failedLoginAttempts: 0,
     },
     {
@@ -132,7 +113,6 @@ async function seed() {
       email: 'harper.birthdaysoon@renewal.org',
       dateOfBirth: dobForUpcomingBirthday(),
       isSupervisor: false,
-      passwordHash,
       failedLoginAttempts: 0,
     },
   ];
@@ -326,9 +306,7 @@ async function seed() {
   console.log(`- ${insertedDocs.length} documents (parental consent for minors)`);
   console.log(`- ${insertedTaskCodes.length} task codes`);
   console.log(`- ${insertedRates.length} task code rates`);
-  console.log('\nTest credentials:');
-  console.log(`- Email: sarah.supervisor@renewal.org (or any employee email)`);
-  console.log(`- Password: ${TEST_PASSWORD}`);
+  console.log('\nAuth: Zitadel SSO (no local credentials)');
 
   process.exit(0);
 }
